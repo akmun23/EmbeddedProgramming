@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 
+#DEFINE RED = 0x02
+#DEFINE BLUE = 0x04
+#DEFINE GREEN = 0x08
 
 int main(void)
 {
