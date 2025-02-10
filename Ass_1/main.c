@@ -3,35 +3,52 @@
 #include "tm4c123gh6pm.h"
 #include "systick.h"
 
-void incLED(int direction);
+// Variable for RGB
+#define RED   0x02
+#define BLUE  0x04
+#define GREEN 0x08
+
+#define OFF         0x00
+#define CAYN        (BLUE | GREEN)
+#define YELLOW      (RED  | GREEN)
+#define MAGENTA     (RED  | BLUE)
+#define WHITE       (RED  | BLUE | GREEN)
+
+// Defines value for tick
+#define TIM_2_SEC  400
+#define TIM_200_MS  40
+#define TIM_100_MS  20
+
+// Variable for all colors
+const int RGB_Colors[8] = {
+    OFF,
+    GREEN,
+    BLUE,
+    CAYN,
+    RED,
+    YELLOW,
+    MAGENTA,
+    WHITE
+};
 
 extern int ticks;
 volatile int counter = 0;
 
-// Variable for RGB
-const int RED = 0x02;
-const int BLUE = 0x04;
-const int GREEN = 0x08;
-
-// Variable for all colors
-const int RGB_Colors[8] = {
-     0x00,           // OFF
-     GREEN,          // GREEN
-     BLUE,           // BLUE
-     BLUE|GREEN,     // CAYN
-     RED,            // RED
-     RED|GREEN,      // YELLOW
-     RED|BLUE,       // MAGENTA
-     RED|BLUE|GREEN, // WHITE
-};
+void incLED(int direction);
+/*
+ * Input: Direction
+ * Output: None
+ * Function: Increments the value of the LED depending on the direction from the input
+ */
 
 int main(void){
 
    // Initialize sysTick interrupt
    init_systick();
 
+   // Start variables
    int dummy;
-   volatile int change = 0;
+   volatile int hasChanged = 0;
 
    // Enable the GPIO port that is used for the on-board LEDs and switches
    SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOF;
@@ -62,13 +79,13 @@ int main(void){
            ticks = 0;
 
            // Waits for button to be unpressed or ticks to be above 400
-           while((~GPIO_PORTF_DATA_R & 0x10) && (ticks < 400));
+           while((~GPIO_PORTF_DATA_R & 0x10) && (ticks < TIM_2_SEC));
 
            // If the time is above 2s
-           if(ticks >= 400){
+           if(ticks >= TIM_2_SEC){
                // Starts autoMode even though button is still pressed
                while(~GPIO_PORTF_DATA_R & 0x10){
-                   if (ticks > 40){
+                   if (ticks > TIM_200_MS){
                       incLED(direction);
                       ticks = 0;
                    }
@@ -76,7 +93,7 @@ int main(void){
 
                // Continues autoMode when button is unpressed
                while(GPIO_PORTF_DATA_R & 0x10){
-                   if (ticks > 40){
+                   if (ticks > TIM_200_MS){
                       incLED(direction);
                       ticks = 0;
                    }
@@ -88,11 +105,11 @@ int main(void){
                ticks = 0;
 
                // Waits to see if button is pressed again
-               while(ticks < 20){
+               while(ticks < TIM_100_MS){
                    // Changes direction of the incrementation
                    if(~GPIO_PORTF_DATA_R & 0x10){
                        direction *= -1;
-                       change = 1;
+                       hasChanged = 1;
                        break;
                    }
                }
@@ -100,10 +117,10 @@ int main(void){
                while(~GPIO_PORTF_DATA_R & 0x10);
 
               // If no change has occured increment the LED
-              if(!change){
+              if(!hasChanged){
                   incLED(direction);
               }
-              change = 0;
+              hasChanged = 0;
            }
        }
    }
@@ -127,5 +144,7 @@ void incLED(int direction){
 
     // Sets color
     GPIO_PORTF_DATA_R |= RGB_Colors[counter];
+
+    return;
 }
 
