@@ -8,10 +8,12 @@ void incLED(int direction);
 extern int ticks;
 volatile int counter = 0;
 
+// Variable for RGB
 const int RED = 0x02;
 const int BLUE = 0x04;
 const int GREEN = 0x08;
 
+// Variable for all colors
 const int RGB_Colors[8] = {
      0x00,           // OFF
      GREEN,          // GREEN
@@ -25,10 +27,11 @@ const int RGB_Colors[8] = {
 
 int main(void){
 
+   // Initialize sysTick interrupt
    init_systick();
 
    int dummy;
-   int change = 0;
+   volatile int change = 0;
 
    // Enable the GPIO port that is used for the on-board LEDs and switches
    SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOF;
@@ -52,15 +55,18 @@ int main(void){
 
    // Loop forever
    while(1){
+       // Checks for button press
        if(~GPIO_PORTF_DATA_R & 0x10){
 
            // Sets counter to 0
            ticks = 0;
 
-           // Waits for button to be unpressed
+           // Waits for button to be unpressed or ticks to be above 400
            while((~GPIO_PORTF_DATA_R & 0x10) && (ticks < 400));
 
+           // If the time is above 2s
            if(ticks >= 400){
+               // Starts autoMode even though button is still pressed
                while(~GPIO_PORTF_DATA_R & 0x10){
                    if (ticks > 40){
                       incLED(direction);
@@ -68,18 +74,22 @@ int main(void){
                    }
                }
 
+               // Continues autoMode when button is unpressed
                while(GPIO_PORTF_DATA_R & 0x10){
                    if (ticks > 40){
                       incLED(direction);
                       ticks = 0;
                    }
                }
+
+           // Increments LED as normal
            } else {
                // Sets counter to 0
                ticks = 0;
 
                // Waits to see if button is pressed again
                while(ticks < 20){
+                   // Changes direction of the incrementation
                    if(~GPIO_PORTF_DATA_R & 0x10){
                        direction *= -1;
                        change = 1;
@@ -89,6 +99,7 @@ int main(void){
                // Waits for button to be unpressed
                while(~GPIO_PORTF_DATA_R & 0x10);
 
+              // If no change has occured increment the LED
               if(!change){
                   incLED(direction);
               }
