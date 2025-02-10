@@ -3,16 +3,32 @@
 #include "tm4c123gh6pm.h"
 #include "systick.h"
 
-extern int ticks;
+void incLED(int direction);
 
-int main(void)
-{
+extern int ticks;
+volatile int counter = 0;
+
+const int RED = 0x02;
+const int BLUE = 0x04;
+const int GREEN = 0x08;
+
+const int RGB_Colors[8] = {
+     0x00,           // OFF
+     GREEN,          // GREEN
+     BLUE,           // BLUE
+     BLUE|GREEN,     // CAYN
+     RED,            // RED
+     RED|GREEN,      // YELLOW
+     RED|BLUE,       // MAGENTA
+     RED|BLUE|GREEN, // WHITE
+};
+
+int main(void){
+
    init_systick();
 
    int dummy;
-   int RED = 0x02;
-   int BLUE = 0x04;
-   int GREEN = 0x08;
+   int change = 0;
 
    // Enable the GPIO port that is used for the on-board LEDs and switches
    SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOF;
@@ -32,47 +48,73 @@ int main(void)
    // Enable internal pull-up (PF4)
    GPIO_PORTF_PUR_R = 0x10;
 
-   // Initialize the colors for the LED
-   const int RGB_Colors[8] = {
-        0x00,           // OFF
-        GREEN,          // GREEN
-        BLUE,           // BLUE
-        BLUE|GREEN,     // CAYN
-        RED,            // RED
-        RED|GREEN,      // YELLOW
-        RED|BLUE,       // MAGENTA
-        RED|BLUE|GREEN, // WHITE
-   };
-
-   volatile int counter = 0;
    volatile int direction = 1;
 
    // Loop forever
    while(1){
        if(~GPIO_PORTF_DATA_R & 0x10){
-           GPIO_PORTF_DATA_R &= ~RGB_Colors[counter];
 
-           counter += direction;
-
-           if(counter == 8){
-               counter = 0;
-           } else if(counter == -1){
-               counter = 7;
-           }
-
-           GPIO_PORTF_DATA_R |= RGB_Colors[counter];
-           while(~GPIO_PORTF_DATA_R & 0x10);
+           // Sets counter to 0
            ticks = 0;
 
-           while(ticks < 50){
-               if(~GPIO_PORTF_DATA_R & 0x10){
-                   direction *= -1;
-                   break;
+           // Waits for button to be unpressed
+           while((~GPIO_PORTF_DATA_R & 0x10) && (ticks < 400));
+
+           if(ticks >= 400){
+               while(~GPIO_PORTF_DATA_R & 0x10){
+                   if (ticks > 40){
+                      incLED(direction);
+                      ticks = 0;
+                   }
                }
+
+               while(GPIO_PORTF_DATA_R & 0x10){
+                   if (ticks > 40){
+                      incLED(direction);
+                      ticks = 0;
+                   }
+               }
+           } else {
+               // Sets counter to 0
+               ticks = 0;
+
+               // Waits to see if button is pressed again
+               while(ticks < 20){
+                   if(~GPIO_PORTF_DATA_R & 0x10){
+                       direction *= -1;
+                       change = 1;
+                       break;
+                   }
+               }
+               // Waits for button to be unpressed
+               while(~GPIO_PORTF_DATA_R & 0x10);
+
+              if(!change){
+                  incLED(direction);
+              }
+              change = 0;
            }
-           while(~GPIO_PORTF_DATA_R & 0x10);
        }
    }
 
     return 0;
 }
+
+void incLED(int direction){
+    // Turns off color
+    GPIO_PORTF_DATA_R &= ~RGB_Colors[counter];
+
+    // Increments counter
+    counter += direction;
+
+    // Checks if edge numbers
+    if(counter == 8){
+        counter = 0;
+    } else if(counter == -1){
+        counter = 7;
+    }
+
+    // Sets color
+    GPIO_PORTF_DATA_R |= RGB_Colors[counter];
+}
+
