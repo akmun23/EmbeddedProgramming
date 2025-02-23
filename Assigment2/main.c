@@ -13,8 +13,7 @@
 #define TIM_1_SEC  200
 #define TIM_100_MSEC  20
 
-
-
+// States of button
 typedef enum button_State{
     BS_IDLE,
     BS_FIRST_PUSH,
@@ -22,7 +21,7 @@ typedef enum button_State{
     BS_SECOND_PUSH,
     BS_LONG_PUSH
 };
-
+// States of traffic light
 typedef enum trafficLight{
     normalMode,
     norwegian,
@@ -30,46 +29,40 @@ typedef enum trafficLight{
 };
 enum trafficLight traffic_Light = normalMode;
 
-
-typedef enum lightState{
+// States of lights during normal mode
+typedef enum normalModeStates{
     red,
     red_and_yellow,
     green,
     yellow,
 };
-enum lightState LightController = red;
+enum normalModeStates normalModeLightController = red;
+
+
 
 /*
- * Input:
- * Output:
- * Function:
+ * Input: none
+ * Output: none
+ * Function: changes light of traffic light depending on state
  */
 void switchLightState();
 
 
 /*
- * Input:
- * Output:
- * Function:
+ * Input: none
+ * Output: TRUE or FALSE
+ * Function: outputs TRUE if button is pressed
  */
 
-
 int button_pushed();
+
 /*
- * Input:
- * Output:
- * Function:
+ * Input: int
+ * Output: none
+ * Function: detects type of click and changes current timer to match with current operation
  */
 void select_button(int* currenTimer);
 
-
-
-/*
- * Input:
- * Output:
- * Function:
- */
-void buttonClick();
 
 extern int ticks;
 
@@ -123,25 +116,25 @@ void switchLightState(){
 
     switch (traffic_Light){
     case normalMode:
-        switch(LightController){
+        switch(normalModeLightController){
         case red:
             GPIO_PORTF_DATA_R &= ~YELLOW;
-            LightController = red_and_yellow;
+            normalModeLightController = red_and_yellow;
             break;
         case red_and_yellow:
             GPIO_PORTF_DATA_R |= (RED+YELLOW);
             GPIO_PORTF_DATA_R &= ~GREEN;
-            LightController = green;
+            normalModeLightController = green;
             break;
         case green:
             GPIO_PORTF_DATA_R |= GREEN;
             GPIO_PORTF_DATA_R &= ~YELLOW;
-            LightController = yellow;
+            normalModeLightController = yellow;
             break;
         case yellow:
             GPIO_PORTF_DATA_R |= YELLOW;
             GPIO_PORTF_DATA_R &= ~RED;
-            LightController = red;
+            normalModeLightController = red;
             break;
         }
         break;
