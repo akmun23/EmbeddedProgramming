@@ -63,30 +63,45 @@ int button_pushed();
  */
 void select_button(int* currenTimer);
 
+/*
+ * Input: none
+ * Output: none
+ * Function: initializes GPIO ports
+ */
 void init_gpio(void);
 
+// variable for systick timer
 extern int ticks;
 
 int main(void){
 
    // Initialize sysTick interrupt
    init_systick();
+
+   // Initialize GPIO ports
    init_gpio();
 
-
-   GPIO_PORTF_DATA_R |= (YELLOW+GREEN);
-   // Loop forever
+   // sets current timer up for normal operation
    int currentTimer = TIM_2_SEC;
+
+   // initializes alivetimer to match current timer
    int aliveTimer = currentTimer;
+   // Loop forever
    while(1){
 
+      // makes program below execute every 5 ms
       while( !ticks );
+      // decrements ticks
       ticks--;
 
+      // alive timer times out go into if statement
       if(! --aliveTimer){
+          // reset alive timer
           aliveTimer = currentTimer;
+          // toggles leds depending on state of traffic light
           switchLightState();
       }
+      // checks for button state
       select_button(&currentTimer);
 
 
@@ -95,17 +110,17 @@ int main(void){
 
 void switchLightState(){
 
-    switch (traffic_Light){
+    switch (traffic_Light){ // traffic light state
     case normalMode:
-        switch(normalModeLightController){
+        switch(normalModeLightController){ // Normal mode state
         case red:
             GPIO_PORTF_DATA_R &= ~YELLOW;
             normalModeLightController = red_and_yellow;
             break;
         case red_and_yellow:
-            GPIO_PORTF_DATA_R |= (RED+YELLOW);
-            GPIO_PORTF_DATA_R &= ~GREEN;
-            normalModeLightController = green;
+            GPIO_PORTF_DATA_R |= (RED+YELLOW);  // turns off red and yellow
+            GPIO_PORTF_DATA_R &= ~GREEN;        // turns on green
+            normalModeLightController = green;  // changes state of normal mode
             break;
         case green:
             GPIO_PORTF_DATA_R |= GREEN;
@@ -121,7 +136,7 @@ void switchLightState(){
         break;
     case norwegian:
         GPIO_PORTF_DATA_R |= (GREEN+RED);
-        GPIO_PORTF_DATA_R ^= YELLOW;
+        GPIO_PORTF_DATA_R ^= YELLOW;        // Toggles yellow on and off
         break;
     case emergency:
         GPIO_PORTF_DATA_R |= (GREEN+YELLOW);
@@ -236,4 +251,8 @@ void init_gpio(void){
 
     // Enable internal pull-up (PF4)
     GPIO_PORTF_PUR_R = 0x1E;
+
+    // turns off leds except red on emp board
+    GPIO_PORTF_DATA_R |= (YELLOW+GREEN);
+
 }
