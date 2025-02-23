@@ -15,11 +15,25 @@ typedef enum lightState{
     red,
     red_and_yellow,
     green,
-    yellow
+    yellow,
+    Norwegian_Night
 };
-enum lightState normalModeState = red;
+enum lightState trafficLight = Norwegian_Night;
 
+/*
+ * Input:
+ * Output:
+ * Function:
+ */
 void switchLightState();
+
+
+/*
+ * Input:
+ * Output:
+ * Function:
+ */
+void buttonClick();
 
 
 extern int ticks;
@@ -53,17 +67,14 @@ int main(void){
    // Enable internal pull-up (PF4)
    GPIO_PORTF_PUR_R = 0x1E;
 
-   volatile int direction = 1;
-   GPIO_PORTF_DATA_R |= ~GREEN;
-   GPIO_PORTF_DATA_R |= RED;
-   GPIO_PORTF_DATA_R |= YELLOW;
+   GPIO_PORTF_DATA_R |= (YELLOW+GREEN);
    // Loop forever
 
    while(1){
 
 
       while(ticks <= TIM_2_SEC);
-      ticks = 0;
+      ticks -= TIM_2_SEC;
       switchLightState();
 
    }
@@ -71,26 +82,35 @@ int main(void){
 
 void switchLightState(){
 
-    switch(normalModeState){
+    switch(trafficLight){
     case red:
-        GPIO_PORTF_DATA_R |= RED;
-        GPIO_PORTF_DATA_R &= ~(RED+YELLOW);
-        normalModeState = red_and_yellow;
+        GPIO_PORTF_DATA_R &= ~YELLOW;
+        trafficLight = red_and_yellow;
         break;
     case red_and_yellow:
         GPIO_PORTF_DATA_R |= (RED+YELLOW);
         GPIO_PORTF_DATA_R &= ~GREEN;
-        normalModeState = green;
+        trafficLight = green;
         break;
     case green:
         GPIO_PORTF_DATA_R |= GREEN;
         GPIO_PORTF_DATA_R &= ~YELLOW;
-        normalModeState = yellow;
+        trafficLight = yellow;
         break;
     case yellow:
         GPIO_PORTF_DATA_R |= YELLOW;
         GPIO_PORTF_DATA_R &= ~RED;
-        normalModeState = red;
+        trafficLight = red;
+        break;
+    case Norwegian_Night:
+        GPIO_PORTF_DATA_R |= (GREEN+RED);
+        GPIO_PORTF_DATA_R ^= YELLOW;
         break;
     }
 }
+
+void buttonClick(){
+
+
+}
+
