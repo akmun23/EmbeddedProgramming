@@ -10,6 +10,8 @@
 
 // Defines value for tick
 #define TIM_2_SEC  400
+#define TIM_1_SEC  200
+
 
 typedef enum button_State{
     BS_IDLE,
@@ -42,7 +44,7 @@ enum lightState LightController = red;
  */
 void switchLightState();
 INT8U button_pushed();
-void select_button(void);
+void select_button(int* currenTimer);
 
 
 
@@ -89,17 +91,19 @@ int main(void){
 
    GPIO_PORTF_DATA_R |= (YELLOW+GREEN);
    // Loop forever
-
+   int currentTimer = TIM_2_SEC;
+   int aliveTimer = currentTimer;
    while(1){
 
+      while( !ticks );
+      ticks--;
 
-      while(ticks <= TIM_2_SEC){
-          if(~GPIO_PORTF_DATA_R & 0x10){
-              select_button();
-          }
+      if(! --aliveTimer){
+          aliveTimer = currenTimer;
+          switchLightState();
       }
-      ticks -= TIM_2_SEC;
-      switchLightState();
+      select_button(&currenTimer);
+
 
    }
 }
@@ -130,6 +134,10 @@ void switchLightState(){
         GPIO_PORTF_DATA_R |= (GREEN+RED);
         GPIO_PORTF_DATA_R ^= YELLOW;
         break;
+    case emergency:
+        GPIO_PORTF_DATA_R |= (GREEN+YELLOW);
+        GPIO_PORTF_DATA_R &= ~RED;
+        break;
     }
 }
 
@@ -140,7 +148,7 @@ INT8U button_pushed()
   return( !(GPIO_PORTF_DATA_R & 0x10) );  // SW at PF4
 }
 
-void select_button(void)
+void select_button(int* currentTimer)
 /*****************************************************************************
 *   Input    :
 *   Output   :
@@ -164,6 +172,8 @@ void select_button(void)
         {
             button_state = BS_LONG_PUSH;
             traffic_Light = normalMode;
+            currentTimer* = TIM_2_SEC;
+
         }
         else
         {
@@ -179,6 +189,7 @@ void select_button(void)
         {
             button_state = BS_IDLE;
             traffic_Light = norwegian;
+            currentTimer* = TIM_1_SEC;
         }
         else
         {
@@ -194,6 +205,7 @@ void select_button(void)
         {
             button_state = BS_LONG_PUSH;
             traffic_Light = normalMode;
+            currentTimer* = TIM_2_SEC;
         }
         else
         {
