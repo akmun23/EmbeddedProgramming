@@ -11,6 +11,8 @@
 // Defines value for tick
 #define TIM_2_SEC  400
 #define TIM_1_SEC  200
+#define TIM_100_MSEC  20
+
 
 
 typedef enum button_State{
@@ -26,14 +28,17 @@ typedef enum trafficLight{
     norwegian,
     emergency
 };
-enum lightState traffic_Light = normalMode;
+enum trafficLight traffic_Light = normalMode;
+
 
 typedef enum lightState{
     red,
     red_and_yellow,
     green,
     yellow,
-    norwegian_Night
+    norwegian_Night,
+    emergency_Light
+
 };
 enum lightState LightController = red;
 
@@ -43,7 +48,21 @@ enum lightState LightController = red;
  * Function:
  */
 void switchLightState();
-INT8U button_pushed();
+
+
+/*
+ * Input:
+ * Output:
+ * Function:
+ */
+
+
+int button_pushed();
+/*
+ * Input:
+ * Output:
+ * Function:
+ */
 void select_button(int* currenTimer);
 
 
@@ -55,12 +74,7 @@ void select_button(int* currenTimer);
  */
 void buttonClick();
 
-
 extern int ticks;
-extern int click_Timer;
-
-
-
 
 int main(void){
 
@@ -99,10 +113,10 @@ int main(void){
       ticks--;
 
       if(! --aliveTimer){
-          aliveTimer = currenTimer;
+          aliveTimer = currentTimer;
           switchLightState();
       }
-      select_button(&currenTimer);
+      select_button(&currentTimer);
 
 
    }
@@ -134,7 +148,7 @@ void switchLightState(){
         GPIO_PORTF_DATA_R |= (GREEN+RED);
         GPIO_PORTF_DATA_R ^= YELLOW;
         break;
-    case emergency:
+    case emergency_Light:
         GPIO_PORTF_DATA_R |= (GREEN+YELLOW);
         GPIO_PORTF_DATA_R &= ~RED;
         break;
@@ -143,7 +157,7 @@ void switchLightState(){
 
 
 
-INT8U button_pushed()
+int button_pushed()
 {
   return( !(GPIO_PORTF_DATA_R & 0x10) );  // SW at PF4
 }
@@ -155,8 +169,8 @@ void select_button(int* currentTimer)
 *   Function :
 ******************************************************************************/
 {
-  static INT8U  button_state = BS_IDLE;
-  static INT16U button_timer;
+  static int  button_state = BS_IDLE;
+  static int button_timer;
 
   switch( button_state )
   {
@@ -172,7 +186,7 @@ void select_button(int* currentTimer)
         {
             button_state = BS_LONG_PUSH;
             traffic_Light = normalMode;
-            currentTimer* = TIM_2_SEC;
+            *currentTimer = TIM_2_SEC;
 
         }
         else
@@ -189,7 +203,7 @@ void select_button(int* currentTimer)
         {
             button_state = BS_IDLE;
             traffic_Light = norwegian;
-            currentTimer* = TIM_1_SEC;
+            *currentTimer = TIM_1_SEC;
         }
         else
         {
@@ -205,7 +219,7 @@ void select_button(int* currentTimer)
         {
             button_state = BS_LONG_PUSH;
             traffic_Light = normalMode;
-            currentTimer* = TIM_2_SEC;
+            *currentTimer = TIM_2_SEC;
         }
         else
         {
@@ -223,6 +237,5 @@ void select_button(int* currentTimer)
     default:
         break;
   }
-  return( button_event );
 }
 

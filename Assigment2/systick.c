@@ -12,7 +12,6 @@
 #define SYSTICK_PRIORITY    0x7E
 
 volatile int ticks = 0;
-volatile int click_Timer = 0;
 
 
 void SysTick_Handler(void)
@@ -23,7 +22,6 @@ void SysTick_Handler(void)
   // Hardware clears systick int reguest
 
   ticks++;
-  click_Timer++:
 }
 
 
