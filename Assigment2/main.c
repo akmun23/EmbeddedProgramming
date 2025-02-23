@@ -36,9 +36,6 @@ typedef enum lightState{
     red_and_yellow,
     green,
     yellow,
-    norwegian_Night,
-    emergency_Light
-
 };
 enum lightState LightController = red;
 
@@ -124,31 +121,35 @@ int main(void){
 
 void switchLightState(){
 
-    switch(LightController){
-    case red:
-        GPIO_PORTF_DATA_R &= ~YELLOW;
-        LightController = red_and_yellow;
+    switch (traffic_Light){
+    case normalMode:
+        switch(LightController){
+        case red:
+            GPIO_PORTF_DATA_R &= ~YELLOW;
+            LightController = red_and_yellow;
+            break;
+        case red_and_yellow:
+            GPIO_PORTF_DATA_R |= (RED+YELLOW);
+            GPIO_PORTF_DATA_R &= ~GREEN;
+            LightController = green;
+            break;
+        case green:
+            GPIO_PORTF_DATA_R |= GREEN;
+            GPIO_PORTF_DATA_R &= ~YELLOW;
+            LightController = yellow;
+            break;
+        case yellow:
+            GPIO_PORTF_DATA_R |= YELLOW;
+            GPIO_PORTF_DATA_R &= ~RED;
+            LightController = red;
+            break;
+        }
         break;
-    case red_and_yellow:
-        GPIO_PORTF_DATA_R |= (RED+YELLOW);
-        GPIO_PORTF_DATA_R &= ~GREEN;
-        LightController = green;
-        break;
-    case green:
-        GPIO_PORTF_DATA_R |= GREEN;
-        GPIO_PORTF_DATA_R &= ~YELLOW;
-        LightController = yellow;
-        break;
-    case yellow:
-        GPIO_PORTF_DATA_R |= YELLOW;
-        GPIO_PORTF_DATA_R &= ~RED;
-        LightController = red;
-        break;
-    case norwegian_Night:
+    case norwegian:
         GPIO_PORTF_DATA_R |= (GREEN+RED);
         GPIO_PORTF_DATA_R ^= YELLOW;
         break;
-    case emergency_Light:
+    case emergency:
         GPIO_PORTF_DATA_R |= (GREEN+YELLOW);
         GPIO_PORTF_DATA_R &= ~RED;
         break;
