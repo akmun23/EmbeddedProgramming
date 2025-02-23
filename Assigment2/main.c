@@ -11,14 +11,29 @@
 // Defines value for tick
 #define TIM_2_SEC  400
 
+typedef enum button_State{
+    BS_IDLE,
+    BS_FIRST_PUSH,
+    BS_FIRST_RELEASE,
+    BS_SECOND_PUSH,
+    BS_LONG_PUSH
+};
+
+typedef enum trafficLight{
+    normalMode,
+    norwegian,
+    emergency
+};
+enum lightState traffic_Light = normalMode;
+
 typedef enum lightState{
     red,
     red_and_yellow,
     green,
     yellow,
-    Norwegian_Night
+    norwegian_Night
 };
-enum lightState trafficLight = Norwegian_Night;
+enum lightState LightController = red;
 
 /*
  * Input:
@@ -26,6 +41,9 @@ enum lightState trafficLight = Norwegian_Night;
  * Function:
  */
 void switchLightState();
+INT8U button_pushed();
+void select_button(void);
+
 
 
 /*
@@ -37,6 +55,8 @@ void buttonClick();
 
 
 extern int ticks;
+extern int click_Timer;
+
 
 
 
@@ -73,7 +93,11 @@ int main(void){
    while(1){
 
 
-      while(ticks <= TIM_2_SEC);
+      while(ticks <= TIM_2_SEC){
+          if(~GPIO_PORTF_DATA_R & 0x10){
+              select_button();
+          }
+      }
       ticks -= TIM_2_SEC;
       switchLightState();
 
@@ -82,35 +106,111 @@ int main(void){
 
 void switchLightState(){
 
-    switch(trafficLight){
+    switch(LightController){
     case red:
         GPIO_PORTF_DATA_R &= ~YELLOW;
-        trafficLight = red_and_yellow;
+        LightController = red_and_yellow;
         break;
     case red_and_yellow:
         GPIO_PORTF_DATA_R |= (RED+YELLOW);
         GPIO_PORTF_DATA_R &= ~GREEN;
-        trafficLight = green;
+        LightController = green;
         break;
     case green:
         GPIO_PORTF_DATA_R |= GREEN;
         GPIO_PORTF_DATA_R &= ~YELLOW;
-        trafficLight = yellow;
+        LightController = yellow;
         break;
     case yellow:
         GPIO_PORTF_DATA_R |= YELLOW;
         GPIO_PORTF_DATA_R &= ~RED;
-        trafficLight = red;
+        LightController = red;
         break;
-    case Norwegian_Night:
+    case norwegian_Night:
         GPIO_PORTF_DATA_R |= (GREEN+RED);
         GPIO_PORTF_DATA_R ^= YELLOW;
         break;
     }
 }
 
-void buttonClick(){
 
 
+INT8U button_pushed()
+{
+  return( !(GPIO_PORTF_DATA_R & 0x10) );  // SW at PF4
+}
+
+void select_button(void)
+/*****************************************************************************
+*   Input    :
+*   Output   :
+*   Function :
+******************************************************************************/
+{
+  static INT8U  button_state = BS_IDLE;
+  static INT16U button_timer;
+
+  switch( button_state )
+  {
+    case BS_IDLE:
+        if( button_pushed() )                   // if button pushed
+        {
+            button_state = BS_FIRST_PUSH;
+            button_timer = TIM_2_SEC;           // start timer = 2 sec;
+        }
+        break;
+    case BS_FIRST_PUSH:
+        if( ! --button_timer )                  // if timeout
+        {
+            button_state = BS_LONG_PUSH;
+            traffic_Light = normalMode;
+        }
+        else
+        {
+            if( !button_pushed() )                  // if button released
+            {
+                button_state = BS_FIRST_RELEASE;
+                button_timer = TIM_100_MSEC;        // start timer = 100 milli sec;
+            }
+        }
+        break;
+    case BS_FIRST_RELEASE:
+        if( ! --button_timer )                  // if timeout
+        {
+            button_state = BS_IDLE;
+            traffic_Light = norwegian;
+        }
+        else
+        {
+            if( button_pushed() )                   // if button pressed
+            {
+                 button_state = BS_SECOND_PUSH;
+                 button_timer = TIM_2_SEC;          // start timer = 2 sec;
+            }
+        }
+        break;
+    case BS_SECOND_PUSH:
+        if( ! --button_timer )                  // if timeout
+        {
+            button_state = BS_LONG_PUSH;
+            traffic_Light = normalMode;
+        }
+        else
+        {
+            if( !button_pushed() )                  // if button released
+            {
+                  button_state = BS_IDLE;
+                  traffic_Light = emergency;
+            }
+        }
+        break;
+    case BS_LONG_PUSH:
+        if( !button_pushed() )                  // if button released
+            button_state = BS_IDLE;
+        break;
+    default:
+        break;
+  }
+  return( button_event );
 }
 
