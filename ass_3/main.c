@@ -67,7 +67,7 @@ void lcd_init(void){
 }
 
 void Printdata(unsigned char data){
-    //Fourth bi t = D4 == PC4
+    //Fourth bit = D4 = PC4
     if(data & 0x10){
         GPIO_PORTC_DATA_R |= 0x10;
     } else {
@@ -75,21 +75,21 @@ void Printdata(unsigned char data){
 
     }
 
-    //Fifth bit = D5 == PC5
+    //Fifth bit = D5 = PC5
     if(data & 0x20){
             GPIO_PORTC_DATA_R |= 0x20;
         } else {
             GPIO_PORTC_DATA_R &= ~(0x20);
     }
 
-    //Sixth bit = D6 == PC6
+    //Sixth bit = D6 = PC6
     if(data & 0x40){
         GPIO_PORTC_DATA_R |= 0x40;
     } else {
         GPIO_PORTC_DATA_R &= ~(0x40);
     }
 
-    //Seventh bit = D7 == PC7
+    //Seventh bit = D7 = PC7
     if(data & 0x80){
            GPIO_PORTC_DATA_R |= 0x80;
        } else {
@@ -114,7 +114,7 @@ void lcd_cmd(unsigned char cmd){
 void lcd_string(char *str, unsigned char len){
     char i;
     for(i = 0; i < len; i++){
-        lcd_data(str[2]);
+        lcd_data(str[i]);
     }
 }
 
