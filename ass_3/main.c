@@ -1,23 +1,34 @@
+#include <stdint.h>
+#include <stdio.h>
+#include "tm4c123gh6pm.h"
+#include "systick.h"
 
+void GPIO_init(void);
 
-/**
- * main.c
- */
+void lcd_init(void);
+
+void Printdata(unsigned char data);
+
+void lcd_cmd(unsigned char cmd);
+
+void lcd_string(char *str, unsigned char len);
+
+void lcd_data(unsigned char data);
+
+void delay(long val);
+
 int main(void)
 {
-<<<<<<< Updated upstream
-	return 0;
-}
-=======
+
+
     GPIO_init();
     lcd_init();
-    delay(10000000);
+    delay(1000000);
 
     while(1){
         lcd_cmd(0x80);
         lcd_string("Embedded", 8);
         lcd_cmd(0xC0);
-        lcd_string("Systems", 7);
     }
 
 	return 0;
@@ -66,33 +77,32 @@ void lcd_init(void){
 }
 
 void Printdata(unsigned char data){
-    //Fourth bi t = D4 == PC4
+    //Fourth bit = D4 = PC4
     if(data & 0x10){
         GPIO_PORTC_DATA_R |= 0x10;
     } else {
         GPIO_PORTC_DATA_R &= ~(0x10);
-
     }
 
-    //Fifth bit = D5 == PC5
+    //Fifth bit = D5 = PC5
     if(data & 0x20){
-            GPIO_PORTC_DATA_R |= 0x20;
-        } else {
-            GPIO_PORTC_DATA_R &= ~(0x20);
+        GPIO_PORTC_DATA_R |= 0x20;
+    } else {
+        GPIO_PORTC_DATA_R &= ~(0x20);
     }
 
-    //Sixth bit = D6 == PC6
+    //Sixth bit = D6 = PC6
     if(data & 0x40){
         GPIO_PORTC_DATA_R |= 0x40;
     } else {
         GPIO_PORTC_DATA_R &= ~(0x40);
     }
 
-    //Seventh bit = D7 == PC7
+    //Seventh bit = D7 = PC7
     if(data & 0x80){
-           GPIO_PORTC_DATA_R |= 0x80;
-       } else {
-           GPIO_PORTC_DATA_R &= ~(0x80);
+        GPIO_PORTC_DATA_R |= 0x80;
+    } else {
+        GPIO_PORTC_DATA_R &= ~(0x80);
     }
 }
 
@@ -113,7 +123,7 @@ void lcd_cmd(unsigned char cmd){
 void lcd_string(char *str, unsigned char len){
     char i;
     for(i = 0; i < len; i++){
-        lcd_data(str[2]);
+        lcd_data(str[i]);
     }
 }
 
@@ -132,4 +142,3 @@ void lcd_data(unsigned char data){
 void delay(long val){
     while(val--);
 }
->>>>>>> Stashed changes
