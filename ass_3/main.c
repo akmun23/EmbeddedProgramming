@@ -21,12 +21,17 @@ int main(void)
 {
     GPIO_init();
     lcd_init();
-    delay(1000000);
+    delay(10000000);
 
     while(1){
         lcd_cmd(0x80);
         lcd_string("Embedded", 8);
         lcd_cmd(0xC0);
+        lcd_string("Hejsa", 5);
+        while(1){
+            lcd_cmd(0x1C);
+            delay(1000000);
+        }
     }
 
 	return 0;
@@ -59,10 +64,10 @@ void GPIO_init(void){
 }
 
 void lcd_init(void){
-    lcd_cmd(0x28);
-    lcd_cmd(0x06);
-    lcd_cmd(0x0C);
-    lcd_cmd(0x01);
+    lcd_cmd(0x28); // 4bit mode utilising 16 columns and 2 rows
+    lcd_cmd(0x06); // autoincrementing the cursor when prints the data
+    lcd_cmd(0x0E); // Cursor blinking on and display on
+    lcd_cmd(0x01); // Clear screen
 }
 
 void Printdata(unsigned char data){
