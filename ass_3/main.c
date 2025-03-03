@@ -21,13 +21,12 @@ int main(void)
 {
     GPIO_init();
     lcd_init();
-    delay(10000000);
+    delay(1000000);
 
     while(1){
         lcd_cmd(0x80);
         lcd_string("Embedded", 8);
-        lcd_cmd(0x0C0);
-        lcd_string("Systems", 7);
+        lcd_cmd(0xC0);
     }
 
 	return 0;
@@ -72,14 +71,13 @@ void Printdata(unsigned char data){
         GPIO_PORTC_DATA_R |= 0x10;
     } else {
         GPIO_PORTC_DATA_R &= ~(0x10);
-
     }
 
     //Fifth bit = D5 = PC5
     if(data & 0x20){
-            GPIO_PORTC_DATA_R |= 0x20;
-        } else {
-            GPIO_PORTC_DATA_R &= ~(0x20);
+        GPIO_PORTC_DATA_R |= 0x20;
+    } else {
+        GPIO_PORTC_DATA_R &= ~(0x20);
     }
 
     //Sixth bit = D6 = PC6
@@ -91,9 +89,9 @@ void Printdata(unsigned char data){
 
     //Seventh bit = D7 = PC7
     if(data & 0x80){
-           GPIO_PORTC_DATA_R |= 0x80;
-       } else {
-           GPIO_PORTC_DATA_R &= ~(0x80);
+        GPIO_PORTC_DATA_R |= 0x80;
+    } else {
+        GPIO_PORTC_DATA_R &= ~(0x80);
     }
 }
 
