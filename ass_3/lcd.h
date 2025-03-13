@@ -27,7 +27,7 @@
 /*****************************    Defines    *******************************/
 #define clear 0x01
 #define setMode 0x28
-#define autoIncrement 0x40
+#define autoIncrement 0x06
 #define cursorAndDisplay 0x0E
 #define D4 0x10
 #define D5 0x20

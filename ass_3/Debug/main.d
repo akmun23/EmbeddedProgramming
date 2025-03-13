@@ -17,6 +17,8 @@ main.obj: ../tm4c123gh6pm.h
 main.obj: ../systick.h
 main.obj: ../lcd.h
 main.obj: ../GPIO.h
+main.obj: ../uart0.h
+main.obj: ../emp_type.h
 
 ../main.c:
 
@@ -51,4 +53,8 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdarg.h:
 ../lcd.h:
 
 ../GPIO.h:
+
+../uart0.h:
+
+../emp_type.h:
 

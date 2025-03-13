@@ -6,11 +6,30 @@
  *  Author: aksel
  */
 
+/*
+ *   0x30,      // Reset
+  0x30,     // Reset
+  0x30,     // Reset
+  0x20,     // Set 4bit interface
+  0x28,     // 2 lines Display
+  0x0C,     // Display ON, Cursor OFF, Blink OFF
+  0x06,     // Cursor Increment
+  0x01,     // Clear Display
+  0x02,     // Home
+  0xFF      // stop
+ *
+ */
+
 void lcd_init(void){
+
     lcd_cmd(setMode);                // 4bit mode utilising 16 columns and 2 rows
+    delay(100);                   // Delay
     lcd_cmd(autoIncrement);          // autoincrementing the cursor when prints the data
+    delay(100);                   // Delay
     lcd_cmd(cursorAndDisplay);       // Cursor on and display on
+    delay(100);                   // Delay
     clearDisplay();                  // Clear screen
+
 }
 
 void Printdata(unsigned char data){
@@ -47,13 +66,13 @@ void lcd_cmd(unsigned char cmd){
     Printdata(cmd);                 // Outputs 4 MSB on pins
     GPIO_PORTD_DATA_R &= ~RS;   // Sets instruction register to write as internal operation
     GPIO_PORTD_DATA_R |= EN;      // Starts data R/W
-    delay(10000);                   // Delay
+    delay(100);                   // Delay
     GPIO_PORTD_DATA_R &= ~EN;   // Stop R/W
 
     Printdata(cmd << 4);            // Outputs 4 LSB on pins
     GPIO_PORTD_DATA_R &= ~RS;   // Sets instruction register to write as internal operation
     GPIO_PORTD_DATA_R |= EN;      // Starts data R/W
-    delay(10000);                   // Delay
+    delay(100);                   // Delay
     GPIO_PORTD_DATA_R &= ~EN;   // Stop R/W
 }
 
@@ -67,12 +86,12 @@ void lcd_string(char *str, unsigned char len){
 void lcd_data(unsigned char data){
     Printdata(data);                // Outputs 4 MSB of the char
     GPIO_PORTD_DATA_R |= (EN|RS);   // Enables Write and writes data
-    delay(10000);                   // Delay
+    delay(100);                   // Delay
     GPIO_PORTD_DATA_R &= ~EN;       // Turns off enable
 
     Printdata(data << 4);           // Outputs 4 LSB of the char
     GPIO_PORTD_DATA_R |= (EN|RS);   // Enables Write and writes data
-    delay(10000);                   // Delay
+    delay(100);                   // Delay
     GPIO_PORTD_DATA_R &= ~EN;       // Turns off enable
 }
 
@@ -93,6 +112,6 @@ void setCursor(int row, int column){
 }
 
 void displayTime(char *Time){
-    setCursor(1,0);
+    setCursor(1,4);
     lcd_string(Time, 8);
 }
