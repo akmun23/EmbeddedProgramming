@@ -15,6 +15,8 @@ main.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdio.h
 main.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdarg.h
 main.obj: ../tm4c123gh6pm.h
 main.obj: ../systick.h
+main.obj: ../lcd.h
+main.obj: ../GPIO.h
 
 ../main.c:
 
@@ -45,4 +47,8 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdarg.h:
 ../tm4c123gh6pm.h:
 
 ../systick.h:
+
+../lcd.h:
+
+../GPIO.h:
 

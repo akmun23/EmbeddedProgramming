@@ -1,3 +1,5 @@
+"./GPIO.obj"
+"./lcd.obj"
 "./main.obj"
 "./systick.obj"
 "./tm4c123gh6pm_startup_ccs.obj"
