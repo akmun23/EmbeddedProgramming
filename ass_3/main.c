@@ -53,15 +53,15 @@ int main(void) {
 void timeIncrementer(char *str){
     if(str[7]++ == '9'){
         str[7] = '0';
-        if(str[6]++ == '6'){
+        if(str[6]++ == '5'){
             str[6] = '0';
             if(str[4]++ == '9'){
                 str[4] = '0';
-                if(str[3]++ == '6'){
+                if(str[3]++ == '5'){
                     str[3] = '0';
                     if(((str[1]++ == '9') && (str[0] != '2')) || ((str[1] == '4') && (str[0] == '2'))){
                         str[1] = '0';
-                        if(str[0]++ == '2'){
+                        if(++str[0] == '3'){
                             str[0] = '0';
                         }
                     }
