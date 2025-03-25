@@ -10,9 +10,12 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./GPIO.obj" \
+"./lcd.obj" \
 "./main.obj" \
 "./systick.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
+"./uart0.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -143,8 +146,8 @@ ass_3.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "main.obj" "systick.obj" "tm4c123gh6pm_startup_ccs.obj" 
-	-$(RM) "main.d" "systick.d" "tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "GPIO.obj" "lcd.obj" "main.obj" "systick.obj" "tm4c123gh6pm_startup_ccs.obj" "uart0.obj" 
+	-$(RM) "GPIO.d" "lcd.d" "main.d" "systick.d" "tm4c123gh6pm_startup_ccs.d" "uart0.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

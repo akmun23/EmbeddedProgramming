@@ -2,148 +2,113 @@
 #include <stdio.h>
 #include "tm4c123gh6pm.h"
 #include "systick.h"
-
-void GPIO_init(void);
-
-void lcd_init(void);
-
-void Printdata(unsigned char data);
-
-void lcd_cmd(unsigned char cmd);
-
-void lcd_string(char *str, unsigned char len);
-
-void lcd_data(unsigned char data);
-
-void delay(long val);
-
-int main(void)
-{
+#include "lcd.h"
+#include "GPIO.h"
+#include "uart0.h"
 
 
+#define TIM_1_SEC 200
+
+extern int ticks;
+
+void timeIncrementer(char *str);
+
+void checkComs(char * time);
+
+int main(void) {
+    init_systick();
     GPIO_init();
     lcd_init();
-    delay(10000000);
+    uart0_init(19200, 8, 1, 0);
+    delay(1000000);
+    char Time[] = "00:00:00";
+    ticks = 0;
+
+    int aliveTimer = TIM_1_SEC;
+
 
     while(1){
-        lcd_cmd(0x80);
-        lcd_string("Embedded", 8);
-        lcd_cmd(0xC0);
-        lcd_string("Hejsa", 5);
-        while(1){
-            lcd_cmd(0x1C);
-            delay(1000000);
+
+        while(!uart0_rx_rdy()){
+            if(ticks ){
+
+              // decrements ticks
+              ticks--;
+
+              // alive timer times out go into if statement
+              if(! --aliveTimer){
+                  // reset alive timer
+                  aliveTimer = TIM_1_SEC;
+                  // toggles leds depending on state of traffic light
+                  timeIncrementer(Time);
+                  GPIO_PORTD_DATA_R ^= 0x40;
+              }
+              displayTime(Time);
+            }
+        }
+        checkComs(Time);
+    }
+}
+
+void timeIncrementer(char *str){
+    if(str[7]++ == '9'){
+        str[7] = '0';
+        if(str[6]++ == '5'){
+            str[6] = '0';
+            if(str[4]++ == '9'){
+                str[4] = '0';
+                if(str[3]++ == '5'){
+                    str[3] = '0';
+                    if(((str[1]++ == '9') && (str[0] != '2')) || ((str[1] == '4') && (str[0] == '2'))){
+                        str[1] = '0';
+                        if(++str[0] == '3'){
+                            str[0] = '0';
+                        }
+                    }
+                }
+            }
         }
     }
-
-	return 0;
-}
-
-
-void GPIO_init(void){
-    int dummy;
-
-    // Enable the GPIO port that is used for the on-board LEDs and switches
-    SYSCTL_RCGC2_R = SYSCTL_RCGC2_GPIOC | SYSCTL_RCGC2_GPIOD | SYSCTL_RCGC2_GPIOF;
-
-    // Do a dummy read to insert a few cycles after enabling the peripheral
-    dummy = SYSCTL_RCGC2_R;
-
-    // allow changes to PF1-3
-    GPIO_PORTF_CR_R = 0x0E;
-    // allow changes to PC4-7
-    GPIO_PORTC_CR_R = 0xF0;
-    // allow changes to PD2-3
-    GPIO_PORTD_CR_R = 0x0C;
-
-    // Set the direction as output (PF1 - PF3)
-    GPIO_PORTF_DIR_R = 0x0E;
-    // Set the direction as output (PC4 - PC7)
-    GPIO_PORTC_DIR_R = 0xF0;
-    // Set the direction as output (PD2 - PD3)
-    GPIO_PORTD_DIR_R = 0x0C;
-
-    // Enable the GPIO pins for digital function (PF1 - PF3)
-    GPIO_PORTF_DEN_R = 0x0E;
-    // Enable the GPIO pins for digital function (PC4 - PC7)
-    GPIO_PORTC_DEN_R = 0xF0;
-    // Enable the GPIO pins for digital function (PD2 - PD3)
-    GPIO_PORTD_DEN_R = 0x0C;
-
-    // Turns off led on tiva
-    GPIO_PORTF_DATA_R &= 0x00;
-}
-
-void lcd_init(void){
-    lcd_cmd(0x28); // 4bit mode utilising 16 columns and 2 rows
-    lcd_cmd(0x06); // autoincrementing the cursor when prints the data
-    lcd_cmd(0x0E); // Cursor blinking on and display on
-    lcd_cmd(0x01); // Clear screen
-}
-
-void Printdata(unsigned char data){
-    //Fourth bit = D4 = PC4
-    if(data & 0x10){
-        GPIO_PORTC_DATA_R |= 0x10;
+    if(str[2] == ':'){
+        str[2] =  ' ';
+        str[5] = ' ';
     } else {
-        GPIO_PORTC_DATA_R &= ~(0x10);
-    }
-
-    //Fifth bit = D5 = PC5
-    if(data & 0x20){
-        GPIO_PORTC_DATA_R |= 0x20;
-    } else {
-        GPIO_PORTC_DATA_R &= ~(0x20);
-    }
-
-    //Sixth bit = D6 = PC6
-    if(data & 0x40){
-        GPIO_PORTC_DATA_R |= 0x40;
-    } else {
-        GPIO_PORTC_DATA_R &= ~(0x40);
-    }
-
-    //Seventh bit = D7 = PC7
-    if(data & 0x80){
-        GPIO_PORTC_DATA_R |= 0x80;
-    } else {
-        GPIO_PORTC_DATA_R &= ~(0x80);
+        str[2] = ':';
+        str[5] = ':';
     }
 }
 
-void lcd_cmd(unsigned char cmd){
-    Printdata(cmd);
-    GPIO_PORTD_DATA_R &= ~(0x04);
-    GPIO_PORTD_DATA_R |= 0x08;
-    delay(10000);
-    GPIO_PORTD_DATA_R &= ~(0x08);
+void checkComs(char * time){
+      char c = uart0_getc();
 
-    Printdata(cmd << 4);
-    GPIO_PORTD_DATA_R &= ~(0x04);
-    GPIO_PORTD_DATA_R |= 0x08;
-    delay(10000);
-    GPIO_PORTD_DATA_R &= ~(0x08);
-}
 
-void lcd_string(char *str, unsigned char len){
-    char i;
-    for(i = 0; i < len; i++){
-        lcd_data(str[i]);
-    }
-}
+      if(c == '1'){
+          int i;
+          for (i = 0; i < 8; i++){
+              if((i != 2) && (i != 5)){
+                  while(!uart0_rx_rdy());
+                  time[i] = uart0_getc();
+              }
+          }
 
-void lcd_data(unsigned char data){
-    Printdata(data);
-    GPIO_PORTD_DATA_R |= 0x0C;
-    delay(10000);
-    GPIO_PORTD_DATA_R &= ~(0x08);
+      }else if (c == '2'){
+          int i;
+          for(i = 0; i < 8; i++){
+              while(!uart0_tx_rdy());
+              uart0_putc(time[i]);
+          }
+          uart0_putc(0x0B);
+          uart0_putc('c');
+      }
 
-    Printdata(data << 4);
-    GPIO_PORTD_DATA_R |= 0x0C;
-    delay(10000);
-    GPIO_PORTD_DATA_R &= ~(0x08);
-}
-
-void delay(long val){
-    while(val--);
+      else if(c == 't'){
+          GPIO_PORTD_DATA_R ^= 0x40;
+      }else{
+          while(!uart0_tx_rdy());
+          uart0_putc(c);
+      }
+      while(uart0_rx_rdy()){
+          c = uart0_getc();
+      }
+      ticks = 0;
 }

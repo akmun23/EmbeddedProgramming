@@ -2,56 +2,69 @@
 * University of Southern Denmark
 * Embedded Programming (EMP)
 *
-* MODULENAME.: systick.h
+* MODULENAME.: uart.h
 *
 * PROJECT....: EMP
 *
-* DESCRIPTION: Initialize the systick interrupt.
+* DESCRIPTION: Test.
 *
 * Change Log:
 ******************************************************************************
 * Date    Id    Change
 * YYMMDD
 * --------------------
-* 150215  MoH    Module created.
+* 150228  MoH   Module created.
 *
 *****************************************************************************/
 
-#ifndef _EMP_H
-  #define _EMP_H
+#ifndef _UART_H
+  #define _UART_H
 
 /***************************** Include files *******************************/
+#include "emp_type.h"
 
 /*****************************    Defines    *******************************/
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Functions   *******************************/
-void enable_global_int();
+
+extern BOOLEAN uart0_rx_rdy();
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Enable global interrupt.
+*   Function : Character ready at uart0 RX
 ******************************************************************************/
 
-
-void disable_global_int();
+extern INT8U uart0_getc();
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Disable global interrupt.
+*   Function : Get character from uart0 RX
 ******************************************************************************/
 
-
-void init_systick();
+extern BOOLEAN uart0_tx_rdy();
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Initialize the systick interrupt.
+*   Function : uart0 TX buffer ready
+******************************************************************************/
+
+extern void uart0_putc( INT8U );
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Put character to uart0 TX
+******************************************************************************/
+
+extern void uart0_init( INT32U, INT8U, INT8U, INT8U );
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Initialize uart 0
 ******************************************************************************/
 
 
 /****************************** End Of Module *******************************/
 #endif
-
 

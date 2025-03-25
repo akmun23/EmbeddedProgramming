@@ -13,14 +13,12 @@
 
 volatile int ticks = 0;
 
-
-void SysTick_Handler(void)
+void systick_handler(void)
 /*****************************************************************************
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
   // Hardware clears systick int reguest
-
   ticks++;
 }
 
@@ -32,9 +30,9 @@ void init_systick()
   NVIC_ST_CTRL_R &= ~(NVIC_ST_CTRL_ENABLE);
 
   // Set current systick counter to reload value
-  NVIC_ST_CURRENT_R = 0;
+  NVIC_ST_CURRENT_R = SYSTICK_RELOAD_VALUE;
   // Set Reload value, Systick reload register
-  NVIC_ST_RELOAD_R = SYSTICK_RELOAD_VALUE-1;
+  NVIC_ST_RELOAD_R = SYSTICK_RELOAD_VALUE;
 
   // NVIC systick setup, vector number 15
   // Clear pending systick interrupt request
