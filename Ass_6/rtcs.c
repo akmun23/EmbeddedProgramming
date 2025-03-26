@@ -234,8 +234,6 @@ INT16U timeout;
 
 void get_info(INT16U *buf, INT8U id){
 
-    gfprintf( 0, "TEST\r\n");   // print the current time to uart
-
     buf[0] = pot[id].id;
     buf[1] = pot[id].condition;
     buf[2] = pot[id].name;
@@ -243,19 +241,6 @@ void get_info(INT16U *buf, INT8U id){
     buf[4] = pot[id].event;
     buf[5] = pot[id].sem;
     buf[6] = pot[id].timer;
-
-    gfprintf( 0,
-                "ID - %d\r\n"
-                "Condition - %d\r\n"
-                "Name - %d\r\n"
-                "State - %d\r\n"
-                "Event - %d\r\n"
-                "Semaphore - %d\r\n"
-                "Timer - %d\r\n"
-                "---------------------------- \r\n",
-
-                pot[id].id,pot[id].condition, pot[id].name, pot[id].state, pot[id].event, pot[id].sem,pot[id].timer );
-
 
     return;
 }
@@ -281,6 +266,8 @@ extern HANDLE start_task( INT8U name, void (*tf)(INT8U, INT8U, INT8U, INT8U) )
     pot[this_id].event     = EVENT_RESET;
     pot[this_id].timer     = 0;
     pot[this_id].tf        = tf;
+
+
   }
   return( 0 );
 }

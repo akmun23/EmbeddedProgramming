@@ -1,0 +1,441 @@
+******************************************************************************
+                  TI ARM Linker PC v20.2.7                     
+******************************************************************************
+>> Linked Tue Mar 25 15:14:37 2025
+
+OUTPUT FILE NAME:   <Ass_6.out>
+ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00001ef9
+
+
+MEMORY CONFIGURATION
+
+         name            origin    length      used     unused   attr    fill
+----------------------  --------  ---------  --------  --------  ----  --------
+  FLASH                 00000000   00040000  00001fa0  0003e060  R  X
+  SRAM                  20000000   00008000  00000d23  000072dd  RW X
+
+
+SEGMENT ALLOCATION MAP
+
+run origin  load origin   length   init length attrs members
+----------  ----------- ---------- ----------- ----- -------
+00000000    00000000    00001fa0   00001fa0    r-x
+  00000000    00000000    0000026c   0000026c    r-- .intvecs
+  0000026c    0000026c    00001cee   00001cee    r-x .text
+  00001f5a    00001f5a    00000016   00000016    r-- .const
+  00001f70    00001f70    00000030   00000030    r-- .cinit
+20000000    20000000    00000d25   00000000    rw-
+  20000000    20000000    00000a8e   00000000    rw- .bss
+  20000a90    20000a90    00000200   00000000    rw- .stack
+  20000c90    20000c90    00000095   00000000    rw- .data
+
+
+SECTION ALLOCATION MAP
+
+ output                                  attributes/
+section   page    origin      length       input sections
+--------  ----  ----------  ----------   ----------------
+.intvecs   0    00000000    0000026c     
+                  00000000    0000026c     tm4c123gh6pm_startup_ccs.obj (.intvecs)
+
+.text      0    0000026c    00001cee     
+                  0000026c    00000688     rtcs.obj (.text)
+                  000008f4    00000514     string.obj (.text)
+                  00000e08    00000420     ui.obj (.text)
+                  00001228    00000348     lcd.obj (.text)
+                  00001570    00000230     uart.obj (.text)
+                  000017a0    0000017c     key.obj (.text)
+                  0000191c    0000016c     rtc.obj (.text)
+                  00001a88    000000c8     file.obj (.text)
+                  00001b50    0000009c     main.obj (.text)
+                  00001bec    0000009c     rtsv7M4_T_le_v4SPD16_eabi.lib : memcpy_t2.asm.obj (.text)
+                  00001c88    0000008c     gpio.obj (.text)
+                  00001d14    0000007c     systick.obj (.text)
+                  00001d90    0000007a     rtsv7M4_T_le_v4SPD16_eabi.lib : memset_t2.asm.obj (.text)
+                  00001e0a    00000068                                   : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
+                  00001e72    00000002                                   : div0.asm.obj (.text)
+                  00001e74    00000044                                   : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
+                  00001eb8    00000040                                   : u_divt2.asm.obj (.text)
+                  00001ef8    00000034                                   : boot_cortex_m.c.obj (.text:_c_int00_noargs:_c_int00_noargs)
+                  00001f2c    0000000e                                   : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
+                  00001f3a    0000000c                                   : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init)
+                  00001f46    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
+                  00001f52    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00001f56    00000004                                   : exit.c.obj (.text:abort:abort)
+
+.const     0    00001f5a    00000016     
+                  00001f5a    0000000c     key.obj (.const:$P$T0$1)
+                  00001f66    0000000a     lcd.obj (.const:.string:LCD_init_sequense)
+
+.cinit     0    00001f70    00000030     
+                  00001f70    0000000c     (__TI_handler_table)
+                  00001f7c    00000009     (.cinit..data.load) [load image, compression = lzss]
+                  00001f85    00000003     --HOLE-- [fill = 0]
+                  00001f88    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  00001f90    00000010     (__TI_cinit_table)
+
+.init_array 
+*          0    00000000    00000000     UNINITIALIZED
+
+.bss       0    20000000    00000a8e     UNINITIALIZED
+                  20000000    00000840     (.common:poq)
+                  20000840    000000c0     (.common:pos)
+                  20000900    000000c0     (.common:pot)
+                  200009c0    00000080     (.common:InBuf)
+                  20000a40    00000040     (.common:pof)
+                  20000a80    00000008     ui.obj (.bss:Buf$1)
+                  20000a88    00000001     (.common:LCD_init)
+                  20000a89    00000001     (.common:current_task)
+                  20000a8a    00000001     (.common:hour)
+                  20000a8b    00000001     (.common:i)
+                  20000a8c    00000001     (.common:min)
+                  20000a8d    00000001     (.common:sec)
+
+.data      0    20000c90    00000095     UNINITIALIZED
+                  20000c90    00000080     ui.obj (.data:namebuffer)
+                  20000d10    0000000e     ui.obj (.data:buffer)
+                  20000d1e    00000002     lcd.obj (.data)
+                  20000d20    00000004     systick.obj (.data)
+                  20000d24    00000001     rtcs.obj (.data)
+
+.stack     0    20000a90    00000200     UNINITIALIZED
+                  20000a90    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : boot_cortex_m.c.obj (.stack)
+                  20000a94    000001fc     --HOLE--
+
+__llvm_prf_cnts 
+*          0    20000000    00000000     UNINITIALIZED
+
+MODULE SUMMARY
+
+       Module                         code   ro data   rw data
+       ------                         ----   -------   -------
+    .\
+       rtcs.obj                       1672   0         2498   
+       ui.obj                         1056   0         279    
+       string.obj                     1300   0         0      
+       lcd.obj                        840    10        3      
+       tm4c123gh6pm_startup_ccs.obj   12     620       0      
+       uart.obj                       560    0         0      
+       key.obj                        380    12        0      
+       rtc.obj                        364    0         3      
+       file.obj                       200    0         64     
+       main.obj                       156    0         0      
+       gpio.obj                       140    0         0      
+       systick.obj                    124    0         4      
+    +--+------------------------------+------+---------+---------+
+       Total:                         6804   642       2851   
+                                                              
+    C:\ti\ccs1260\ccs\tools\compiler\ti-cgt-arm_20.2.7.LTS\lib\rtsv7M4_T_le_v4SPD16_eabi.lib
+       memcpy_t2.asm.obj              156    0         0      
+       memset_t2.asm.obj              122    0         0      
+       copy_decompress_lzss.c.obj     104    0         0      
+       autoinit.c.obj                 68     0         0      
+       u_divt2.asm.obj                64     0         0      
+       boot_cortex_m.c.obj            52     0         0      
+       copy_decompress_none.c.obj     14     0         0      
+       copy_zero_init.c.obj           12     0         0      
+       exit.c.obj                     4      0         0      
+       pre_init.c.obj                 4      0         0      
+       div0.asm.obj                   2      0         0      
+    +--+------------------------------+------+---------+---------+
+       Total:                         602    0         0      
+                                                              
+       Stack:                         0      0         512    
+       Linker Generated:              0      45        0      
+    +--+------------------------------+------+---------+---------+
+       Grand Total:                   7406   687       3363   
+
+
+LINKER GENERATED COPY TABLES
+
+__TI_cinit_table @ 00001f90 records: 2, size/record: 8, table size: 16
+	.data: load addr=00001f7c, load size=00000009 bytes, run addr=20000c90, run size=00000095 bytes, compression=lzss
+	.bss: load addr=00001f88, load size=00000008 bytes, run addr=20000000, run size=00000a8e bytes, compression=zero_init
+
+
+LINKER GENERATED HANDLER TABLE
+
+__TI_handler_table @ 00001f70 records: 3, size/record: 4, table size: 12
+	index: 0, handler: __TI_decompress_lzss
+	index: 1, handler: __TI_decompress_none
+	index: 2, handler: __TI_zero_init
+
+
+GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name 
+
+address   name                          
+-------   ----                          
+00001f57  C$$EXIT                       
+200009c0  InBuf                         
+20000a88  LCD_init                      
+00001f66  LCD_init_sequense             
+20000d1e  LCD_state                     
+00001f47  ResetISR                      
+00001433  Set_cursor                    
+20000c90  __STACK_END                   
+00000200  __STACK_SIZE                  
+20000c90  __STACK_TOP                   
+00001f90  __TI_CINIT_Base               
+00001fa0  __TI_CINIT_Limit              
+00001f70  __TI_Handler_Table_Base       
+00001f7c  __TI_Handler_Table_Limit      
+00001e75  __TI_auto_init_nobinit_nopinit
+00001e0b  __TI_decompress_lzss          
+00001f2d  __TI_decompress_none          
+ffffffff  __TI_pprof_out_hndl           
+ffffffff  __TI_prof_data_size           
+ffffffff  __TI_prof_data_start          
+00000000  __TI_static_base__            
+00001f3b  __TI_zero_init                
+00001e73  __aeabi_idiv0                 
+00001e73  __aeabi_ldiv0                 
+00001d91  __aeabi_memclr                
+00001d91  __aeabi_memclr4               
+00001d91  __aeabi_memclr8               
+00001bed  __aeabi_memcpy                
+00001bed  __aeabi_memcpy4               
+00001bed  __aeabi_memcpy8               
+00001d93  __aeabi_memset                
+00001d93  __aeabi_memset4               
+00001d93  __aeabi_memset8               
+00001eb9  __aeabi_uidiv                 
+00001eb9  __aeabi_uidivmod              
+ffffffff  __binit__                     
+ffffffff  __c_args__                    
+UNDEFED   __mpu_init                    
+20000a90  __stack                       
+20000000  __start___llvm_prf_cnts       
+20000000  __stop___llvm_prf_cnts        
+00001ef9  _c_int00_noargs               
+UNDEFED   _system_post_cinit            
+00001f53  _system_pre_init              
+00001f57  abort                         
+ffffffff  binit                         
+20000d10  buffer                        
+0000182b  check_column                  
+0000141f  clr_LCD                       
+20000a89  current_task                  
+000019ed  display_rtc_task              
+00000000  g_pfnVectors                  
+00001aab  get_file                      
+0000191d  get_hour                      
+000005a1  get_info                      
+0000181b  get_keyboard                  
+00001923  get_min                       
+00000507  get_queue                     
+00001929  get_sec                       
+00000f47  get_task_name                 
+00000d7d  gfprintf                      
+00000ae9  gprint                        
+00000da7  gprintf                       
+00000dd1  gsprintf                      
+00001429  home_LCD                      
+20000a8a  hour                          
+20000a8b  i                             
+00000277  i_am_alive                    
+00001ad7  init_files                    
+00001c89  init_gpio                     
+000006e1  init_rtcs                     
+00001d1f  init_systick                  
+000017ed  key_catch                     
+0000186d  key_task                      
+0000147f  lcd_task                      
+00001621  lcrh_databits                 
+00001665  lcrh_parity                   
+0000164b  lcrh_stopbits                 
+00001b51  main                          
+00001bed  memcpy                        
+00001d99  memset                        
+20000a8c  min                           
+0000125b  move_LCD                      
+20000c90  namebuffer                    
+000003fb  open_queue                    
+00001443  out_LCD                       
+000013b3  out_LCD_high                  
+00001369  out_LCD_low                   
+20000a40  pof                           
+20000000  poq                           
+20000840  pos                           
+20000900  pot                           
+000003d3  preset_sem                    
+00000947  putChars                      
+00000971  putDec                        
+00000a65  putHex                        
+00000927  putStr                        
+00001a89  put_file                      
+0000047b  put_queue                     
+000008f5  putc1                         
+0000026d  retrieve_id                   
+000017a1  row                           
+0000196b  rtc_task                      
+00000765  schedule                      
+20000a8d  sec                           
+0000192f  set_hour                      
+00001943  set_min                       
+00001957  set_sec                       
+000002b9  set_state                     
+000003ad  signal                        
+0000064d  start_task                    
+00001d15  systick_handler               
+20000d20  ticks                         
+000016b9  uart0_fifos_disable           
+000016ad  uart0_fifos_enable            
+00001587  uart0_get_q                   
+000015a1  uart0_getc                    
+000016c5  uart0_init                    
+00001571  uart0_put_q                   
+000015b5  uart0_putc                    
+00001597  uart0_rx_rdy                  
+000015a9  uart0_tx_rdy                  
+000015c9  uart_rx_task                  
+000015f9  uart_tx_task                  
+00000fe9  ui_key_task                   
+00000e09  ui_task                       
+000002d7  wait                          
+00000305  wait_sem                      
+00001229  wr_ch_LCD                     
+000013c9  wr_ctrl_LCD                   
+00001353  wr_ctrl_LCD_high              
+00001291  wr_ctrl_LCD_low               
+0000123d  wr_str_LCD                    
+
+
+GLOBAL SYMBOLS: SORTED BY Symbol Address 
+
+address   name                          
+-------   ----                          
+00000000  __TI_static_base__            
+00000000  g_pfnVectors                  
+00000200  __STACK_SIZE                  
+0000026d  retrieve_id                   
+00000277  i_am_alive                    
+000002b9  set_state                     
+000002d7  wait                          
+00000305  wait_sem                      
+000003ad  signal                        
+000003d3  preset_sem                    
+000003fb  open_queue                    
+0000047b  put_queue                     
+00000507  get_queue                     
+000005a1  get_info                      
+0000064d  start_task                    
+000006e1  init_rtcs                     
+00000765  schedule                      
+000008f5  putc1                         
+00000927  putStr                        
+00000947  putChars                      
+00000971  putDec                        
+00000a65  putHex                        
+00000ae9  gprint                        
+00000d7d  gfprintf                      
+00000da7  gprintf                       
+00000dd1  gsprintf                      
+00000e09  ui_task                       
+00000f47  get_task_name                 
+00000fe9  ui_key_task                   
+00001229  wr_ch_LCD                     
+0000123d  wr_str_LCD                    
+0000125b  move_LCD                      
+00001291  wr_ctrl_LCD_low               
+00001353  wr_ctrl_LCD_high              
+00001369  out_LCD_low                   
+000013b3  out_LCD_high                  
+000013c9  wr_ctrl_LCD                   
+0000141f  clr_LCD                       
+00001429  home_LCD                      
+00001433  Set_cursor                    
+00001443  out_LCD                       
+0000147f  lcd_task                      
+00001571  uart0_put_q                   
+00001587  uart0_get_q                   
+00001597  uart0_rx_rdy                  
+000015a1  uart0_getc                    
+000015a9  uart0_tx_rdy                  
+000015b5  uart0_putc                    
+000015c9  uart_rx_task                  
+000015f9  uart_tx_task                  
+00001621  lcrh_databits                 
+0000164b  lcrh_stopbits                 
+00001665  lcrh_parity                   
+000016ad  uart0_fifos_enable            
+000016b9  uart0_fifos_disable           
+000016c5  uart0_init                    
+000017a1  row                           
+000017ed  key_catch                     
+0000181b  get_keyboard                  
+0000182b  check_column                  
+0000186d  key_task                      
+0000191d  get_hour                      
+00001923  get_min                       
+00001929  get_sec                       
+0000192f  set_hour                      
+00001943  set_min                       
+00001957  set_sec                       
+0000196b  rtc_task                      
+000019ed  display_rtc_task              
+00001a89  put_file                      
+00001aab  get_file                      
+00001ad7  init_files                    
+00001b51  main                          
+00001bed  __aeabi_memcpy                
+00001bed  __aeabi_memcpy4               
+00001bed  __aeabi_memcpy8               
+00001bed  memcpy                        
+00001c89  init_gpio                     
+00001d15  systick_handler               
+00001d1f  init_systick                  
+00001d91  __aeabi_memclr                
+00001d91  __aeabi_memclr4               
+00001d91  __aeabi_memclr8               
+00001d93  __aeabi_memset                
+00001d93  __aeabi_memset4               
+00001d93  __aeabi_memset8               
+00001d99  memset                        
+00001e0b  __TI_decompress_lzss          
+00001e73  __aeabi_idiv0                 
+00001e73  __aeabi_ldiv0                 
+00001e75  __TI_auto_init_nobinit_nopinit
+00001eb9  __aeabi_uidiv                 
+00001eb9  __aeabi_uidivmod              
+00001ef9  _c_int00_noargs               
+00001f2d  __TI_decompress_none          
+00001f3b  __TI_zero_init                
+00001f47  ResetISR                      
+00001f53  _system_pre_init              
+00001f57  C$$EXIT                       
+00001f57  abort                         
+00001f66  LCD_init_sequense             
+00001f70  __TI_Handler_Table_Base       
+00001f7c  __TI_Handler_Table_Limit      
+00001f90  __TI_CINIT_Base               
+00001fa0  __TI_CINIT_Limit              
+20000000  __start___llvm_prf_cnts       
+20000000  __stop___llvm_prf_cnts        
+20000000  poq                           
+20000840  pos                           
+20000900  pot                           
+200009c0  InBuf                         
+20000a40  pof                           
+20000a88  LCD_init                      
+20000a89  current_task                  
+20000a8a  hour                          
+20000a8b  i                             
+20000a8c  min                           
+20000a8d  sec                           
+20000a90  __stack                       
+20000c90  __STACK_END                   
+20000c90  __STACK_TOP                   
+20000c90  namebuffer                    
+20000d10  buffer                        
+20000d1e  LCD_state                     
+20000d20  ticks                         
+ffffffff  __TI_pprof_out_hndl           
+ffffffff  __TI_prof_data_size           
+ffffffff  __TI_prof_data_start          
+ffffffff  __binit__                     
+ffffffff  __c_args__                    
+ffffffff  binit                         
+UNDEFED   __mpu_init                    
+UNDEFED   _system_post_cinit            
+
+[133 symbols]

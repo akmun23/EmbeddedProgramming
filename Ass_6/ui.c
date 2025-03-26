@@ -44,6 +44,12 @@ char namebuffer[128] = {0};
 /*****************************   Functions   *******************************/
 
 
+
+void delay(int count){
+    while(count--);
+    return;
+}
+
 void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 /*****************************************************************************
 *   Input    :
@@ -70,18 +76,24 @@ void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 
           }
           gfprintf( COM1, "%c - %02d:%02d:%02d\r\n", InBuf[0], get_hour(), get_min(), get_sec() );   // print the current time to uart
-      } else if((( InBuf[0] == '2' ) && ( i == 3 ))){
-          get_info(buffer ,InBuf[1]);
-          get_task_name(namebuffer, buffer[0]);
-          gfprintf( COM1,   "%c: \r\n"
+      } else if((( InBuf[0] == '2' ) && ( i == 2 ))){
+          /*
+           get_info(buffer ,InBuf[0]-'0');
+           get_task_name(namebuffer, buffer[0]);
+           gfprintf( COM1,   "You are calling the task with id --- %d\r\n"
                             "ID - %d\r\n"
                             "Condition - %d\r\n"
-                            "Name - %c\r\n"
+                            "Name - %20c\r\n"
                             "State - %d\r\n"
                             "Event - %d\r\n"
-                            "Semaphore - %d\r\n",
+                            "Semaphore - %d\r\n"
                             "Timer - %d\r\n",
-                            InBuf[0], buffer[0],buffer[1], namebuffer[0], buffer[3], buffer[4], buffer[5], buffer[6] );
+                            InBuf[1]-'0', buffer[0],buffer[1], namebuffer, buffer[3], buffer[4], buffer[5], buffer[6] );*/
+          int ii;
+          for(ii = 1; ii <= 16; ii++){
+              get_info(buffer, ii);// PRØV AT SENDE HVER LINJE HVER FOR SIG
+              gfprintf(COM1, "\rTASK: %02d, Condition: %d  \n", ii - 1, buffer[1]);
+          }
       }
       i = 0;
 
@@ -90,31 +102,37 @@ void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
   }
 }
 
+
+
 void get_task_name(char *buf, INT8U id){
 
     switch (id){
-        case 0:
-                buf[0] = 'T';
-                buf[1] = 'A';
-                buf[2] = 'S';
-                buf[3] = 'K';
-                buf[4] = '_';
-                buf[5] = 'R';
-                buf[6] = 'T';
-                buf[7] = 'C';
-                        // buf = "TASK_RTC";
+        case TASK_RTC:
+                strcpy(buf,"TASK_RTC");
             break;
-        case 1:
-               buf[0] = 'T';
-               buf[1] = 'E';
-               buf[2] = 'S';
-               buf[3] = 'T';
-               buf[4] = '_';
-               buf[5] = 'R';
-               buf[6] = 'T';
-               buf[7] = 'C';
 
+        case TASK_DISPLAY_RTC:
+                strcpy(buf,"TASK_DISPLAY_RTC");
             break;
+        case TASK_LCD:
+                strcpy(buf,"TASK_LCD");
+            break;
+        case TASK_UART_RX:
+                strcpy(buf,"TASK_UART_RX");
+            break;
+        case TASK_UI:
+                strcpy(buf,"TASK_UI");
+            break;
+        case TASK_UART_TX:
+                strcpy(buf,"TASK_UART_TX");
+            break;
+        case TASK_KEY:
+                strcpy(buf,"TASK_KEY");
+            break;
+        case TASK_UI_KEY:
+                strcpy(buf,"TASK_UI_KEY");
+            break;
+
 
     }
     return;

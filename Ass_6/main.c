@@ -23,7 +23,7 @@ int main(void)
 {
   init_gpio();
 
-  uart0_init( 9600, 8, 1, 'n' );
+  uart0_init( 115200, 8, 1, 'n' );
   init_files();
   init_rtcs();
 
