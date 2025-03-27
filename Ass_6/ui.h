@@ -43,6 +43,9 @@ void ui_key_task(INT8U, INT8U, INT8U, INT8U);
 *   Function : Test function
 ******************************************************************************/
 void get_task_name(char *buf, INT8U id);
+void get_queue_name(char *buf, INT8U id);
+void task_debugger();
+void queue_debugger();
 
 
 /****************************** End Of Module *******************************/

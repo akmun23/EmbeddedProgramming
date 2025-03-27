@@ -117,7 +117,9 @@ BOOLEAN get_queue( INT8U, INT8U*, INT16U );
 *   Function : consume data from queue
 ******************************************************************************/
 
-void get_info(INT16U *buf, INT8U id);
+void get_task_info(INT16U *buf, INT8U id);
+void get_queue_info(INT16U *buf, INT8U id);
+
 
 
 extern HANDLE start_task( INT8U, void (*tf)(INT8U, INT8U, INT8U, INT8U) );

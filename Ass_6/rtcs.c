@@ -232,7 +232,7 @@ INT16U timeout;
   return( result );
 }
 
-void get_info(INT16U *buf, INT8U id){
+void get_task_info(INT16U *buf, INT8U id){
 
     buf[0] = pot[id].id;
     buf[1] = pot[id].condition;
@@ -245,6 +245,13 @@ void get_info(INT16U *buf, INT8U id){
     return;
 }
 
+void get_queue_info(INT16U *buf, INT8U id){
+    buf[0] = poq[id].head;
+    buf[1] = poq[id].tail;
+    buf[2] = poq[id].q_not_full;
+    buf[3] = poq[id].q_not_empty;
+    buf[4] = poq[id].buf;
+}
 
 
 
