@@ -21,6 +21,7 @@ ui.obj: ../ui.h
 ui.obj: ../rtc.h
 ui.obj: ../string.h
 ui.obj: ../file.h
+ui.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 
 ../ui.c:
 
@@ -63,4 +64,6 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 ../string.h:
 
 ../file.h:
+
+C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 

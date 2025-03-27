@@ -29,6 +29,10 @@
 #include "rtc.h"
 #include "rtcs.h"
 #include "string.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+
 /*****************************    Defines    *******************************/
 
 
@@ -49,7 +53,6 @@ void delay(int count){
     while(count--);
     return;
 }
-
 void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 /*****************************************************************************
 *   Input    :
@@ -89,16 +92,115 @@ void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
                             "Semaphore - %d\r\n"
                             "Timer - %d\r\n",
                             InBuf[1]-'0', buffer[0],buffer[1], namebuffer, buffer[3], buffer[4], buffer[5], buffer[6] );*/
-          int ii;
-          for(ii = 1; ii <= 16; ii++){
-              get_info(buffer, ii);// PRØV AT SENDE HVER LINJE HVER FOR SIG
-              gfprintf(COM1, "\rTASK: %02d, Condition: %d  \n", ii - 1, buffer[1]);
+          int j = 1;
+          int k = 0;
+          uart0_putc( '\r' );
+          while(!uart0_tx_rdy());
+          uart0_putc( '\n' );
+          while(!uart0_tx_rdy());
+          for(j = 0; j <= 15; j++){
+              get_info(buffer, j+1);
+              namebuffer[0] = '\0';
+              get_task_name(namebuffer, buffer[0]);
+              //gfprintf(COM1, "\rTASK: %02d, Condition: %d  \n", j - 1, buffer[1]);
+
+
+              char NextStr[160] = "TASK: ";
+              char id[] = {'0'+j/10, '0'+j%10};
+              strcat(NextStr, id);
+
+              if (namebuffer[0] == '\0'){
+                  strcat(namebuffer, "                ");
+
+              }
+              while(strlen(namebuffer) < 16){
+                  strcat(namebuffer, " ");
+              }
+
+              strcat(NextStr, ", NAME: ");
+              strcat(NextStr, namebuffer);
+
+
+              strcat(NextStr, ", CONDITION: ");
+              switch(buffer[1]){
+                  case 1:
+                      strcat(NextStr, " READY  , ");
+                      strcat(NextStr, "                     ");
+                      break;
+                  case 2:
+                  case 4:
+                      strcat(NextStr, " WAITING, ");
+
+                      if(buffer[5]){
+                          strcat(NextStr, " SEM: ");
+                              if(buffer[5] > 64){
+                                  buffer[5] = 0;
+                          }
+
+                          if(!buffer[6]){
+                              char SEM[] = {'0'+buffer[5]/10, '0'+buffer[5]%10, ',', ' ', ' ',' '};
+                              strcat(NextStr, SEM);
+                              strcat(NextStr, "         ");
+                          }else{
+                              char SEM[] = {'0'+buffer[5]/10, '0'+buffer[5]%10, ','};
+                              strcat(NextStr, SEM);
+                          }
+
+
+                      }
+                      if(buffer[6]){
+                          if(buffer[5]){
+                              strcat(NextStr, "TIM: ");
+
+                          }else{
+                              strcat(NextStr, "          TIM: ");
+
+                          }
+                          char TIM[] = {'0', '0', '0'+(buffer[6]%1000)/100, '0'+(buffer[6]%100)/10, '0'+buffer[6]%10, ','};
+                          strcat(NextStr, TIM);
+                      }
+                      break;
+                  default:
+                      strcat(NextStr, " DEAD   , ");
+                      strcat(NextStr, "                     ");
+                      break;
+
+              }
+
+              strcat(NextStr, " STATE: ");
+              if(buffer[3] > 33){
+                  buffer[3] = 0;
+              }
+              char STATE[] = {'0'+buffer[1]/10, '0'+buffer[1]%10};
+              strcat(NextStr, STATE);
+
+              for(k = 0; k < 100; k++){
+                    uart0_putc( NextStr[k]);
+                    while(!uart0_tx_rdy());
+              }
+              uart0_putc( '\r' );
+              while(!uart0_tx_rdy());
+              uart0_putc( '\n' );
+              while(!uart0_tx_rdy());
+
+
+              //gfprintf(COM1, "%d", j/j);
+
+
+              //uart0_putc( 'kadsads' );
+              //while(!uart0_tx_rdy());
+              //uart0_putc( '\r' );
+              //while(!uart0_tx_rdy());
+              //uart0_putc( '\n' );
+              //while(!uart0_tx_rdy());
+
+              //uart0_put_q('k');
           }
+
+
       }
       i = 0;
-
     }
-
   }
 }
 

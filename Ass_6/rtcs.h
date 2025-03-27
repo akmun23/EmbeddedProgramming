@@ -39,7 +39,7 @@ typedef unsigned char  SEM;        //
 #define TASK_WAIT_FOR_TIMEOUT   2   // bit 1
 #define TASK_WAIT_FOR_SEMAPHORE 4   // bit 2
 
-#define QUEUE_SIZE   128
+#define QUEUE_SIZE   0x7f
 
 #define EVENT_NONE    0
 #define EVENT_TIMEOUT 1
