@@ -46,209 +46,201 @@ char namebuffer[128] = { 0 };
 
 /*****************************   Functions   *******************************/
 
-void delay(int count)
-{
-    while (count--)
-        ;
-    return;
-}
-
 void task_debugger()
+/*****************************************************************************
+ *   Input    :
+ *   Output   :
+ *   Function : Prints the info from task on the terminal
+ ******************************************************************************/
 {
-    int j = 1;
+    int j = 0;
     int k = 0;
-    uart0_putc('\r');
+    uart0_putc('\r');                                                       // Reset cursor to start
     while (!uart0_tx_rdy())
-        ;
-    uart0_putc('\n');
-    while (!uart0_tx_rdy())
-        ;
-    for (j = 0; j <= 15; j++)
+        ;                                                                   // Wait for the reset to be written
+    uart0_putc('\n');                                                       // Starts a new line
+    while (!uart0_tx_rdy());                                                // Waits for the new line to be written
+
+    for (j = 1; j <= MAX_TASKS; j++)                                        // Runs thorugh the maximum amount of task possible
     {
-        get_task_info(taskbuffer, j + 1);
-        namebuffer[0] = '\0';
-        get_task_name(namebuffer, taskbuffer[0]);
+        get_task_info(taskbuffer, j);                                       // Gets info from task j
+        namebuffer[0] = '\0';                                               // Reset namebuffer
+        get_task_name(namebuffer, taskbuffer[0]);                           // Gets name for the current task
 
         char NextStrTask[128] = "TASK: ";
-        char id[] = { '0' + j / 10, '0' + j % 10 };
-        strcat(NextStrTask, id);
+        char id[] = { '0' + taskbuffer[0] / 10, '0' + taskbuffer[0] % 10 }; // Writes id
+        strcat(NextStrTask, id);                                            // Insert the id into the string
 
-        if (namebuffer[0] == '\0')
+        strcat(NextStrTask, ", NAME: ");                                    // Start Name
+        if (namebuffer[0] == '\0')                                          // If task is null
         {
-            strcat(namebuffer, "                ");
-
-        }
-        while (strlen(namebuffer) < 16)
-        {
-            strcat(namebuffer, " ");
+            strcat(namebuffer, "                ");                         // Write empty string
         }
 
-        strcat(NextStrTask, ", NAME: ");
-        strcat(NextStrTask, namebuffer);
+        while (strlen(namebuffer) < NAME_LENGTH)                            // If name is less than 16 char
+        {
+            strcat(namebuffer, " ");                                        // Fill it with space until it is 16 char long
+        }
 
-        strcat(NextStrTask, ", CONDITION: ");
-        switch (taskbuffer[1])
+        strcat(NextStrTask, namebuffer);                                    // Insert the name that was found
+
+        strcat(NextStrTask, ", CONDITION:");                                // Start Condition
+        switch (taskbuffer[1])                                              // Find which condition the current task is in
         {
         case 1:
-            strcat(NextStrTask, " READY  , ");
-            strcat(NextStrTask, "                     ");
+            strcat(NextStrTask, " READY  , ");                              // Condition is ready
+            strcat(NextStrTask, "                     ");                   // Fill in blank where Timer and Sem should be
             break;
         case 2:
         case 4:
-            strcat(NextStrTask, " WAITING, ");
-
-            if (taskbuffer[5])
-            {
-                strcat(NextStrTask, " SEM: ");
-                if (taskbuffer[5] > 64)
+            strcat(NextStrTask, " WAITING, ");                              // Start Waiting
+                if (taskbuffer[5])                                          // If it is waiting for Sem
                 {
-                    taskbuffer[5] = 0;
-                }
-
-                if (!taskbuffer[6])
-                {
+                    strcat(NextStrTask, " SEM: ");                          // Start Sem
                     char SEM[] = { '0' + taskbuffer[5] / 10, '0'
-                                           + taskbuffer[5] % 10,
-                                   ',', ' ', ' ', ' ' };
-                    strcat(NextStrTask, SEM);
-                    strcat(NextStrTask, "         ");
-                }
-                else
-                {
-                    char SEM[] = { '0' + taskbuffer[5] / 10, '0'
-                                           + taskbuffer[5] % 10,
-                                   ',', '\0' };
-                    strcat(NextStrTask, SEM);
-                }
-
-            }
-            if (taskbuffer[6])
-            {
-                if (taskbuffer[5])
-                {
-                    strcat(NextStrTask, " TIM: ");
+                                                               + taskbuffer[5] % 10,
+                                                       ',', '\0' };         // Find Sem
+                    strcat(NextStrTask, SEM);                               // Insert Sem into string
+                }else{
+                    strcat(NextStrTask, "         ");                       // Insert blank space
 
                 }
-                else
+
+
+                if (taskbuffer[6])                                          // If it is waiting for Timer
                 {
-                    strcat(NextStrTask, "          TIM: ");
+                    strcat(NextStrTask, " TIM: ");                          // Start Tim
+
+                    char TIM[] = { '0', '0', '0' + (taskbuffer[6] % 1000) / 100, '0'
+                                           + (taskbuffer[6] % 100) / 10,
+                                   '0' + taskbuffer[6] % 10, ',', '\0' };   // Find value of Tim
+                    strcat(NextStrTask, TIM);                               // Insert value into string
+                }else{
+                    strcat(NextStrTask, "            ");                    // Insert blank space
 
                 }
-                char TIM[] = { '0', '0', '0' + (taskbuffer[6] % 1000) / 100, '0'
-                                       + (taskbuffer[6] % 100) / 10,
-                               '0' + taskbuffer[6] % 10, ',' };
-                strcat(NextStrTask, TIM);
-            }
-            break;
+                break;
         default:
-            strcat(NextStrTask, " DEAD   , ");
-            strcat(NextStrTask, "                     ");
+            strcat(NextStrTask, " DEAD   , ");                              // Set task condition to DEAD
+            strcat(NextStrTask, "                     ");                   // Insert blank spaces
             break;
 
         }
 
-        strcat(NextStrTask, " STATE: ");
-        char STATE[] = { '0' + taskbuffer[3] / 10, '0' + taskbuffer[3] % 10 };
-        strcat(NextStrTask, STATE);
+        strcat(NextStrTask, " STATE: ");                                    // Start State
+        char STATE[] = { '0' + taskbuffer[3] / 10, '0' + taskbuffer[3] % 10 }; // Find value of State
+        strcat(NextStrTask, STATE);                                         //Insert value into string
 
-        for (k = 0; k < 100; k++)
+        for (k = 0; k < 128; k++)                                           // Goes for the length of InBuf
         {
-            uart0_putc(NextStrTask[k]);
-            while (!uart0_tx_rdy())
-                ;
+            uart0_putc(NextStrTask[k]);                                     // Writes one char at a time
+            while (!uart0_tx_rdy());                                        // Waits for UART to be ready for the next char
+
         }
-        uart0_putc('\r');
-        while (!uart0_tx_rdy())
-            ;
-        uart0_putc('\n');
-        while (!uart0_tx_rdy())
-            ;
+        uart0_putc('\r');                                                   // Resets the UART
+        while (!uart0_tx_rdy());                                            // Waits for UART to be ready
 
+        uart0_putc('\n');                                                   // Starts a new line
+        while (!uart0_tx_rdy());                                            // Waits for UART to be ready
     }
-
 }
+
 void queue_debugger()
+/*****************************************************************************
+ *   Input    :
+ *   Output   :
+ *   Function : Prints the info from queues on the terminal
+ ******************************************************************************/
 {
-    int j = 1;
+    int j = 0;
     int k = 0;
-    uart0_putc( '\r' );
-    while(!uart0_tx_rdy());
-    uart0_putc( '\n' );
-    while(!uart0_tx_rdy());
-    for (j = 0; j <= 15; j++)
+    uart0_putc('\r');                                                       // Reset cursor to start
+    while (!uart0_tx_rdy())
+        ;                                                                   // Wait for the reset to be written
+    uart0_putc('\n');                                                       // Starts a new line
+    while (!uart0_tx_rdy());                                                // Waits for the new line to be written
+        ;
+    for (j = 0; j <= MAX_QUEUES; j++)                                       // Goes for the maximum amount of Queues possible
     {
 
-        get_queue_info(queuebuffer, j + 1);
-        namebuffer[0] = '\0';
-        get_queue_name(namebuffer, j);
+        get_queue_info(queuebuffer, j);                                     // Gets info for queue j
+        namebuffer[0] = '\0';                                               // Resets namebuffer
+        get_queue_name(namebuffer, j);                                      // Gets name of the Queue
 
-        char NextStrQueue[128] = "QUEUE: ";
-        char id[] = { '0' + j / 10, '0' + j % 10 };
-        strcat(NextStrQueue, id);
+        char NextStrQueue[128] = "QUEUE: ";                                 // Starts Queue
+        char id[] = { '0' + j / 10, '0' + j % 10 };                         // Gets id of Queue
+        strcat(NextStrQueue, id);                                           // Inserts id into string
 
-        if (namebuffer[0] == '\0')
-                {
-                    strcat(namebuffer, "                ");
-
-                }
-                while (strlen(namebuffer) < 16)
-                {
-                    strcat(namebuffer, " ");
-                }
-
-                strcat(NextStrQueue, ", NAME: ");
-                strcat(NextStrQueue, namebuffer);
-
-        strcat(NextStrQueue, " HEAD: ");
-        char head[] = { '0'+queuebuffer[0]/100,'0' + (queuebuffer[0]%100) / 10, '0' + queuebuffer[0] % 10 };
-        strcat(NextStrQueue, head);
-
-        strcat(NextStrQueue, " TAIL: ");
-        char tail[] = { '0'+queuebuffer[1]/100,'0' + (queuebuffer[1]%100) / 10, '0' + queuebuffer[1] % 10 , '\0'};
-        strcat(NextStrQueue, tail);
-
-        strcat(NextStrQueue, " NOT_FULL: ");
-        char not_full[] = {'0' + queuebuffer[2] % 10, '\0'};
-        strcat(NextStrQueue, not_full);
-
-        strcat(NextStrQueue, " NOT_EMPTY: ");
-        char not_empty[] = {'0' + (queuebuffer[3]%100) / 10, '0' + queuebuffer[3] % 10, '\0'};
-        strcat(NextStrQueue, not_empty);
-
-        strcat(NextStrQueue, " NUM_ELEMENTS: ");
-        int elements = 0;
-        if(queuebuffer[0] >= queuebuffer[1]){
-            elements = queuebuffer[0] - queuebuffer[1];
-            char elements_str[] = { '0'+elements/100,'0' + (elements%100) / 10, '0' + elements % 10, '\0'};
-            strcat(NextStrQueue, elements_str);
-        }else {
-            elements = QUEUE_SIZE - queuebuffer[1] + queuebuffer[0];
-            char elements_str[] = { '0'+elements/100,'0' + (elements%100) / 10, '0' + elements % 10, '\0'};
-            strcat(NextStrQueue, elements_str);
-        }
-
-
-
-
-
-        for (k = 0; k < 128; k++)
+        strcat(NextStrQueue, ", NAME: ");                                   // Start Name
+        if (namebuffer[0] == '\0')                                          // If Name is null
         {
-            uart0_putc(NextStrQueue[k]);
-            while (!uart0_tx_rdy())
-                ;
+            strcat(namebuffer, "                ");                         // Insert blanks
+
         }
-        uart0_putc('\r');
-        while (!uart0_tx_rdy())
-            ;
-        uart0_putc('\n');
-        while (!uart0_tx_rdy())
-            ;
+        while (strlen(namebuffer) < NAME_LENGTH)                            // A name is 16 chars
+        {
+            strcat(namebuffer, " ");                                        // Fill in blank until length is 16 chars
+        }
+        strcat(NextStrQueue, namebuffer);                                   // Insert name
+
+        strcat(NextStrQueue, " HEAD: ");                                    // Start Head
+        char head[] = { '0' + queuebuffer[0] / 100, '0'
+                                + (queuebuffer[0] % 100) / 10,
+                        '0' + queuebuffer[0] % 10 };                        // Find value of Head
+        strcat(NextStrQueue, head);                                         // Insert value into string
+
+        strcat(NextStrQueue, " TAIL: ");                                    // Start Tail
+        char tail[] = { '0' + queuebuffer[1] / 100, '0'
+                                + (queuebuffer[1] % 100) / 10,
+                        '0' + queuebuffer[1] % 10, '\0' };                  // Find value of Tail
+        strcat(NextStrQueue, tail);                                         // Insert value into string
+
+        strcat(NextStrQueue, " NOT_FULL: ");                                // Start Not_full
+        char not_full[] = { '0' + queuebuffer[2] % 10, '\0' };              // Find value of Not_full
+        strcat(NextStrQueue, not_full);                                     // Insert value into string
+
+        strcat(NextStrQueue, " NOT_EMPTY: ");                               // Start Not_Empty
+        char not_empty[] = { '0' + (queuebuffer[3] % 100) / 10, '0'
+                                     + queuebuffer[3] % 10,
+                             '\0' };                                        // Find value of Not_empty
+        strcat(NextStrQueue, not_empty);                                    // Insert into string
+
+        strcat(NextStrQueue, " NUM_ELEMENTS: ");                            // Start Num_elements
+        int elements = 0;                                                   // Initialize variable
+        if (queuebuffer[0] >= queuebuffer[1])                               // If Head > Tail
+        {
+            elements = queuebuffer[0] - queuebuffer[1];                     // Elements = Head - Tail
+            char elements_str[] = { '0' + elements / 100, '0'
+                                            + (elements % 100) / 10,
+                                    '0' + elements % 10, '\0' };            // Find value of Elements
+            strcat(NextStrQueue, elements_str);                             // Insert into string
+        }
+        else                                                                // If Tail > Head
+        {
+            elements = QUEUE_SIZE - queuebuffer[1] + queuebuffer[0];        // ELEMENTS = QUEUE_SIZE - Tail + Head
+            char elements_str[] = { '0' + elements / 100, '0'
+                                            + (elements % 100) / 10,
+                                    '0' + elements % 10, '\0' };            // Find value of Elements
+            strcat(NextStrQueue, elements_str);                             // Insert into string
+        }
+
+        for (k = 0; k < 128; k++)                                           // Goes for the length of InBuf
+        {
+            uart0_putc(NextStrQueue[k]);                                    // Writes one char at a time
+            while (!uart0_tx_rdy());                                        // Waits for UART to be ready for the next char
+
+        }
+        uart0_putc('\r');                                                   // Resets the UART
+        while (!uart0_tx_rdy());                                            // Waits for UART to be ready
+
+        uart0_putc('\n');                                                   // Starts a new line
+        while (!uart0_tx_rdy());                                            // Waits for UART to be ready
     }
 }
 
 void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 /*****************************************************************************
- *   Input    :
+ *   Input    : INT8U, INT8U, INT8U, INT8U
  *   Output   :
  *   Function :
  ******************************************************************************/
@@ -290,12 +282,17 @@ void ui_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 }
 
 void get_task_name(char *buf, INT8U id)
+/*****************************************************************************
+ *   Input    : char*, INTU8
+ *   Output   :
+ *   Function : Get the name of the task based on the id
+ ******************************************************************************/
 {
 
-    switch (id)
+    switch (id)                         // Switch case to find the Task name that fits the id
     {
     case TASK_RTC:
-        strcpy(buf, "TASK_RTC");
+        strcpy(buf, "TASK_RTC");        // If id = 1, Task = Task_RTC
         break;
 
     case TASK_DISPLAY_RTC:
@@ -325,12 +322,17 @@ void get_task_name(char *buf, INT8U id)
 }
 
 void get_queue_name(char *buf, INT8U id)
+/*****************************************************************************
+ *   Input    : char*, INTU8
+ *   Output   :
+ *   Function : Get the name of the queue based on the id
+ ******************************************************************************/
 {
 
-    switch (id)
+    switch (id)                     // Switch case to find the Queue name that fits the id
     {
-    case Q_UART_TX:
-        strcpy(buf, "Q_UART_TX");
+    case Q_UART_TX:                 // If id = 0
+        strcpy(buf, "Q_UART_TX");   // Queue name = Q_UART_TX
         break;
     case Q_UART_RX:
         strcpy(buf, "Q_UART_RX");
