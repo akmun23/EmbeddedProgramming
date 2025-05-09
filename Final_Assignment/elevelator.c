@@ -33,7 +33,7 @@ void elevator_init(Elevator * elevator){
 
     elevator->elevator_state = CALL_ELEVATOR;
     elevator->current_floor = 2;
-    elevator->destination_floor = 15;
+    elevator->destination_floor = 3;
     elevator->password[0] = 4;
     elevator->password[1] = 0;
     elevator->password[2] = 0;
@@ -62,20 +62,18 @@ void elevator_task(void *pvParameters){
             case CALL_ELEVATOR:
                 detect_hold_switch(&myElevator);
                 myElevator.elevator_state = DISPLAY_FLOOR;
-                GPIO_PORTF_DATA_R &= ~(0x08);
-                GPIO_PORTF_DATA_R |= 0x02;
                 break;
             case DISPLAY_FLOOR:
                 display_current_floor(&myElevator);
                 myElevator.elevator_state = OPEN_DOORS;
                 break;
             case OPEN_DOORS:
-                open_doors(NULL);
+                open_doors(&myElevator);
                 myElevator.elevator_state = ENTER_CODE;
                 // Open doors when elevator arrives at floor
                 break;
             case ENTER_CODE:
-                enter_password(NULL);
+                enter_password(&myElevator);
                 myElevator.elevator_state = VALIDATE_CODE;
                 // Enter 4 digit password from keypad
                 break;
@@ -206,16 +204,14 @@ void display_current_floor(Elevator * elevator){
     {
         INT8U i;
         char floor_str[16] = "Floor: ";
-        floor_str[8] = int_to_char(elevator->current_floor / 10);
-        floor_str[9] = int_to_char(elevator->current_floor % 10);
+        floor_str[7] = int_to_char(elevator->current_floor / 10);
+        floor_str[8] = int_to_char(elevator->current_floor % 10);
 
-        for(i = 0; i < 16; i++){
+        for(i = 0; i < 9; i++){
             xQueueSend(xQueue_lcd, &floor_str[i], 0);
         }
        
-        // Wait for 1 second
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        
+
         // Check if the elevator has reached the destination floor
         if(elevator->current_floor == elevator->destination_floor){
             break;
@@ -244,14 +240,43 @@ void display_current_floor(Elevator * elevator){
 
         // Reset the LCD cursor to the beginning
         move_LCD(0, 0);
+        vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
     }
 }
 
 void open_doors(Elevator * elevator){
-    while(1);
+    GPIO_PORTF_DATA_R &= ~(0x04);
+    GPIO_PORTF_DATA_R |= 0x02;
+    INT8U i;
+    INT8U door_strUpper[16];
+    INT8U door_strLower[16];
+
+
+    while(1){
+        for(i = 0; i < 16; i++){
+            door_strUpper[i] = ' ';
+            door_strLower[i] = 0x7C;
+        }
+        move_LCD(0, 0);
+        for(i = 0; i < 16; i++){
+            xQueueSend(xQueue_lcd, &door_strUpper[i], 0);
+        }
+
+        move_LCD(0, 1);
+        for(i = 0; i < 16; i++){
+            xQueueSend(xQueue_lcd, &door_strLower[i], 0);
+        }
+        vTaskDelay(3000 / portTICK_RATE_MS); // Delay to avoid busy waiting
+
+    }
+
+    GPIO_PORTF_DATA_R &= ~(0x08);
+    GPIO_PORTF_DATA_R |= 0x04;
+
 }
 
 void enter_password(Elevator * elevator){
+    while(1);
     // Enter the password using the keypad
 }
 
