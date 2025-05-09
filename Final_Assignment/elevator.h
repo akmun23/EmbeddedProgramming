@@ -50,12 +50,26 @@
 #define FIX_ELEVATOR_ERROR  12  // Display error for wrong rotation direction
 #define EXIT_ELEVATOR       13  // Save floor, close elevator, log trip
 
-elevator myElevator; // Struct for elevator
+typedef struct{
+    INT8U elevator_state;               // Elevator state
+    INT8U current_floor;                // Current floor of the elevator
+    INT8U destination_floor;            // Destination floor
+    INT8U password[4];                  // Password entered by user
+    INT8U elevator_acceleration;        // Elevator acceleration value
+    INT8U elevator_deceleration;        // Elevator deceleration value
+    INT8U speed;                        // Elevator speed
+    BOOLEAN door_status;                // Door status (open/closed)
+    INT8U numberOfTrips;                // Number of trips made
+} Elevator;
 
+extern QueueHandle_t xQueue_key, xQueue_lcd;
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Functions   *******************************/
+
+void elevator_init(Elevator * elevator);
+
 
 void elevator_task(void *pvParameters);
 /*****************************************************************************
@@ -73,98 +87,98 @@ char int_to_char(INT8U number);
 
 
 // FUNCTIONS FOR ELEVATOR TASK
-void detect_hold_switch(void *pvParameters);
+void detect_hold_switch(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ******************************************************************************/
 
-void display_current_floor(void *pvParameters);
+void display_current_floor(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ******************************************************************************/
 
-void open_doors(void *pvParameters);
+void open_doors(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ******************************************************************************/
 
-void enter_password(void *pvParameters);
+void enter_password(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ******************************************************************************/
 
-void validate_password(void *pvParameters);
+void validate_password(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void choose_floor(void *pvParameters);
+void choose_floor(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void accelerate_elevator(void *pvParameters);
+void accelerate_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void decelerate_elevator(void *pvParameters);
+void decelerate_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void break_elevator(void *pvParameters);
+void break_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void setup_rst_elevator(void *pvParameters);
+void setup_rst_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void restart_elevator(void *pvParameters);
+void restart_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void fix_elevator(void *pvParameters);
+void fix_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void fix_elevator_error(void *pvParameters);
+void fix_elevator_error(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
 *   Function : 
 ***********************************************************************************/
 
-void exit_elevator(void *pvParameters);
+void exit_elevator(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -

@@ -22,40 +22,33 @@
 #include "elevator.h"
 
 /*****************************    Defines    *******************************/
-typedef struct{
-    INT8U elevator_state;               // Elevator state
-    INT8U current_floor;                // Current floor of the elevator
-    INT8U destination_floor;            // Destination floor
-    INT8U password[4];                  // Password entered by user
-    INT8U elevator_acceleration;        // Elevator acceleration value
-    INT8U elevator_deceleration;        // Elevator deceleration value
-    INT8U speed;                        // Elevator speed
-    BOOLEAN door_status;                // Door status (open/closed)
-    INT8U numberOfTrips;                // Number of trips made
-} elevator;
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
 
 /*****************************   Functions   *******************************/
-void elevator_init(void){
+void elevator_init(Elevator * elevator){
     // Initialize elevator system
-    myElevator.elevator_state = CALL_ELEVATOR;
-    myElevator.current_floor = 2;
-    myElevator.destination_floor = 2;
-    INT8U temp_password[4] = {7, 9, 1, 3};
-    memcpy(myElevator.password, temp_password, sizeof(temp_password));
-    myElevator.elevator_acceleration = 0;
-    myElevator.elevator_deceleration = 0;
-    myElevator.speed = 0;
-    myElevator.door_status = FALSE;
-    myElevator.numberOfTrips = 0;
+
+    elevator->elevator_state = CALL_ELEVATOR;
+    elevator->current_floor = 2;
+    elevator->destination_floor = 15;
+    elevator->password[0] = 4;
+    elevator->password[1] = 0;
+    elevator->password[2] = 0;
+    elevator->password[3] = 0;
+    elevator->elevator_acceleration = 0;
+    elevator->elevator_deceleration = 0;
+    elevator->speed = 0;
+    elevator->door_status = FALSE;
+    elevator->numberOfTrips = 0;
 }
 
 void elevator_task(void *pvParameters){
 
-    elevator_init();
+    Elevator myElevator;
+    elevator_init(&myElevator);
     red_led_init();
     green_led_init();
     yellow_led_init();
@@ -67,13 +60,13 @@ void elevator_task(void *pvParameters){
 
         switch(myElevator.elevator_state){
             case CALL_ELEVATOR:
-                detect_hold_switch(NULL);
+                detect_hold_switch(&myElevator);
                 myElevator.elevator_state = DISPLAY_FLOOR;
                 GPIO_PORTF_DATA_R &= ~(0x08);
                 GPIO_PORTF_DATA_R |= 0x02;
                 break;
             case DISPLAY_FLOOR:
-                display_current_floor(NULL);
+                display_current_floor(&myElevator);
                 myElevator.elevator_state = OPEN_DOORS;
                 break;
             case OPEN_DOORS:
@@ -172,7 +165,7 @@ char int_to_char(INT8U number){
 }
 
 
-void detect_hold_switch(void *pvParameters){
+void detect_hold_switch(Elevator * elevator){
     uint32_t start_time = xTaskGetTickCount();
     uint32_t current_time;
     uint32_t elapsed_time;
@@ -208,43 +201,43 @@ void detect_hold_switch(void *pvParameters){
 // When the button has been pressed for 2 seconds, the elevator will start moving
 // to the floor where the button was pressed and the elevator will stop at that floor
 // This will be displayed on the LCD
-void display_current_floor(void *pvParameters){
+void display_current_floor(Elevator * elevator){
     while(1)
     {
         INT8U i;
         char floor_str[16] = "Floor: ";
-        char floor_str[8] = int_to_char(myElevator.current_floor / 10);
-        char floor_str[9] = int_to_char(myElevator.current_floor % 10);
+        floor_str[8] = int_to_char(elevator->current_floor / 10);
+        floor_str[9] = int_to_char(elevator->current_floor % 10);
 
         for(i = 0; i < 16; i++){
-            xQueueSend(xQueueLCD, &floor_str[i], 0);
+            xQueueSend(xQueue_lcd, &floor_str[i], 0);
         }
        
         // Wait for 1 second
         vTaskDelay(pdMS_TO_TICKS(1000));
         
         // Check if the elevator has reached the destination floor
-        if(myElevator.current_floor == myElevator.destination_floor){
+        if(elevator->current_floor == elevator->destination_floor){
             break;
         } else {
             // Move the elevator towards the destination floor
-            if(myElevator.current_floor < myElevator.destination_floor){
+            if(elevator->current_floor < elevator->destination_floor){
                 // Move elevator up
-                myElevator.current_floor++;
+                elevator->current_floor++;
 
                 // Check if the elevator is at the 13th floor which doesnt exist
                 // and skip it
-                if(myElevator.current_floor == 13){
-                    myElevator.current_floor++;
+                if(elevator->current_floor == 13){
+                    elevator->current_floor++;
                 }
             } else {
                 // Move elevator down
-                myElevator.current_floor--;
+                elevator->current_floor--;
 
                 // Check if the elevator is at the 13th floor which doesnt exist
                 // and skip it
-                if(myElevator.current_floor == 13){
-                    myElevator.current_floor--;
+                if(elevator->current_floor == 13){
+                    elevator->current_floor--;
                 }
             }
         }
@@ -254,51 +247,51 @@ void display_current_floor(void *pvParameters){
     }
 }
 
-void open_doors(void *pvParameters){
-    // Open the elevator doors
+void open_doors(Elevator * elevator){
+    while(1);
 }
 
-void enter_password(void *pvParameters){
+void enter_password(Elevator * elevator){
     // Enter the password using the keypad
 }
 
-void validate_password(void *pvParameters){
+void validate_password(Elevator * elevator){
     // Validate the entered password
 }
 
-void choose_floor(void *pvParameters){
+void choose_floor(Elevator * elevator){
     // Choose the destination floor using the rotary encoder
 }
 
-void accelerate_elevator(void *pvParameters){
+void accelerate_elevator(Elevator * elevator){
     // Accelerate the elevator
 }
 
-void decelerate_elevator(void *pvParameters){
+void decelerate_elevator(Elevator * elevator){
     // Decelerate the elevator
 }
 
-void break_elevator(void *pvParameters){
+void break_elevator(Elevator * elevator){
     // Break the elevator
 }
 
-void setup_rst_elevator(void *pvParameters){
+void setup_rst_elevator(Elevator * elevator){
     // Setup and reset the elevator
 }
 
-void restart_elevator(void *pvParameters){
+void restart_elevator(Elevator * elevator){
     // Restart the elevator
 }
 
-void fix_elevator(void *pvParameters){
+void fix_elevator(Elevator * elevator){
     // Fix the elevator
 }
 
-void fix_elevator_error(void *pvParameters){
+void fix_elevator_error(Elevator * elevator){
     // Handle elevator error
 }
 
-void exit_elevator(void *pvParameters){
+void exit_elevator(Elevator * elevator){
     // Exit the elevator
 }
 
