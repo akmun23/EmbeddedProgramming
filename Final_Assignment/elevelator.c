@@ -80,24 +80,30 @@ void elevator_task(void *pvParameters){
                 if(myElevator.numberOfTrips == 4){
                     myElevator.elevator_state = BREAK_ELEVATOR;
                 } else {
-                    myElevator.elevator_state = ACC_ELEVATOR;
+                    myElevator.elevator_state = EXIT_ELEVATOR;
                 }
                 break;  
-            case ACC_ELEVATOR:
-                
-            case DEC_ELEVATOR:
-                // Decelerate elevator (red LED blinking)
             case BREAK_ELEVATOR:
-                // Every 4th trip all LEDs blink
+                break_elevator(&myElevator);
+                myElevator.elevator_state = SETUP_RST_ELEVATOR;
             case SETUP_RST_ELEVATOR:
-                // Generate random number and display on screen
+                setup_rst_elevator(&myElevator);
+                myElevator.elevator_state = RESTART_ELEVATOR;
             case RESTART_ELEVATOR:
+                restart_elevator(&myElevator);
+                myElevator.elevator_state = FIX_ELEVATOR;
                 // Use pot to reach goal value shown on screen
             case FIX_ELEVATOR:
+                fix_elevator(&myElevator);
+                myElevator.elevator_state = FIX_ELEVATOR_ERROR;
                 // Turn rotary encoder 360 degrees
             case FIX_ELEVATOR_ERROR:
+                fix_elevator_error(&myElevator);
+                myElevator.elevator_state = FIX_ELEVATOR;
                 // Display error for wrong rotation direction
             case EXIT_ELEVATOR:
+                exit_elevator(&myElevator);
+                myElevator.elevator_state = CALL_ELEVATOR;
                 // Save floor, close elevator, log trip
                 break;
             default:
@@ -105,7 +111,7 @@ void elevator_task(void *pvParameters){
                 break;
         }
 
-        xTaskDelay(1 / portTICK_RATE_MS); // Delay to avoid busy waiting
+        vTaskDelay(1 / portTICK_RATE_MS); // Delay to avoid busy waiting
     }
 }
 
@@ -179,9 +185,6 @@ void display_current_floor(Elevator * elevator, Led_controller *led_controller){
             led_controller->led_state = ELEVATOR_DECELERATING;
         }
         
-
-        
-        INT8U i;
         char floor_str[16] = "Floor: ";
         floor_str[7] = int_to_char(elevator->current_floor / 10);
         floor_str[8] = int_to_char(elevator->current_floor % 10);
@@ -398,10 +401,66 @@ void break_elevator(Elevator * elevator){
 
 void setup_rst_elevator(Elevator * elevator){
     // Setup and reset the elevator
-}
+    INT16U goal = rand() % 360;                                   // Generates a random number between 0 to 99;
+    int i = 0;                                                   // I 😦
+    char goal_str[9] = "Goal: ";                                 // Generates a string of length 13
+
+    goal_str[6] = int_to_char((goal / 100) % 10);                // Inserts the hundreds digit    
+    goal_str[7] = int_to_char(goal / 10);                        // Inserts the tens digit
+    goal_str[8] = int_to_char(goal % 10);                        // Inserts the ones digit
+
+    for(i; i < 9; i++)                                           // For loop to itterate though str
+    {
+        xQueueSend(xQueue_lcd, &goal_str[i], portMAX_DELAY);     //put char out on LCD
+    }
+    move_LCD(0, 0);                                              //Put curser on posistion 0
 
 void restart_elevator(Elevator * elevator){
     // Restart the elevator
+    /*
+    INT16U raw_adc;
+    INT16U pot_val;
+    INT8U i;
+    INT8U digits[3];
+    INT8U reset_LCD = 0xFF;     //reset LCD
+
+    char pot_str[9] = "Value:   ";                          // Initilizes string pot_str
+    move_LCD(0, 1);
+
+    while(1){
+
+        raw_adc = get_adc;                                      // Gets value from adc
+        pot_val = (raw_adc*360) / 4096;                         // skaler value to between 0 to 99
+
+        digits[0] = int_to_char((pot_val / 100) % 10);                // Inserts the hundreds digit    
+        digits[1] = int_to_char(pot_val / 10);                  // Gets the tenth digit
+        digits[2] = int_to_char(pot_val % 10);                  // gets the first digit
+
+        xQueueSend(xQueue_lcd, &reset_LCD, portMAX_DELAY);      // Resets the LCD
+
+        pot_str[7] = digits[0];                                 // Puts the Tenth digit on array space 7
+        pot_str[8] = digits[1];                                 // Puts the first digit on array space 8
+
+        for(i; i < 9; i++)                                      // For loop to itterate though pot_str
+        {
+            xQueueSend(xQueue_lcd, &pot_str[i], portMAX_DELAY); // Outputs chars on to LCD
+
+        }
+
+        move_LCD(0, 1);                                         // Moves the curser down to secound line
+
+        if(pot_val == elevator ->goal_number){                  // If statment to check if pot_val is the same as Goal_number
+            char rst_string[14] = "TIME TO FIX IT";             // Very cool string B-)
+            for(i; i < 14 ; i++){                               // For loop to itterate though the cool string B-)
+                xQueueSend(xQueue_lcd, &rst_string[i], portMAX_DELAY);  // Thoughts that cool shit out on LCD B-)
+
+            }
+
+        }
+        break;
+
+    }
+    vTaskDelay(100 / portTICK_RATE_MS);*/
 }
 
 void fix_elevator(Elevator * elevator){
