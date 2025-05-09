@@ -44,7 +44,8 @@ void elevator_init(void){
     myElevator.elevator_state = CALL_ELEVATOR;
     myElevator.current_floor = 2;
     myElevator.destination_floor = 2;
-    myElevator.password = 7913;
+    INT8U temp_password[4] = {7, 9, 1, 3};
+    memcpy(myElevator.password, temp_password, sizeof(temp_password));
     myElevator.elevator_acceleration = 0;
     myElevator.elevator_deceleration = 0;
     myElevator.speed = 0;
@@ -204,12 +205,53 @@ void detect_hold_switch(void *pvParameters){
     }
 }   
 
+// When the button has been pressed for 2 seconds, the elevator will start moving
+// to the floor where the button was pressed and the elevator will stop at that floor
+// This will be displayed on the LCD
 void display_current_floor(void *pvParameters){
     while(1)
     {
-        xQueueSend(xQueue_lcd, &myElevator.current_floor, 0);
+        INT8U i;
+        char floor_str[16] = "Floor: ";
+        char floor_str[8] = int_to_char(myElevator.current_floor / 10);
+        char floor_str[9] = int_to_char(myElevator.current_floor % 10);
+
+        for(i = 0; i < 16; i++){
+            xQueueSend(xQueueLCD, &floor_str[i], 0);
+        }
+       
+        // Wait for 1 second
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        
+        // Check if the elevator has reached the destination floor
+        if(myElevator.current_floor == myElevator.destination_floor){
+            break;
+        } else {
+            // Move the elevator towards the destination floor
+            if(myElevator.current_floor < myElevator.destination_floor){
+                // Move elevator up
+                myElevator.current_floor++;
+
+                // Check if the elevator is at the 13th floor which doesnt exist
+                // and skip it
+                if(myElevator.current_floor == 13){
+                    myElevator.current_floor++;
+                }
+            } else {
+                // Move elevator down
+                myElevator.current_floor--;
+
+                // Check if the elevator is at the 13th floor which doesnt exist
+                // and skip it
+                if(myElevator.current_floor == 13){
+                    myElevator.current_floor--;
+                }
+            }
+        }
+
+        // Reset the LCD cursor to the beginning
+        move_LCD(0, 0);
     }
-    
 }
 
 void open_doors(void *pvParameters){
