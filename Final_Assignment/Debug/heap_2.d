@@ -15,13 +15,13 @@ heap_2.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machi
 heap_2.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 heap_2.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
 heap_2.obj: ../FreeRTOSConfig.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h
-heap_2.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h
+heap_2.obj: ../FRT_Files/inc/projdefs.h
+heap_2.obj: ../FRT_Files/inc/portable.h
+heap_2.obj: ../FRT_Files/inc/deprecated_definitions.h
+heap_2.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h
+heap_2.obj: ../FRT_Files/inc/mpu_wrappers.h
+heap_2.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/task.h
+heap_2.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h
 
 ../heap_2.c:
 
@@ -53,17 +53,17 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
 ../FreeRTOSConfig.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h:
+../FRT_Files/inc/projdefs.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h:
+../FRT_Files/inc/portable.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h:
+../FRT_Files/inc/deprecated_definitions.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h:
+../FRT_Files/inc/mpu_wrappers.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/task.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h:
 

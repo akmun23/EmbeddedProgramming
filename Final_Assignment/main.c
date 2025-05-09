@@ -6,20 +6,22 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
-#include "systick_frt.h"
+#include "FRT_Files/TivaM4/systick_frt.h"
 #include "FreeRTOS.h"
-#include "task.h"
+#include "FRT_Files/inc/task.h"
 #include "status_led.h"
 #include "tmodel.h"
 #include "leds.h"
 #include "adc.h"
-#include "queue.h"
-#include "semphr.h"
+#include "FRT_Files/inc/queue.h"
+#include "FRT_Files/inc/semphr.h"
 #include "file.h"
 #include "lcd.h"
 #include "uart0.h"
 #include "UI_task.h"
 #include "key.h"
+#include "encoder.h"
+#include "elevator.h"
 
 
 
@@ -209,7 +211,7 @@ int main(void)
     //xTaskCreate( green_led_task,  "Green_led",  USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     xTaskCreate( UART_task, "UART", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
+    xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     vTaskStartScheduler();

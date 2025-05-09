@@ -16,17 +16,18 @@ UI_task.obj: ../emp_type.h
 UI_task.obj: ../FreeRTOS.h
 UI_task.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h
 UI_task.obj: ../FreeRTOSConfig.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/Task.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/queue.h
-UI_task.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/semphr.h
+UI_task.obj: ../FRT_Files/inc/projdefs.h
+UI_task.obj: ../FRT_Files/inc/portable.h
+UI_task.obj: ../FRT_Files/inc/deprecated_definitions.h
+UI_task.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h
+UI_task.obj: ../FRT_Files/inc/mpu_wrappers.h
+UI_task.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/Task.h
+UI_task.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h
+UI_task.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/queue.h
+UI_task.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/semphr.h
 UI_task.obj: ../UI_task.h
 UI_task.obj: ../adc.h
+UI_task.obj: ../encoder.h
 UI_task.obj: ../lcd.h
 
 ../UI_task.c:
@@ -61,27 +62,29 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h:
 
 ../FreeRTOSConfig.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h:
+../FRT_Files/inc/projdefs.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h:
+../FRT_Files/inc/portable.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h:
+../FRT_Files/inc/deprecated_definitions.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h:
+../FRT_Files/inc/mpu_wrappers.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/Task.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/Task.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/queue.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/queue.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/semphr.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/semphr.h:
 
 ../UI_task.h:
 
 ../adc.h:
+
+../encoder.h:
 
 ../lcd.h:
 

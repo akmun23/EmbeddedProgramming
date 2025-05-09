@@ -30,7 +30,7 @@
 //#include "binary.h"
 #include "UI_task.h"
 #include "adc.h"
-
+#include "encoder.h"
 #include "lcd.h"
 
 
@@ -82,6 +82,107 @@ char change_int_to_char1(INT8U number){
 
 void UI_task(void *pvParameters){
 
+
+    INT8U reset_LCD = 0xff;
+    volatile int currentAngle = 0;
+
+    int i = 0;
+    int increment = 0;
+
+
+    INT64U j = 1;
+    INT8U number_detected = 0;
+    INT8U cv_mod[4];
+    INT8U input[4] = {'0','3','6','0'};
+
+    INT8U new_data;
+    INT8U change_in_data;
+    INT8U old_data = 0xff;
+
+
+    const char* scale_str = "Angle: ";
+
+
+    while(1){
+
+        switch(increment){
+        case 0:
+            new_data = GPIO_PORTA_DATA_R & 0xE0;
+            old_data = new_data;
+            increment++;
+            break;
+        case 1:
+            new_data = GPIO_PORTA_DATA_R & 0xE0;
+            if (((new_data & 0x20) != (old_data & 0x20))){
+
+                if(new_data & 0x20){
+                    if(new_data & 0x40){
+                        currentAngle -= 12;
+                    }else{
+                        currentAngle += 12;
+                    }
+                }else{
+                    if(new_data & 0x40){
+                        currentAngle += 12;
+                    }else{
+                        currentAngle -= 12;
+                    }
+                }
+
+                if(currentAngle >= 360){
+                    currentAngle -= 360;
+                }else if(currentAngle < 0){
+                    currentAngle += 360;
+                }
+                increment = 2;
+            }
+
+            if (((new_data & 0x80) != (old_data & 0x80))){
+                currentAngle = 0;
+                increment = 2;
+            }
+
+            old_data = new_data;
+            vTaskDelay(1 / portTICK_RATE_MS);
+            break;
+        case 2:
+            for(i = 0; i < 7; i++){
+                xQueueSend( xQueue_lcd, &scale_str[i], portMAX_DELAY);
+            }
+
+            for(i = 0; i < 3; i++){
+                cv_mod[i] = (currentAngle/(1*j)) % 10;
+                input[i] = change_int_to_char1(cv_mod[i]);
+                j *= 10;
+            }
+            j = 1;
+
+            for(i = 2; i >= 0; i--){
+
+                if (input[i] != '0'){
+                    number_detected = 1;
+                }else if(i == 0  && number_detected != 1){
+                    xQueueSend( xQueue_lcd, &input[i], pdMS_TO_TICKS(1000));
+                }
+                if (number_detected ){
+                    xQueueSend( xQueue_lcd, &input[i], pdMS_TO_TICKS(1000));
+                }else{
+                    xQueueSend( xQueue_lcd, 0x01, pdMS_TO_TICKS(1000));
+
+                }
+
+            }
+            increment = 1;
+            number_detected = 0;
+            move_LCD(0,0);
+            default:
+                break;
+        }
+    }
+
+
+
+    /* ASSIGNMENT 7
     INT8U setup_lcd;
     INT8U button_clicked;
     INT8U sequence[128];
@@ -215,7 +316,7 @@ void UI_task(void *pvParameters){
             default:
                 break;
         }
-    }
+    }*/
 
 
     /*

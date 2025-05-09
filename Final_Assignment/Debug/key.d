@@ -18,15 +18,15 @@ key.obj: ../tmodel.h
 key.obj: ../FreeRTOS.h
 key.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h
 key.obj: ../FreeRTOSConfig.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/queue.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h
-key.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/semphr.h
+key.obj: ../FRT_Files/inc/projdefs.h
+key.obj: ../FRT_Files/inc/portable.h
+key.obj: ../FRT_Files/inc/deprecated_definitions.h
+key.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h
+key.obj: ../FRT_Files/inc/mpu_wrappers.h
+key.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/queue.h
+key.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/task.h
+key.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h
+key.obj: C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/semphr.h
 key.obj: ../key.h
 
 ../key.c:
@@ -65,23 +65,23 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h:
 
 ../FreeRTOSConfig.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h:
+../FRT_Files/inc/projdefs.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h:
+../FRT_Files/inc/portable.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h:
+../FRT_Files/inc/deprecated_definitions.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/portmacro.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h:
+../FRT_Files/inc/mpu_wrappers.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/queue.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/queue.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/task.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/list.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/semphr.h:
+C:/Users/aksel/OneDrive\ -\ Syddansk\ Universitet/RobTek/4semester/ImbeddedProgramming/EmbeddedProgramming/Final_Assignment/FRT_Files/inc/semphr.h:
 
 ../key.h:
 

@@ -12,6 +12,8 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./UI_task.obj" \
 "./adc.obj" \
+"./elevelator.obj" \
+"./encoder.obj" \
 "./gpio.obj" \
 "./heap_2.obj" \
 "./key.obj" \
@@ -19,14 +21,14 @@ ORDERED_OBJS += \
 "./leds.obj" \
 "./list.obj" \
 "./main.obj" \
-"./port.obj" \
-"./portasm.obj" \
 "./queue.obj" \
-"./startup_frt.obj" \
 "./status_led.obj" \
-"./systick_frt.obj" \
 "./tasks.obj" \
 "./uart0.obj" \
+"./FRT_Files/TivaM4/port.obj" \
+"./FRT_Files/TivaM4/portasm.obj" \
+"./FRT_Files/TivaM4/startup_frt.obj" \
+"./FRT_Files/TivaM4/systick_frt.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -39,7 +41,9 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
+-include FRT_Files/TivaM4/subdir_vars.mk
 -include subdir_rules.mk
+-include FRT_Files/TivaM4/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -136,30 +140,30 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-lecture_9_lab.out 
+Final_Assignment.out 
 
 EXE_OUTPUTS__QUOTED += \
-"lecture_9_lab.out" 
+"Final_Assignment.out" 
 
 
 # All Target
 all: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
-	@$(MAKE) --no-print-directory -Onone "lecture_9_lab.out"
+	@$(MAKE) --no-print-directory -Onone "Final_Assignment.out"
 
 # Tool invocations
-lecture_9_lab.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
+Final_Assignment.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"lecture_9_lab.map" --heap_size=0 --stack_size=512 -i"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/lib" -i"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="lecture_9_lab_linkInfo.xml" --rom_model -o "lecture_9_lab.out" $(ORDERED_OBJS)
+	"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"Final_Assignment.map" --heap_size=0 --stack_size=512 -i"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/lib" -i"C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="Final_Assignment_linkInfo.xml" --rom_model -o "Final_Assignment.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "UI_task.obj" "adc.obj" "gpio.obj" "heap_2.obj" "key.obj" "lcd.obj" "leds.obj" "list.obj" "main.obj" "port.obj" "portasm.obj" "queue.obj" "startup_frt.obj" "status_led.obj" "systick_frt.obj" "tasks.obj" "uart0.obj" 
-	-$(RM) "UI_task.d" "adc.d" "gpio.d" "heap_2.d" "key.d" "lcd.d" "leds.d" "list.d" "main.d" "port.d" "queue.d" "startup_frt.d" "status_led.d" "systick_frt.d" "tasks.d" "uart0.d" 
-	-$(RM) "portasm.d" 
+	-$(RM) "UI_task.obj" "adc.obj" "elevelator.obj" "encoder.obj" "gpio.obj" "heap_2.obj" "key.obj" "lcd.obj" "leds.obj" "list.obj" "main.obj" "queue.obj" "status_led.obj" "tasks.obj" "uart0.obj" "FRT_Files\TivaM4\port.obj" "FRT_Files\TivaM4\portasm.obj" "FRT_Files\TivaM4\startup_frt.obj" "FRT_Files\TivaM4\systick_frt.obj" 
+	-$(RM) "UI_task.d" "adc.d" "elevelator.d" "encoder.d" "gpio.d" "heap_2.d" "key.d" "lcd.d" "leds.d" "list.d" "main.d" "queue.d" "status_led.d" "tasks.d" "uart0.d" "FRT_Files\TivaM4\port.d" "FRT_Files\TivaM4\startup_frt.d" "FRT_Files\TivaM4\systick_frt.d" 
+	-$(RM) "FRT_Files\TivaM4\portasm.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

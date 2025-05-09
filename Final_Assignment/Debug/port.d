@@ -14,13 +14,13 @@ port.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine
 port.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 port.obj: C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
 port.obj: ../FreeRTOSConfig.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/projdefs.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/portable.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/deprecated_definitions.h
 port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h
-port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/mpu_wrappers.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/task.h
+port.obj: C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/list.h
 
 ../port.c:
 
@@ -50,17 +50,17 @@ C:/ti/ccs1260/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
 ../FreeRTOSConfig.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/projdefs.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/projdefs.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/portable.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/portable.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/deprecated_definitions.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/deprecated_definitions.h:
 
 C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/portmacro.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/mpu_wrappers.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/mpu_wrappers.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/task.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/task.h:
 
-C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/frt10/inc/list.h:
+C:/Users/fluen/OneDrive\ -\ Syddansk\ Universitet/SDU/4.\ Semester/Indlejret\ programmering/Assigments/Final_Assignment/FRT_Files/inc/list.h:
 
