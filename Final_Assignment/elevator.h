@@ -33,6 +33,7 @@
 #include "adc.h"
 #include "encoder.h"
 #include "lcd.h"
+#include "leds.h"
 /*****************************    Defines    *******************************/
 
 #define CALL_ELEVATOR       0   // Call elevator by holding SW1
@@ -63,7 +64,7 @@ typedef struct{
 } Elevator;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;
-
+extern Led_controller led_controller;
 /*****************************   Constants   *******************************/
 
 /*****************************   Functions   *******************************/
@@ -94,7 +95,7 @@ void detect_hold_switch(Elevator * elevator);
 *   Function : 
 ******************************************************************************/
 
-void display_current_floor(Elevator * elevator);
+void display_current_floor(Elevator * elevator, Led_controller *led_controller);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
