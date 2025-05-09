@@ -419,7 +419,12 @@ void fix_elevator(Elevator * elevator){
     INT8U encoder_data = get_encoder();                         // Get the initial encoder data
     INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
     short angle = 0;                                            // Variable to keep track of the angle of the encoder
-    char output_str[11] = "Angle:    0";                        // String to display the current angle
+    char output_str[11] = "Angle:  000";                        // String to display the current angle
+
+    for(INT8U i = 0; i < 11; i++){
+        xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);     
+    }
+
     while (1)
     {
         switch (state) {
