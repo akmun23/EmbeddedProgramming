@@ -218,25 +218,34 @@ void open_doors(Elevator * elevator){
     GPIO_PORTF_DATA_R &= ~(0x04);
     GPIO_PORTF_DATA_R |= 0x02;
     INT8U i;
-    INT8U door_strUpper[16];
-    INT8U door_strLower[16];
+    INT8U j = 0;
+    INT8U door_str[16];
 
+    for(i = 0; i < 16; i++){
+        door_str[i] = 0x7C;
+    }
     while(1){
-        for(i = 0; i < 16; i++){
-            door_strUpper[i] = ' ';
-            door_strLower[i] = 0x7C;
+
+
+        door_str[7-j] = ' ';
+        door_str[8+j] = ' ';
+        if(j == 7){
+            break;
         }
+        j++;
         move_LCD(0, 0);
         for(i = 0; i < 16; i++){
-            xQueueSend(xQueue_lcd, &door_strUpper[i], 0);
+            xQueueSend(xQueue_lcd, &door_str[i], 0);
         }
 
         move_LCD(0, 1);
         for(i = 0; i < 16; i++){
-            xQueueSend(xQueue_lcd, &door_strLower[i], 0);
+            xQueueSend(xQueue_lcd, &door_str[i], 0);
         }
-        vTaskDelay(3000 / portTICK_RATE_MS); // Delay to avoid busy waiting
-        break;
+
+
+        vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
+
 
     }
 
@@ -246,21 +255,28 @@ void open_doors(Elevator * elevator){
 }
 
 void enter_password(Elevator * elevator){
+    INT8U i;
     uint8_t  count = 0;
     uint16_t code = 0;
-    clc_LCD();
 
+    move_LCD(0,0);
+
+    INT8U passowrd_str[10] = "Password: ";
+    for(i = 0; i < 10; i++){
+        xQueueSend(xQueue_lcd, &passowrd_str[i], 0);
+    }
+    INT8U star = '*';
     while (count < 4)
+    {
+        key = get_keyboard();
+        if (key != 0 && key >= '0' && key <= '9')
         {
-            key = get_keyboard();
-            if (key != 0 && key >= '0' && key <= '9')
-            {
-                code = code * 10 + (key - '0');
-                count++;
-                xQueueSend( xQueue_lcd, &key, 0);
-            }
-            vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+            code = code * 10 + (key - '0');
+            count++;
+            xQueueSend( xQueue_lcd, &star, 0);
         }
+        vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+    }
 }
 
 
