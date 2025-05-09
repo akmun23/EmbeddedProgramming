@@ -65,24 +65,26 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = DISPLAY_FLOOR;
                 break;
             case DISPLAY_FLOOR:
-                // Display the elevator's current floor
+                display_current_floor(&myElevator);
+                myElevator.elevator_state = OPEN_DOORS;
+                break;
             case OPEN_DOORS:
                 open_doors(&myElevator);
                 myElevator.elevator_state = ENTER_CODE;
-                // Open doors when elevator arrives at floor
                 break;
             case ENTER_CODE:
                 enter_password(&myElevator);
                 myElevator.elevator_state = VALIDATE_CODE;
-                // Enter 4 digit password from keypad
                 break;
             case VALIDATE_CODE:
-
+                validate_password(&myElevator);
+                myElevator.elevator_state = CHOOSE_FLOOR;
+                break;
             case CHOOSE_FLOOR:
-
-                // Choose destination floor with rotary encoder
+                choose_floor(&myElevator);
+                myElevator.elevator_state = ACC_ELEVATOR;
             case ACC_ELEVATOR:
-                // Accelerate elevator (yellow LED blinking)
+                
             case DEC_ELEVATOR:
                 // Decelerate elevator (red LED blinking)
             case BREAK_ELEVATOR:
@@ -135,45 +137,38 @@ char int_to_char(INT8U number){
 
 
 void detect_hold_switch(Elevator * elevator){
-    // Detect if the hold switch is pressed
-    // If pressed, call elevator
-}
+    uint32_t start_time = xTaskGetTickCount();
+    uint32_t current_time;
+    uint32_t elapsed_time;
 
-void display_current_floor(Elevator * elevator){
-    // Display the current floor on the LCD
-}
+    BOOLEAN hold_switch_pressed = FALSE;
+    while(1){
 
-void open_doors(Elevator * elevator){
-    // Open the elevator doors
-}
+        // Check if hold switch is pressed
+        if(!(GPIO_PORTF_DATA_R & 0x10) && !hold_switch_pressed){
+            // Hold switch is pressed, start timer
+            start_time = xTaskGetTickCount();
+            hold_switch_pressed = TRUE;
+        }else if((GPIO_PORTF_DATA_R & 0x10) && hold_switch_pressed){
+            // Hold switch is released, reset timer
+            hold_switch_pressed = FALSE;
+        }
 
-void enter_password(Elevator * elevator){
-    uint8_t  count = 0;
-    uint16_t code = 0;
+        if(hold_switch_pressed){
+            current_time = xTaskGetTickCount();
+            elapsed_time = (current_time - start_time)*portTICK_PERIOD_MS; // Convert to ms
+    
+            if(elapsed_time >= 2000.0){
 
-    xQueueSend( xQueue_lcd, 'h', 0);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    xQueueSend( xQueue_lcd, 'e', 0);
-    vTaskDelay(pdMS_TO_TICKS(50));
-    xQueueSend( xQueue_lcd, 'j', 0);
-    vTaskDelay(pdMS_TO_TICKS(50));
+                break;
 
-    while (count < 4)
-        {
-            key = get_keyboard();
-            if (key != 0 && key >= '0' && key <= '9')
-            {
-                code = code * 10 + (key - '0');
-                count++;
-                xQueueSend( xQueue_lcd, &key, 0);
             }
         }
         vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+
+    }
 } 
 
-// When the button has been pressed for 2 seconds, the elevator will start moving
-// to the floor where the button was pressed and the elevator will stop at that floor
-// This will be displayed on the LCD
 void display_current_floor(Elevator * elevator){
     while(1)
     {
@@ -226,7 +221,6 @@ void open_doors(Elevator * elevator){
     INT8U door_strUpper[16];
     INT8U door_strLower[16];
 
-
     while(1){
         for(i = 0; i < 16; i++){
             door_strUpper[i] = ' ';
@@ -242,6 +236,7 @@ void open_doors(Elevator * elevator){
             xQueueSend(xQueue_lcd, &door_strLower[i], 0);
         }
         vTaskDelay(3000 / portTICK_RATE_MS); // Delay to avoid busy waiting
+        break;
 
     }
 
@@ -251,12 +246,26 @@ void open_doors(Elevator * elevator){
 }
 
 void enter_password(Elevator * elevator){
-    while(1);
-    // Enter the password using the keypad
+    uint8_t  count = 0;
+    uint16_t code = 0;
+    clc_LCD();
+
+    while (count < 4)
+        {
+            key = get_keyboard();
+            if (key != 0 && key >= '0' && key <= '9')
+            {
+                code = code * 10 + (key - '0');
+                count++;
+                xQueueSend( xQueue_lcd, &key, 0);
+            }
+            vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+        }
 }
 
+
 void validate_password(Elevator * elevator){
-    // Validate the entered password
+    while(1);
 }
 
 void choose_floor(Elevator * elevator){
