@@ -44,7 +44,8 @@ void elevator_init(void){
     myElevator.elevator_state = CALL_ELEVATOR;
     myElevator.current_floor = 2;
     myElevator.destination_floor = 2;
-    myElevator.password = 7913;
+    INT8U temp_password[4] = {7, 9, 1, 3};
+    memcpy(myElevator.password, temp_password, sizeof(temp_password));
     myElevator.elevator_acceleration = 0;
     myElevator.elevator_deceleration = 0;
     myElevator.speed = 0;
@@ -205,16 +206,17 @@ void detect_hold_switch(void *pvParameters){
 }   
 
 // When the button has been pressed for 2 seconds, the elevator will start moving
-// to the floor where the button was pressed
-// and the elevator will stop at that floor
+// to the floor where the button was pressed and the elevator will stop at that floor
 // This will be displayed on the LCD
 void display_current_floor(void *pvParameters){
     while(1)
     {
         INT8U i;
-        char floor_str[9] = "Floor: " + myElevator.current_floor;
+        char floor_str[16] = "Floor: ";
+        char floor_str[8] = int_to_char(myElevator.current_floor / 10);
+        char floor_str[9] = int_to_char(myElevator.current_floor % 10);
 
-        for(i = 0; i < 9; i++){
+        for(i = 0; i < 16; i++){
             xQueueSend(xQueueLCD, &floor_str[i], 0);
         }
        
