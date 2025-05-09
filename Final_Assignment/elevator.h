@@ -42,14 +42,12 @@
 #define ENTER_CODE          3   // Enter 4 digit password from keypad
 #define VALIDATE_CODE       4   // Validate if password is divisible by 8
 #define CHOOSE_FLOOR        5   // Choose destination floor with rotary encoder
-#define ACC_ELEVATOR        6   // Accelerate elevator (yellow LED blinking)
-#define DEC_ELEVATOR        7   // Decelerate elevator (red LED blinking)
-#define BREAK_ELEVATOR      8   // Every 4th trip all LEDs blink
-#define SETUP_RST_ELEVATOR  9   // Generate random number and display on screen
-#define RESTART_ELEVATOR    10  // Use pot to reach goal value shown on screen
-#define FIX_ELEVATOR        11  // Turn rotary encoder 360 degrees
-#define FIX_ELEVATOR_ERROR  12  // Display error for wrong rotation direction
-#define EXIT_ELEVATOR       13  // Save floor, close elevator, log trip
+#define BREAK_ELEVATOR      6   // Every 4th trip all LEDs blink
+#define SETUP_RST_ELEVATOR  7   // Generate random number and display on screen
+#define RESTART_ELEVATOR    8  // Use pot to reach goal value shown on screen
+#define FIX_ELEVATOR        9  // Turn rotary encoder 360 degrees
+#define FIX_ELEVATOR_ERROR  10  // Display error for wrong rotation direction
+#define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
 
 typedef struct{
     INT8U elevator_state;               // Elevator state
