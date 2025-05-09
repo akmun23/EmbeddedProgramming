@@ -83,7 +83,6 @@ void green_led_init(void)
   GPIO_PORTF_DEN_R |= 0x08;
 }
 
-
 void red_led_task(void *pvParameters)
 {
   INT16U adc_value;
