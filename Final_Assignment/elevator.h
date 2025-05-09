@@ -53,13 +53,14 @@ typedef struct{
     INT8U elevator_state;               // Elevator state
     INT8U current_floor;                // Current floor of the elevator
     INT8U destination_floor;            // Destination floor
-    INT16U password;                  // Password entered by user
+    INT16U password;                    // Password entered by user
     INT8U elevator_acceleration;        // Elevator acceleration value
     INT8U elevator_deceleration;        // Elevator deceleration value
     INT8U speed;                        // Elevator speed
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
-    INT8U rot_direction;               // Direction of the rotary encoder
+    INT8U rot_direction;                // Direction of the rotary encoder
+    INT16U goal_number
 } Elevator;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;
