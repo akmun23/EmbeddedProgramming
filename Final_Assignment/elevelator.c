@@ -23,13 +23,10 @@
 
 
 /*****************************    Defines    *******************************/
+
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
-static uint16_t password = 1424;
-
-
-static INT8U   key;
 
 /*****************************   Functions   *******************************/
 void elevator_init(Elevator * elevator){
@@ -42,6 +39,7 @@ void elevator_init(Elevator * elevator){
     elevator->speed = 0;
     elevator->door_status = FALSE;
     elevator->numberOfTrips = 0;
+    elevator->rot_direction = 0;
 }
 
 void elevator_task(void *pvParameters){
@@ -110,8 +108,6 @@ void elevator_task(void *pvParameters){
     }
 }
 
-
-
 char int_to_char(INT8U number){
     switch(number){
         case 0:
@@ -137,7 +133,6 @@ char int_to_char(INT8U number){
     }
 
 }
-
 
 void detect_hold_switch(Elevator * elevator){
     uint32_t start_time = xTaskGetTickCount();
@@ -310,75 +305,64 @@ void validate_password(Elevator * elevator){
 }
 
 void choose_floor(Elevator * elevator){
-    clr_LCD();                                      // Clear the LCD 
-    vTaskDelay(1000 / portTICK_RATE_MS);            // Delay to be sure the LCD is cleared
+    clr_LCD();                                                  // Clear the LCD 
+    vTaskDelay(1000 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
 
-    INT8U targetFloor = elevator->current_floor;    // Set the target floor to the current floor since this is the floor to move from
-    INT8U state = 0;                                // State variable to keep track of the state    
+    INT8U targetFloor = elevator->current_floor;                // Set the target floor to the current floor since this is the floor to move from
+    INT8U state = 0;                                            // State variable to keep track of the state    
 
-    INT8U new_encoder_data = get_encoder();         // Get the initial encoder data
-    INT8U old_encoder_data = new_encoder_data;      // Set the old encoder data to the initial encoder data
-    BOOLEAN IncDec = FALSE;                         // Variable to keep track of the direction of the encoder
-    BOOLEAN startElevator = FALSE;                  // Variable to keep track of when to start the elevator and exit the loop
+    INT8U encoder_data = get_encoder();                         // Get the initial encoder data
+    INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
+    BOOLEAN IncDec = FALSE;                                     // Variable to keep track of the direction of the encoder
+    BOOLEAN startElevator = FALSE;                              // Variable to keep track of when to start the elevator and exit the loop
 
-    char output_str[9] = "Floor:   ";               // String to display the current floor
-    output_str[7] = int_to_char(elevator->current_floor / 10); // Set the first digit of the current floor  
-    output_str[8] = int_to_char(elevator->current_floor % 10); // Set the second digit of the current floor
+    char output_str[9] = "Floor:   ";                           // String to display the current floor
+    output_str[7] = int_to_char(elevator->current_floor / 10);  // Set the first digit of the current floor  
+    output_str[8] = int_to_char(elevator->current_floor % 10);  // Set the second digit of the current floor
 
     INT8U i = 0;                    
-    for(i = 0; i < 9; i++){                         // Send the initial string to the LCD
+    for(i = 0; i < 9; i++){                                     // Send the initial string to the LCD
         xQueueSend( xQueue_lcd, &output_str[i], 0);
     }
 
-    while(!startElevator){                          // Loop until the elevator is started
-        new_encoder_data = get_encoder();           // Get the new encoder data
-        switch(state){                              // Check the state of the encoder
-            case 0:                                 // Check if the encoder is turned
-                if (((new_encoder_data & 0x20) != (old_encoder_data & 0x20))){
+    while(!startElevator){                                      // Loop until the elevator is started
+        encoder_data = get_encoder();                           // Get the new encoder data
+        switch(state){                                          // Check the state of the encoder
+            case 0:                                             // Check if the encoder is turned
 
-                    if(new_encoder_data & 0x20){    // Check if the encoder is turned to the right
-                        if(new_encoder_data & 0x40){
-                            targetFloor--;          // Decrement the target floor
-                            IncDec = FALSE;         // Set the direction to down
-                        }else{
-                            targetFloor++;          // Increment the target floor
-                            IncDec = TRUE;          // Set the direction to up
-                        }
-                    }else{
-                        if(new_encoder_data & 0x40){    // Check if the encoder is turned to the left
-                            targetFloor++;
-                            IncDec = TRUE;
-                        }else{
-                            targetFloor--;
-                            IncDec = FALSE;
-                        }
-                    }
-
-                    if(targetFloor > 50){                           // Check if the target floor is greater than 50 since targetfloor is a unsigned char it cant go into negative
-                        targetFloor = 0;                            // Set the target floor to 0 since it is a unsigned char
-                    }else if(targetFloor > 20){                     // Check if the target floor is greater than 20 since the elevator only goes to 20th floor 
-                        targetFloor = 20;                           // Set the target floor to 20 since it is the highest floor                        
-                    }else if(targetFloor == 13 && IncDec == TRUE){  // Check if the target floor is 13 since it is not a valid floor
-                        targetFloor++;                              // Set the target floor to 14 since it is the next valid floor
-                    }else if(targetFloor == 13 && IncDec == FALSE){ // Check if the target floor is 13 since it is not a valid floor
-                        targetFloor--;                              // Set the target floor to 12 since it is the next valid floor
-                    }
-                    state++;                                        // Increment the state to 1 since the encoder is turned
-
-                }else if (((new_encoder_data & 0x80) != (old_encoder_data & 0x80))){  // Check if the encoder is pressed
-                    elevator->destination_floor = targetFloor;                        // Set the destination floor to the target floor
-                    elevator->numberOfTrips++;                                        // Increment the number of trips
-                    startElevator = TRUE;                                             // Set the start elevator to true since the elevator is started                               
+                INT8U action = get_action(encoder_data, prev_data); // Get the action of the encoder
+                if(action == 0){                                // Check if the encoder is turned to the right
+                    targetFloor++;                              // Increment the target floor
+                    IncDec = TRUE;                              // Set the direction to up
+                    state++;                                    // Increment the state to 1 since the encoder is turned
+                }else if(action == 1){                          // Check if the encoder is turned to the left
+                    targetFloor--;                              // Decrement the target floor
+                    IncDec = FALSE;                             // Set the direction to down
+                    state++;                                    // Increment the state to 1 since the encoder is turned
+                }else if(action == 2){                          // Check if the encoder is pressed
+                    elevator->destination_floor = targetFloor;  // Set the destination floor to the target floor
+                    elevator->numberOfTrips++;                  // Increment the number of trips
+                    startElevator = TRUE;                       // Set the start elevator to true since the elevator is started                               
                     break;
                 }
+                prev_data = encoder_data;                       // Set the old encoder data to the new encoder data             
+                
+                if(targetFloor > 50){                           // Check if the target floor is greater than 50 since targetfloor is a unsigned char it cant go into negative
+                    targetFloor = 0;                            // Set the target floor to 0 since it is a unsigned char
+                }else if(targetFloor > 20){                     // Check if the target floor is greater than 20 since the elevator only goes to 20th floor 
+                    targetFloor = 20;                           // Set the target floor to 20 since it is the highest floor                        
+                }else if(targetFloor == 13 && IncDec == TRUE){  // Check if the target floor is 13 since it is not a valid floor
+                    targetFloor++;                              // Set the target floor to 14 since it is the next valid floor
+                }else if(targetFloor == 13 && IncDec == FALSE){ // Check if the target floor is 13 since it is not a valid floor
+                    targetFloor--;                              // Set the target floor to 12 since it is the next valid floor
+                }
 
-                old_encoder_data = new_encoder_data;                 // Set the old encoder data to the new encoder data             
                 break;
 
             case 1:
-                move_LCD(0,0);                                      // Move the cursor to the first line of the LCD
-                output_str[7] = int_to_char(targetFloor / 10);      // Set the first digit of the target floor
-                output_str[8] = int_to_char(targetFloor % 10);      // Set the second digit of the target floor
+                move_LCD(0,0);                                  // Move the cursor to the first line of the LCD
+                output_str[7] = int_to_char(targetFloor / 10);  // Set the first digit of the target floor
+                output_str[8] = int_to_char(targetFloor % 10);  // Set the second digit of the target floor
                 
                 // Send the target floor to the LCD
                 for(i = 0; i < 9; i++){
@@ -418,7 +402,69 @@ void restart_elevator(Elevator * elevator){
 }
 
 void fix_elevator(Elevator * elevator){
-    // Fix the elevator
+//Case FixElevator:
+// You must turn the rotary encoder 360 degrees from its starting position. 
+// The direction of rotation must alternate each time between clockwise and counterclockwise
+// If the wrong direction is chosen, enter the FIX_ELEVATOR_ERROR state.
+// Click once turned correctly
+// The elevator will then return to the accelerate_elevator state
+
+    clr_LCD();                                                  // Clear the LCD 
+    vTaskDelay(1000 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
+
+    INT8U state = 0;                                            // State variable to keep track of the state
+    INT8U encoder_data = get_encoder();                         // Get the initial encoder data
+    INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
+    short angle = 0;                                            // Variable to keep track of the angle of the encoder
+    char output_str[11] = "Angle:    0";                        // String to display the current angle
+    while (1)
+    {
+        switch (state) {
+        case 0:
+            encoder_data = get_encoder();                           // Get the new encoder data
+            INT8U action = get_action(encoder_data, prev_data);     // Get the action of the encoder
+            if(action == 0){                                        // Check if the encoder is turned to the right
+                angle += 12;                                        // Increment the angle
+                prev_data = encoder_data;                           // Set the old encoder data to the new encoder data
+                state = 1;                                          // Set the state to 1 since the encoder is turned
+            }else if(action == 1){                                  // Check if the encoder is turned to the left
+                angle -= 12;                                        // Decrement the angle
+                prev_data = encoder_data;                           // Set the old encoder data to the new encoder data
+                state = 1;                                          // Set the state to 1 since the encoder is turned
+            }else if(action == 2){                                  // Check if the encoder is pressed
+                if(angle = 360 && elevator->rot_direction == 0){    // Check if the direction is 0
+                    elevator->elevator_state = ACC_ELEVATOR;        // Set the elevator state to accelerate elevator
+                    elevator->rot_direction = 1;                    // Set the direction to 1
+                } else if(angle = -360 && elevator->rot_direction == 1) {     // Check if the direction is 1
+                    elevator->elevator_state = ACC_ELEVATOR;        // Set the elevator state to accelerate elevator
+                    elevator->rot_direction = 0;                    // Set the direction to 0
+                } else {
+                    elevator->elevator_state = FIX_ELEVATOR_ERROR;  // Set the elevator state to fix elevator error
+                }
+            }
+
+        case 1:
+            move_LCD(0,0);                                          // Move the cursor to the first line of the LCD
+            if(angle < 0){                                          // Check if the angle is less than 0
+                output_str[7] = '-';                                // Set the first digit of the angle to '-'
+            }
+            output_str[8] = int_to_char(angle / 100);               // Set the first digit of the angle
+            output_str[9] = int_to_char((angle % 100) / 10);        // Set the second digit of the angle
+            output_str[10] = int_to_char(angle % 10);               // Set the third digit of the angle
+            
+            // Send the target floor to the LCD
+            for(INT8U i = 0; i < 11; i++){
+                xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);     
+            }
+        
+        default:
+            break;
+        }
+
+        xTaskDelay(1 / portTICK_RATE_MS);   // Delay to avoid busy waiting
+    }
+    
+
 }
 
 void fix_elevator_error(Elevator * elevator){
