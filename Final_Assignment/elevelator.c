@@ -286,6 +286,86 @@ void validate_password(Elevator * elevator){
 
 void choose_floor(Elevator * elevator){
     // Choose the destination floor using the rotary encoder
+    INT8U reset_LCD = 0xff;
+
+    int i = 0;
+    int state = 0;
+
+    INT8U targetFloor = elevator->current_floor;
+
+    INT8U new_encoder_data;
+    INT8U old_encoder_data = 0xff;
+    BOOLEAN IncDec = FALSE;
+
+    char output_str[9] = "Floor:   ";
+    output_str[7] = int_to_char(elevator->current_floor / 10), 
+    output_str[8] = int_to_char(elevator->current_floor % 10);
+
+    while(1){
+        switch(state){
+        case 0:
+            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
+            old_encoder_data = new_encoder_data;
+            state++;
+            break;
+        case 1:
+            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
+            if (((new_encoder_data & 0x20) != (old_encoder_data & 0x20))){
+
+                if(new_encoder_data & 0x20){
+                    if(new_encoder_data & 0x40){
+                        targetFloor--;
+                        IncDec = FALSE;
+                    }else{
+                        targetFloor++;
+                        IncDec = TRUE;
+                    }
+                }else{
+                    if(new_encoder_data & 0x40){
+                        targetFloor++;
+                        IncDec = TRUE;
+                    }else{
+                        targetFloor--;
+                        IncDec = FALSE;
+                    }
+                }
+
+                if(targetFloor >= 21){
+                    targetFloor = 20;
+                }else if(targetFloor < 0){
+                    targetFloor = 0;
+                }else if(targetFloor == 13 && IncDec == TRUE){
+                    targetFloor++;
+                }else if(targetFloor == 13 && IncDec == FALSE){
+                    targetFloor--;
+                }
+
+                state++;
+            }
+
+            old_encoder_data = new_encoder_data;
+            vTaskDelay(1 / portTICK_RATE_MS);
+            break;
+
+        case 2:
+            output_str[7] = int_to_char(targetFloor / 10);
+            output_str[8] = int_to_char(targetFloor % 10);
+            for(i = 0; i < 9; i++){
+                xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);
+            }
+
+            state--;
+            move_LCD(0,0);
+            
+            default:
+                break;
+        }
+
+        if (((new_encoder_data & 0x80) != (old_encoder_data & 0x80))){
+            targetFloor = elevator->current_floor;
+            break;
+        }
+    }
 }
 
 void accelerate_elevator(Elevator * elevator){
