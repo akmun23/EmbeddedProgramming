@@ -83,6 +83,7 @@ void green_led_init(void)
   GPIO_PORTF_DEN_R |= 0x08;
 }
 
+
 void red_led_task(void *pvParameters)
 {
   INT16U adc_value;
@@ -129,6 +130,7 @@ void green_led_task(void *pvParameters)
 void elevator_led_task(void *pvParameters)
 {
   led_controller.led_state = DOOR_CLOSED;
+  int reset = 0;
   while(1)
   {
     // Toggle elevator led
@@ -160,10 +162,22 @@ void elevator_led_task(void *pvParameters)
         GPIO_PORTF_DATA_R |= 0x08;    // Toggle green led
         break;
       case ERROR:
-        GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
-        GPIO_PORTF_DATA_R ^= 0x04;    // Toggle yellow led
-        GPIO_PORTF_DATA_R ^= 0x08;    // Toggle green led
+        if (reset == 0){
+          GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
+          GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
+          GPIO_PORTF_DATA_R |= 0x08;    // Turn on green led
+          reset = 1;
+        }
+        else{
+          GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
+          GPIO_PORTF_DATA_R ^= 0x04;    // Toggle yellow led
+          GPIO_PORTF_DATA_R ^= 0x08;    // Toggle green led
+        }
         break;
+
+    }
+    if(led_controller.led_state != ERROR){
+      reset = 0;
     }
     vTaskDelay( 100 / portTICK_RATE_MS); // wait 1000 ms.
   }
