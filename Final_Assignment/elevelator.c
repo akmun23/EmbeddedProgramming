@@ -317,7 +317,7 @@ void choose_floor(Elevator * elevator){
     INT8U targetFloor = elevator->current_floor;                // Set the target floor to the current floor since this is the floor to move from
     INT8U state = 0;                                            // State variable to keep track of the state    
 
-    INT8U encoder_data = get_encoder();                         // Get the initial encoder data
+    INT8U encoder_data = get_encoder();                  ½       // Get the initial encoder data
     INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
     BOOLEAN IncDec = FALSE;                                     // Variable to keep track of the direction of the encoder
     BOOLEAN startElevator = FALSE;                              // Variable to keep track of when to start the elevator and exit the loop
