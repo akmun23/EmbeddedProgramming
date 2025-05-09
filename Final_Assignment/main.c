@@ -88,10 +88,16 @@ char change_int_to_char(INT8U number){
             return '9';
     }
 }
-
 void UART_task(void *pvParameters){
-    
-    vTaskDelay(1000 / portTICK_RATE_MS);
+    INT8U action;
+
+    while(1){
+        action = get_encoder();
+        if(uart0_tx_rdy()){
+            uart0_putc(action);
+            vTaskDelay(1000 / portTICK_RATE_MS);
+        }
+    }
 }
 
 INT8U button_pushed()
@@ -124,8 +130,9 @@ int main(void)
     xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     //xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     //xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    //xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    xTaskCreate(elevator_task, "Elevator", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
+    xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    xTaskCreate(elevator_task, "Elevator", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
+    xTaskCreate(elevator_led_task, "Elevator_led", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     vTaskStartScheduler();
 	return 0;
 }

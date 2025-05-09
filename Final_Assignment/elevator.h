@@ -60,7 +60,7 @@ typedef struct{
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
-    INT16U goal_number
+    INT16U goal_number;
 } Elevator;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;

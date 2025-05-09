@@ -32,13 +32,13 @@
 void elevator_init(Elevator * elevator){
     elevator->elevator_state = CALL_ELEVATOR;
     elevator->current_floor = 2;
-    elevator->destination_floor = 15;
+    elevator->destination_floor = 4;
     elevator->password = 0;
     elevator->elevator_acceleration = 0;
     elevator->elevator_deceleration = 0;
     elevator->speed = 0;
     elevator->door_status = FALSE;
-    elevator->numberOfTrips = 0;
+    elevator->numberOfTrips = 3;
     elevator->rot_direction = 0;
 }
 
@@ -80,7 +80,7 @@ void elevator_task(void *pvParameters){
                 if(myElevator.numberOfTrips % 4 == 0){
                     myElevator.elevator_state = BREAK_ELEVATOR;
                 } else {
-                    myElevator.elevator_state = EXIT_ELEVATOR;
+                    myElevator.elevator_state = DISPLAY_FLOOR;
                 }
                 break;  
             case BREAK_ELEVATOR:
@@ -315,8 +315,6 @@ void choose_floor(Elevator * elevator){
     INT8U targetFloor = elevator->current_floor;                // Set the target floor to the current floor since this is the floor to move from
     INT8U state = 0;                                            // State variable to keep track of the state    
 
-    INT8U encoder_data = get_encoder();                         // Get the initial encoder data
-    INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
     BOOLEAN IncDec = FALSE;                                     // Variable to keep track of the direction of the encoder
     BOOLEAN startElevator = FALSE;                              // Variable to keep track of when to start the elevator and exit the loop
 
@@ -328,12 +326,14 @@ void choose_floor(Elevator * elevator){
     for(i = 0; i < 9; i++){                                     // Send the initial string to the LCD
         xQueueSend( xQueue_lcd, &output_str[i], 0);
     }
+    INT8U encoder_data = get_encoder();                         // New data of the encoder
+    INT8U prev_data = encoder_data;                         // New data of the encoder
+
     INT8U action;
     while(!startElevator){                                      // Loop until the elevator is started
-        encoder_data = get_encoder();                           // Get the new encoder data
         switch(state){                                          // Check the state of the encoder
             case 0:                                             // Check if the encoder is turned
-
+                encoder_data = get_encoder();                         // New data of the encoder
                 action = get_action(encoder_data, prev_data); // Get the action of the encoder
                 if(action == 0){                                // Check if the encoder is turned to the right
                     targetFloor++;                              // Increment the target floor
@@ -349,7 +349,6 @@ void choose_floor(Elevator * elevator){
                     startElevator = TRUE;                       // Set the start elevator to true since the elevator is started                               
                     break;
                 }
-                prev_data = encoder_data;                       // Set the old encoder data to the new encoder data             
                 
                 if(targetFloor > 50){                           // Check if the target floor is greater than 50 since targetfloor is a unsigned char it cant go into negative
                     targetFloor = 0;                            // Set the target floor to 0 since it is a unsigned char
@@ -360,10 +359,12 @@ void choose_floor(Elevator * elevator){
                 }else if(targetFloor == 13 && IncDec == FALSE){ // Check if the target floor is 13 since it is not a valid floor
                     targetFloor--;                              // Set the target floor to 12 since it is the next valid floor
                 }
+                prev_data = encoder_data;                      // Set the previous data to the new data
 
                 break;
 
             case 1:
+
                 move_LCD(0,0);                                  // Move the cursor to the first line of the LCD
                 output_str[7] = int_to_char(targetFloor / 10);  // Set the first digit of the target floor
                 output_str[8] = int_to_char(targetFloor % 10);  // Set the second digit of the target floor
@@ -388,15 +389,15 @@ void choose_floor(Elevator * elevator){
 
 void setup_rst_elevator(Elevator * elevator){
     // Setup and reset the elevator
-    elevator->goal_number = rand() % 360;                                   // Generates a random number between 0 to 99;
-    int i = 0;                                                   // I 😦
-    char goal_str[9] = "Goal: ";                                 // Generates a string of length 13
+    elevator->goal_number = 4095 % 360;                           // Generates a random number between 0 to 99;
+    int i;                                                          // I 😦
+    char goal_str[9] = "Goal: ";                                    // Generates a string of length 13
 
-    goal_str[6] = int_to_char((elevator->goal_number / 100) % 10);                // Inserts the hundreds digit    
+    goal_str[6] = int_to_char((elevator->goal_number / 100) % 10);  // Inserts the hundreds digit    
     goal_str[7] = int_to_char(elevator->goal_number / 10);                        // Inserts the tens digit
     goal_str[8] = int_to_char(elevator->goal_number % 10);                        // Inserts the ones digit
 
-    for(i; i < 9; i++)                                           // For loop to itterate though str
+    for(i = 0; i < 9; i++)                                           // For loop to itterate though str
     {
         xQueueSend(xQueue_lcd, &goal_str[i], portMAX_DELAY);     //put char out on LCD
     }
@@ -416,10 +417,10 @@ void restart_elevator(Elevator * elevator){
 
     while(1){
 
-        raw_adc = get_adc;                                      // Gets value from adc
+        raw_adc = get_adc();                                      // Gets value from adc
         pot_val = (raw_adc*361) / 4096;                         // skaler value to between 0 to 99
 
-        digits[0] = int_to_char((pot_val / 100) % 10);                // Inserts the hundreds digit
+        digits[0] = int_to_char((pot_val / 100) % 10);          // Inserts the hundreds digit
         digits[1] = int_to_char(pot_val / 10);                  // Gets the tenth digit
         digits[2] = int_to_char(pot_val % 10);                  // gets the first digit
 
@@ -428,7 +429,7 @@ void restart_elevator(Elevator * elevator){
         pot_str[7] = digits[0];                                 // Puts the Tenth digit on array space 7
         pot_str[8] = digits[1];                                 // Puts the first digit on array space 8
 
-        for(i; i < 9; i++)                                      // For loop to itterate though pot_str
+        for(i = 0; i < 9; i++)                                      // For loop to itterate though pot_str
         {
             xQueueSend(xQueue_lcd, &pot_str[i], portMAX_DELAY); // Outputs chars on to LCD
 
@@ -438,7 +439,7 @@ void restart_elevator(Elevator * elevator){
 
         if(pot_val == elevator->goal_number){                  // If statment to check if pot_val is the same as Goal_number
             char rst_string[14] = "TIME TO FIX IT";             // Very cool string B-)
-            for(i; i < 14 ; i++){                               // For loop to itterate though the cool string B-)
+            for(i = 0; i < 14 ; i++){                               // For loop to itterate though the cool string B-)
                 xQueueSend(xQueue_lcd, &rst_string[i], portMAX_DELAY);  // Thoughts that cool shit out on LCD B-)
 
             }
@@ -453,59 +454,69 @@ void restart_elevator(Elevator * elevator){
 void fix_elevator(Elevator * elevator){
     clr_LCD();                                                  // Clear the LCD 
     vTaskDelay(1000 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
-
+    INT8U action;
     INT8U state = 0;                                            // State variable to keep track of the state
-    INT8U encoder_data = get_encoder();                         // Get the initial encoder data
-    INT8U prev_data = encoder_data;                             // Set the old encoder data to the initial encoder data
+    short sign = 1;
     short angle = 0;                                            // Variable to keep track of the angle of the encoder
     char output_str[11] = "Angle:  000";                        // String to display the current angle
     INT8U i;
     for(i = 0; i < 11; i++){
         xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);     
     }
+    INT8U encoder_data = get_encoder();                         // New data of the encoder
+    INT8U prev_data = encoder_data;                         // New data of the encoder
 
     while (1)
     {
         switch (state) {
         case 0:
-            encoder_data = get_encoder();                           // Get the new encoder data
-            INT8U action = get_action(encoder_data, prev_data);     // Get the action of the encoder
+            encoder_data = get_encoder();                         // New data of the encoder
+            action = get_action(encoder_data, prev_data);     // Get the action of the encoder
             if(action == 0){                                        // Check if the encoder is turned to the right
                 angle += 12;                                        // Increment the angle
-                prev_data = encoder_data;                           // Set the old encoder data to the new encoder data
                 state = 1;                                          // Set the state to 1 since the encoder is turned
             }else if(action == 1){                                  // Check if the encoder is turned to the left
                 angle -= 12;                                        // Decrement the angle
-                prev_data = encoder_data;                           // Set the old encoder data to the new encoder data
                 state = 1;                                          // Set the state to 1 since the encoder is turned
             }else if(action == 2){                                  // Check if the encoder is pressed
-                if(angle = 360 && elevator->rot_direction == 0){    // Check if the direction is 0
+                if(angle == 360 && elevator->rot_direction == 0){    // Check if the direction is 0
                     elevator->elevator_state = DISPLAY_FLOOR;        // Set the elevator state to accelerate elevator
                     elevator->rot_direction = 1;                    // Set the direction to 1
-                } else if(angle = -360 && elevator->rot_direction == 1) {     // Check if the direction is 1
+                } else if(angle == -360 && elevator->rot_direction == 1) {     // Check if the direction is 1
                     elevator->elevator_state = DISPLAY_FLOOR;        // Set the elevator state to accelerate elevator
                     elevator->rot_direction = 0;                    // Set the direction to 0
                 } else {
                     elevator->elevator_state = FIX_ELEVATOR_ERROR;  // Set the elevator state to fix elevator error
                 }
             }
+            prev_data = encoder_data;                              // Set the previous data to the new data
+            break;
 
         case 1:
+
             move_LCD(0,0);                                          // Move the cursor to the first line of the LCD
             if(angle < 0){                                          // Check if the angle is less than 0
                 output_str[7] = '-';                                // Set the first digit of the angle to '-'
+                sign = -1;
+            }else{
+                sign = 1;
             }
-            output_str[8] = int_to_char(angle / 100);               // Set the first digit of the angle
-            output_str[9] = int_to_char((angle % 100) / 10);        // Set the second digit of the angle
-            output_str[10] = int_to_char(angle % 10);               // Set the third digit of the angle
+            output_str[8] = int_to_char(sign*angle / 100);               // Set the first digit of the angle
+            output_str[9] = int_to_char((sign*angle % 100) / 10);        // Set the second digit of the angle
+            output_str[10] = int_to_char(sign*angle % 10);               // Set the third digit of the angle
             
             // Send the target floor to the LCD
             INT8U i;
             for(i = 0; i < 11; i++){
                 xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);     
             }
+            state = 0;
+            break;
         
         default:
+            break;
+        }
+        if(elevator->elevator_state != FIX_ELEVATOR){
             break;
         }
 
