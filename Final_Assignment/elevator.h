@@ -50,6 +50,8 @@
 #define FIX_ELEVATOR_ERROR  12  // Display error for wrong rotation direction
 #define EXIT_ELEVATOR       13  // Save floor, close elevator, log trip
 
+elevator myElevator; // Struct for elevator
+
 
 /*****************************   Constants   *******************************/
 

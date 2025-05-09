@@ -22,17 +22,39 @@
 #include "elevator.h"
 
 /*****************************    Defines    *******************************/
+typedef struct{
+    INT8U elevator_state;               // Elevator state
+    INT8U current_floor;                // Current floor of the elevator
+    INT8U destination_floor;            // Destination floor
+    INT8U password[4];                  // Password entered by user
+    INT8U elevator_acceleration;        // Elevator acceleration value
+    INT8U elevator_deceleration;        // Elevator deceleration value
+    INT8U speed;                        // Elevator speed
+    BOOLEAN door_status;                // Door status (open/closed)
+    INT8U numberOfTrips;                // Number of trips made
+} elevator;
 
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
 
 /*****************************   Functions   *******************************/
-
+void elevator_init(void){
+    // Initialize elevator system
+    myElevator.elevator_state = CALL_ELEVATOR;
+    myElevator.current_floor = 2;
+    myElevator.destination_floor = 2;
+    myElevator.password = 7913;
+    myElevator.elevator_acceleration = 0;
+    myElevator.elevator_deceleration = 0;
+    myElevator.speed = 0;
+    myElevator.door_status = FALSE;
+    myElevator.numberOfTrips = 0;
+}
 
 void elevator_task(void *pvParameters){
 
-    INT8U elevator_state = CALL_ELEVATOR; // Elevator state
+    elevator_init();
     red_led_init();
     green_led_init();
     yellow_led_init();
@@ -42,75 +64,75 @@ void elevator_task(void *pvParameters){
         GPIO_PORTF_DATA_R |= 0x04;
         GPIO_PORTF_DATA_R |= 0x08;
 
-        switch(elevator_state){
+        switch(myElevator.elevator_state){
             case CALL_ELEVATOR:
                 detect_hold_switch(NULL);
-                elevator_state = DISPLAY_FLOOR;
+                myElevator.elevator_state = DISPLAY_FLOOR;
                 GPIO_PORTF_DATA_R &= ~(0x08);
                 GPIO_PORTF_DATA_R |= 0x02;
                 break;
             case DISPLAY_FLOOR:
                 display_current_floor(NULL);
-                elevator_state = OPEN_DOORS;
+                myElevator.elevator_state = OPEN_DOORS;
                 break;
             case OPEN_DOORS:
                 open_doors(NULL);
-                elevator_state = ENTER_CODE;
+                myElevator.elevator_state = ENTER_CODE;
                 // Open doors when elevator arrives at floor
                 break;
             case ENTER_CODE:
                 enter_password(NULL);
-                elevator_state = VALIDATE_CODE;
+                myElevator.elevator_state = VALIDATE_CODE;
                 // Enter 4 digit password from keypad
                 break;
             case VALIDATE_CODE:
                 validate_password(NULL);
-                elevator_state = CHOOSE_FLOOR;
+                myElevator.elevator_state = CHOOSE_FLOOR;
                 // Validate if password is divisible by 8
                 break;
             case CHOOSE_FLOOR:
                 choose_floor(NULL);
-                elevator_state = ACC_ELEVATOR;
+                myElevator.elevator_state = ACC_ELEVATOR;
                 // Choose destination floor with rotary encoder
                 break;
             case ACC_ELEVATOR:
                 accelerate_elevator(NULL);
-                elevator_state = DEC_ELEVATOR;
+                myElevator.elevator_state = DEC_ELEVATOR;
                 // Accelerate elevator (yellow LED blinking)
                 break;
             case DEC_ELEVATOR:
                 decelerate_elevator(NULL);
-                elevator_state = BREAK_ELEVATOR;
+                myElevator.elevator_state = BREAK_ELEVATOR;
                 // Decelerate elevator (red LED blinking)
                 break;
             case BREAK_ELEVATOR:
                 break_elevator(NULL);
-                elevator_state = SETUP_RST_ELEVATOR;
+                myElevator.elevator_state = SETUP_RST_ELEVATOR;
                 // Every 4th trip all LEDs blink
                 break;
             case SETUP_RST_ELEVATOR:
                 setup_rst_elevator(NULL);
-                elevator_state = RESTART_ELEVATOR;
+                myElevator.elevator_state = RESTART_ELEVATOR;
                 // Generate random number and display on screen
                 break;
             case RESTART_ELEVATOR:
                 restart_elevator(NULL);
-                elevator_state = FIX_ELEVATOR;
+                myElevator.elevator_state = FIX_ELEVATOR;
                 // Use pot to reach goal value shown on screen
                 break;
             case FIX_ELEVATOR:
                 fix_elevator(NULL);
-                elevator_state = FIX_ELEVATOR_ERROR;
+                myElevator.elevator_state = FIX_ELEVATOR_ERROR;
                 // Turn rotary encoder 360 degrees
                 break;
             case FIX_ELEVATOR_ERROR:
                 fix_elevator_error(NULL);
-                elevator_state = EXIT_ELEVATOR;
+                myElevator.elevator_state = EXIT_ELEVATOR;
                 // Display error for wrong rotation direction
                 break;
             case EXIT_ELEVATOR:
                 exit_elevator(NULL);
-                elevator_state = CALL_ELEVATOR;
+                myElevator.elevator_state = CALL_ELEVATOR;
                 // Save floor, close elevator, log trip
                 break;
             default:
@@ -185,7 +207,7 @@ void detect_hold_switch(void *pvParameters){
 void display_current_floor(void *pvParameters){
     while(1)
     {
-        /* code */
+        xQueueSend(xQueue_lcd, &myElevator.current_floor, 0);
     }
     
 }
