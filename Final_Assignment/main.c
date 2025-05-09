@@ -132,54 +132,6 @@ void UART_task(void *pvParameters){
                     break;
             }
         }
-
-        /*adc_value = get_adc();
-
-        int cv_mod0 = adc_value % 10;
-        int cv_mod10 = adc_value/10 % 10;
-        int cv_mod100 = adc_value/100 % 10;
-
-        int cv_mod1000 = adc_value/1000 % 10;
-
-        char input0;
-        char input1;
-        char input2;
-        char input3;
-        if(uart0_tx_rdy()){
-            switch(increment){
-                case 0:
-                    input0 = change_int_to_char(cv_mod1000);
-                    uart0_putc(input0); //lowest number
-                    increment++;
-                    break;
-                case 1:
-                    input1 = change_int_to_char(cv_mod100);
-                    uart0_putc(input1); //highest number
-                    increment++;
-                    break;
-                case 2:
-                    input2 = change_int_to_char(cv_mod10);
-                    uart0_putc(input2);
-                    increment++;
-                    break;
-                case 3:
-                    input3 = change_int_to_char(cv_mod0);
-                    uart0_putc(input3); //lowest number
-                    increment++;
-                    break;
-                case 4:
-                    uart0_putc('\n');
-                    increment++;
-                    break;
-                case 5:
-                    uart0_putc('\r');
-                    increment = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-    */
     }
 }
 

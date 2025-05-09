@@ -204,12 +204,52 @@ void detect_hold_switch(void *pvParameters){
     }
 }   
 
+// When the button has been pressed for 2 seconds, the elevator will start moving
+// to the floor where the button was pressed
+// and the elevator will stop at that floor
+// This will be displayed on the LCD
 void display_current_floor(void *pvParameters){
     while(1)
     {
-        xQueueSend(xQueue_lcd, &myElevator.current_floor, 0);
+        INT8U i;
+        char floor_str[9] = "Floor: " + myElevator.current_floor;
+
+        for(i = 0; i < 9; i++){
+            xQueueSend(xQueueLCD, &floor_str[i], 0);
+        }
+       
+        // Wait for 1 second
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        
+        // Check if the elevator has reached the destination floor
+        if(myElevator.current_floor == myElevator.destination_floor){
+            break;
+        } else {
+            // Move the elevator towards the destination floor
+            if(myElevator.current_floor < myElevator.destination_floor){
+                // Move elevator up
+                myElevator.current_floor++;
+
+                // Check if the elevator is at the 13th floor which doesnt exist
+                // and skip it
+                if(myElevator.current_floor == 13){
+                    myElevator.current_floor++;
+                }
+            } else {
+                // Move elevator down
+                myElevator.current_floor--;
+
+                // Check if the elevator is at the 13th floor which doesnt exist
+                // and skip it
+                if(myElevator.current_floor == 13){
+                    myElevator.current_floor--;
+                }
+            }
+        }
+
+        // Reset the LCD cursor to the beginning
+        move_LCD(0, 0);
     }
-    
 }
 
 void open_doors(void *pvParameters){
