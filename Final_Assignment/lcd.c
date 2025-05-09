@@ -56,16 +56,16 @@ enum LCD_states
 /*****************************   Constants   *******************************/
 const INT8U LCD_init_sequense[]= 
 {
-  0x30,		// Reset
-  0x30,		// Reset
-  0x30,		// Reset
-  0x20,		// Set 4bit interface
-  0x28,		// 2 lines Display
-  0x0C,		// Display ON, Cursor OFF, Blink OFF
-  0x06,		// Cursor Increment
-  0x01,		// Clear Display
+  0x30,     // Reset
+  0x30,     // Reset
+  0x30,     // Reset
+  0x20,     // Set 4bit interface
+  0x28,     // 2 lines Display
+  0x0C,     // Display ON, Cursor OFF, Blink OFF
+  0x06,     // Cursor Increment
+  0x01,     // Clear Display
   0x02,     // Home
-  0xFF		// stop
+  0xFF      // stop
 }; 
 
 
@@ -104,7 +104,7 @@ void wr_str_LCD( INT8U *pStr )
   while( *pStr )
   {
     wr_ch_LCD( *pStr );
-	pStr++;
+    pStr++;
   }
 }
 
@@ -135,20 +135,13 @@ void wr_ctrl_LCD_low( INT8U Ch )
   temp = GPIO_PORTC_DATA_R & 0x0F;
   temp  = temp | ((Ch & 0x0F) << 4);
   GPIO_PORTC_DATA_R  = temp;
-  for( i=0; i<1000; i )
-	  i++;
+  vTaskDelay(pdMS_TO_TICKS(1));
   GPIO_PORTD_DATA_R &= 0xFB;        // Select Control mode, write
-  for( i=0; i<1000; i )
-	  i++;
-  GPIO_PORTD_DATA_R |= 0x08;		// Set E High
-
-  for( i=0; i<1000; i )
-	  i++;
-
-  GPIO_PORTD_DATA_R &= 0xF7;		// Set E Low
-
-  for( i=0; i<1000; i )
-	  i++;
+  vTaskDelay(pdMS_TO_TICKS(1));
+  GPIO_PORTD_DATA_R |= 0x08;        // Set E High
+  vTaskDelay(pdMS_TO_TICKS(1));
+  GPIO_PORTD_DATA_R &= 0xF7;        // Set E Low
+  vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 void wr_ctrl_LCD_high( INT8U Ch )
@@ -170,13 +163,13 @@ void out_LCD_low( INT8U Ch )
 ******************************************************************************/
 {
   INT8U temp;
-	  
+
   temp = GPIO_PORTC_DATA_R & 0x0F;
   GPIO_PORTC_DATA_R  = temp | ((Ch & 0x0F) << 4);
   //GPIO_PORTD_DATA_R &= 0x7F;        // Select write
   GPIO_PORTD_DATA_R |= 0x04;        // Select data mode
-  GPIO_PORTD_DATA_R |= 0x08;		// Set E High
-  GPIO_PORTD_DATA_R &= 0xF7;		// Set E Low
+  GPIO_PORTD_DATA_R |= 0x08;        // Set E High
+  GPIO_PORTD_DATA_R &= 0xF7;        // Set E Low
 }
 
 void out_LCD_high( INT8U Ch )
@@ -198,18 +191,17 @@ void wr_ctrl_LCD( INT8U Ch )
 ******************************************************************************/
 {
   static INT8U Mode4bit = FALSE;
-  INT16U i;
 
   wr_ctrl_LCD_high( Ch );
   if( Mode4bit )
   {
-	for(i=0; i<1000; i++);
-	wr_ctrl_LCD_low( Ch );
+    vTaskDelay(pdMS_TO_TICKS(1));
+    wr_ctrl_LCD_low( Ch );
   }
   else
   {
-	if( (Ch & 0x30) == 0x20 )
-	  Mode4bit = TRUE;
+    if( (Ch & 0x30) == 0x20 )
+      Mode4bit = TRUE;
   }
 }
 
@@ -252,13 +244,10 @@ void out_LCD( INT8U Ch )
 *   Function : Write control data to LCD.
 ******************************************************************************/
 {
-  INT16U i;
-
   out_LCD_high( Ch );
-  for(i=0; i<1000; i++);
+  vTaskDelay(pdMS_TO_TICKS(1));
   out_LCD_low( Ch );
 }
-
 
 void lcd_task( void *pvParameters )
 {
@@ -273,7 +262,7 @@ void lcd_task( void *pvParameters )
       LCD_init = 0;
       //set_state( LCD_INIT );
       my_state = LCD_INIT;
-      vTaskDelay(100 / portTICK_RATE_MS); // wait 100 ms.
+      vTaskDelay(pdMS_TO_TICKS(100)); // wait 100 ms.
       break;
 
     case LCD_INIT:
@@ -282,69 +271,69 @@ void lcd_task( void *pvParameters )
         wr_ctrl_LCD( LCD_init_sequense[LCD_init++] );
       }
       else
-	  {
-		//set_state( LCD_READY );
+      {
+        //set_state( LCD_READY );
         my_state = LCD_READY;
         //open_queue( Q_LCD );
-	  }
-      vTaskDelay(10 / portTICK_RATE_MS); // wait 100 ms.
+      }
+      vTaskDelay(pdMS_TO_TICKS(100)); // wait 100 ms.
       break;
     case LCD_READY:
       if(uxQueueMessagesWaiting(xQueue_lcd))
       {
-      if( xSemaphoreTake( xSemaphore_lcd, portMAX_DELAY)) //( TickType_t ) 100 ) == pdTRUE )
+      if( xSemaphoreTake( xSemaphore_lcd, 0)) //( TickType_t ) 100 ) == pdTRUE )
       {
-      if( xQueueReceive( xQueue_lcd, &ch, portMAX_DELAY ))
+      if( xQueueReceive( xQueue_lcd, &ch, 0 ))
       {
         switch( ch )
         {
-	      case 0xFF:
-	        clr_LCD();
+          case 0xFF:
+            clr_LCD();
             move_LCD(0,0);
-	        break;
-	      case ESC:
-		    //set_state( LCD_ESC_RECEIVED );
-		    my_state = LCD_ESC_RECEIVED;
-		    break;
-	      default:
-		    out_LCD( ch );
-		}
-	  }
+            break;
+          case ESC:
+            //set_state( LCD_ESC_RECEIVED );
+            my_state = LCD_ESC_RECEIVED;
+            break;
+          default:
+            out_LCD( ch );
+        }
+      }
       xSemaphoreGive( xSemaphore_lcd );
       }
       }
-      vTaskDelay( 10 / portTICK_RATE_MS); // wait 100-1000 ms. (200-1000)
-	  break;
+      vTaskDelay(pdMS_TO_TICKS(10)); // wait 100-1000 ms. (200-1000)
+      break;
 
-	case LCD_ESC_RECEIVED:
-	  if(uxQueueMessagesWaiting(xQueue_lcd))
-	  {
-	  if( xSemaphoreTake( xSemaphore_lcd, portMAX_DELAY)) //( TickType_t ) 100 ) == pdTRUE )
-	  {
-	  if( xQueueReceive( xQueue_lcd, &ch, portMAX_DELAY ))
-	  {
-	  if( ch & 0x80 )
-		{
-			Set_cursor( ch );
-		}
-		else
-		{
-		  switch( ch )
-		  {
-		    case '@':
-		    	home_LCD();
-			  break;
-		  }
+    case LCD_ESC_RECEIVED:
+      if(uxQueueMessagesWaiting(xQueue_lcd))
+      {
+      if( xSemaphoreTake( xSemaphore_lcd, 0)) //( TickType_t ) 100 ) == pdTRUE )
+      {
+      if( xQueueReceive( xQueue_lcd, &ch, 0 ))
+      {
+      if( ch & 0x80 )
+        {
+            Set_cursor( ch );
         }
-	    //set_state( LCD_READY );
-	    my_state = LCD_READY;
-	    vTaskDelay(100 / portTICK_RATE_MS); // wait 100 ms.
+        else
+        {
+          switch( ch )
+          {
+            case '@':
+                home_LCD();
+              break;
+          }
+        }
+        //set_state( LCD_READY );
+        my_state = LCD_READY;
+        vTaskDelay(pdMS_TO_TICKS(10)); // wait 100 ms.
       }
-	  xSemaphoreGive( xSemaphore_lcd );
+      xSemaphoreGive( xSemaphore_lcd );
       }
       }
-      vTaskDelay( 100 / portTICK_RATE_MS); // wait 100-1000 ms. (200-1000)
-	  break;
+      vTaskDelay(pdMS_TO_TICKS(10)); // wait 100-1000 ms. (200-1000)
+      break;
   }
   }
 }
