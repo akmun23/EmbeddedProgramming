@@ -304,13 +304,13 @@ void choose_floor(Elevator * elevator){
     while(1){
         switch(state){
         case 0:
-            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
+            new_encoder_data = get_encoder();
             old_encoder_data = new_encoder_data;
             state++;
             break;
         case 1:
-            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
-            if (((new_encoder_data & 0x20) != (old_encoder_data & 0x20))){
+            new_encoder_data = get_encoder();
+            if ((new_encoder_data & 0x20) != (old_encoder_data & 0x20)){
 
                 if(new_encoder_data & 0x20){
                     if(new_encoder_data & 0x40){
