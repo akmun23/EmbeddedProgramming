@@ -18,15 +18,7 @@
 *****************************************************************************/
 
 /***************************** Include files *******************************/
-#include <stdint.h>
-#include "tm4c123gh6pm.h"
-#include "FreeRTOS.h"
-#include "Task.h"
-#include "queue.h"
-#include "semphr.h"
-#include "emp_type.h"
-//#include "glob_def.h"
-//#include "status_led.h"
+#include "leds.h"
 
 
 /*****************************    Defines    *******************************/
@@ -133,6 +125,49 @@ void green_led_task(void *pvParameters)
 }
 
 
+
+void elevator_led_task(void *pvParameters)
+{
+  led_controller.led_state = DOOR_CLOSED;
+  while(1)
+  {
+    // Toggle elevator led
+    switch(led_controller.led_state)
+    {
+      case DOOR_CLOSED:
+        GPIO_PORTF_DATA_R &= ~(0x02); // Turn on red led
+        GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
+        GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
+        break;
+      case DOOR_OPENING:
+        GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
+        GPIO_PORTF_DATA_R &= ~(0x04);    // Turn on yellow led
+        GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
+        break;
+      case DOOR_OPEN:
+        GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
+        GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
+        GPIO_PORTF_DATA_R &= ~(0x08);    // Turn on green led
+        break;
+      case ELEVATOR_ACCELERATING:
+        GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
+        GPIO_PORTF_DATA_R ^= 0x04;  // Toggle yellow led
+        GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
+        break;
+      case ELEVATOR_DECELERATING:
+        GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
+        GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
+        GPIO_PORTF_DATA_R |= 0x08;    // Toggle green led
+        break;
+      case ERROR:
+        GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
+        GPIO_PORTF_DATA_R ^= 0x04;    // Toggle yellow led
+        GPIO_PORTF_DATA_R ^= 0x08;    // Toggle green led
+        break;
+    }
+    vTaskDelay( 100 / portTICK_RATE_MS); // wait 1000 ms.
+  }
+}
 /****************************** End Of Module *******************************/
 
 

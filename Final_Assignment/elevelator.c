@@ -32,7 +32,7 @@
 void elevator_init(Elevator * elevator){
     elevator->elevator_state = CALL_ELEVATOR;
     elevator->current_floor = 2;
-    elevator->destination_floor = 4;
+    elevator->destination_floor = 15;
     elevator->password = 0;
     elevator->elevator_acceleration = 0;
     elevator->elevator_deceleration = 0;
@@ -49,9 +49,8 @@ void elevator_task(void *pvParameters){
     red_led_init();
     green_led_init();
     yellow_led_init();
-    GPIO_PORTF_DATA_R &= ~(0x02);
-    GPIO_PORTF_DATA_R |= 0x04;
-    GPIO_PORTF_DATA_R |= 0x08;
+
+    led_controller.led_state = DOOR_CLOSED;
     while(1){
 
         switch(myElevator.elevator_state){
@@ -60,11 +59,13 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = DISPLAY_FLOOR;
                 break;
             case DISPLAY_FLOOR:
-                display_current_floor(&myElevator);
+                display_current_floor(&myElevator, &led_controller);
                 myElevator.elevator_state = OPEN_DOORS;
                 break;
             case OPEN_DOORS:
+                led_controller.led_state = DOOR_OPENING;
                 open_doors(&myElevator);
+                led_controller.led_state = DOOR_OPEN;
                 myElevator.elevator_state = ENTER_CODE;
                 break;
             case ENTER_CODE:
@@ -167,10 +168,20 @@ void detect_hold_switch(Elevator * elevator){
     }
 } 
 
-void display_current_floor(Elevator * elevator){
+void display_current_floor(Elevator * elevator, Led_controller *led_controller){
+    INT8U startFloor = elevator->current_floor;
+    INT8U endFloor = elevator->destination_floor;
+    led_controller->led_state = ELEVATOR_ACCELERATING;
     while(1)
     {
-        // Display the current floor on the LCD
+        if ((endFloor-startFloor)/2 >= elevator->destination_floor - elevator->current_floor)
+        {
+            led_controller->led_state = ELEVATOR_DECELERATING;
+        }
+        
+
+        
+        INT8U i;
         char floor_str[16] = "Floor: ";
         floor_str[7] = int_to_char(elevator->current_floor / 10);
         floor_str[8] = int_to_char(elevator->current_floor % 10);
@@ -217,8 +228,6 @@ void display_current_floor(Elevator * elevator){
 }
 
 void open_doors(Elevator * elevator){
-    GPIO_PORTF_DATA_R &= ~(0x04);
-    GPIO_PORTF_DATA_R |= 0x02;
     INT8U i;
     INT8U j = 0;
     INT8U door_str[16];
@@ -247,13 +256,7 @@ void open_doors(Elevator * elevator){
 
 
         vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
-
-
     }
-
-    GPIO_PORTF_DATA_R &= ~(0x08);
-    GPIO_PORTF_DATA_R |= 0x04;
-
 }
 
 void enter_password(Elevator * elevator){
