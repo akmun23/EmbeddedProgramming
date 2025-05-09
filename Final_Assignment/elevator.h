@@ -54,7 +54,7 @@ typedef struct{
     INT8U elevator_state;               // Elevator state
     INT8U current_floor;                // Current floor of the elevator
     INT8U destination_floor;            // Destination floor
-    INT8U password[4];                  // Password entered by user
+    INT16U password;                  // Password entered by user
     INT8U elevator_acceleration;        // Elevator acceleration value
     INT8U elevator_deceleration;        // Elevator deceleration value
     INT8U speed;                        // Elevator speed
