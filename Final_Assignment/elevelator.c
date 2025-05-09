@@ -451,13 +451,6 @@ void restart_elevator(Elevator * elevator){
 }
 
 void fix_elevator(Elevator * elevator){
-//Case FixElevator:
-// You must turn the rotary encoder 360 degrees from its starting position. 
-// The direction of rotation must alternate each time between clockwise and counterclockwise
-// If the wrong direction is chosen, enter the FIX_ELEVATOR_ERROR state.
-// Click once turned correctly
-// The elevator will then return to the accelerate_elevator state
-
     clr_LCD();                                                  // Clear the LCD 
     vTaskDelay(1000 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
 
@@ -523,7 +516,25 @@ void fix_elevator(Elevator * elevator){
 }
 
 void fix_elevator_error(Elevator * elevator){
-    // Handle elevator error
+    // Fix elevator error
+    const char* msg = "Wrong direction";
+    move_LCD(0,0);
+    while (*msg) {
+        xQueueSend(xQueue_lcd, msg, 0);
+        msg++;
+    }
+
+    move_LCD(0,1);
+    if(elevator->rot_direction == 0){
+        msg = "Turn to +";
+    } else {
+        msg = "Turn to -";
+    }
+    while (*msg) {
+        xQueueSend(xQueue_lcd, msg, 0);
+        msg++;
+    }
+    vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }
 
 void exit_elevator(Elevator * elevator){
