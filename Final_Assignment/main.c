@@ -90,97 +90,8 @@ char change_int_to_char(INT8U number){
 }
 
 void UART_task(void *pvParameters){
-    INT8U adc_value;
-    INT8U button_clicked;
-    INT8U sequence[128];
-
-    portTickType delay;
-
-    int i = 0;
-    int j = 0;
-    int increment = 0;
-    while(1){
-        button_clicked = 0;
-        if(uart0_tx_rdy() && (button_clicked != 0 || increment != 0)){
-            switch(increment){
-                case 0:
-                    if(button_clicked == '#' || i == 127){
-                        increment++;
-                    }
-                    else{
-                        sequence[i++] = button_clicked;
-                    }
-                    break;
-                case 1:
-                    if(j < i){
-                        uart0_putc(sequence[j++]);
-                    }else{
-                        j = 0;
-                        i = 0;
-                        increment++;
-                    }
-                    break;
-                case 2:
-                    uart0_putc('\n');
-                    increment++;
-                    break;
-                case 3:
-                    uart0_putc('\r');
-                    increment = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        /*adc_value = get_adc();
-
-        int cv_mod0 = adc_value % 10;
-        int cv_mod10 = adc_value/10 % 10;
-        int cv_mod100 = adc_value/100 % 10;
-
-        int cv_mod1000 = adc_value/1000 % 10;
-
-        char input0;
-        char input1;
-        char input2;
-        char input3;
-        if(uart0_tx_rdy()){
-            switch(increment){
-                case 0:
-                    input0 = change_int_to_char(cv_mod1000);
-                    uart0_putc(input0); //lowest number
-                    increment++;
-                    break;
-                case 1:
-                    input1 = change_int_to_char(cv_mod100);
-                    uart0_putc(input1); //highest number
-                    increment++;
-                    break;
-                case 2:
-                    input2 = change_int_to_char(cv_mod10);
-                    uart0_putc(input2);
-                    increment++;
-                    break;
-                case 3:
-                    input3 = change_int_to_char(cv_mod0);
-                    uart0_putc(input3); //lowest number
-                    increment++;
-                    break;
-                case 4:
-                    uart0_putc('\n');
-                    increment++;
-                    break;
-                case 5:
-                    uart0_putc('\r');
-                    increment = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-    */
-    }
+    
+    vTaskDelay(1000 / portTICK_RATE_MS);
 }
 
 INT8U button_pushed()
@@ -209,11 +120,12 @@ int main(void)
     //xTaskCreate( red_led_task,    "Red_led",    USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     //xTaskCreate( yellow_led_task, "Yellow_led", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     //xTaskCreate( green_led_task,  "Green_led",  USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
-    xTaskCreate( UART_task, "UART", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
-    xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
-    xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    //xTaskCreate( UART_task, "UART", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    //xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    //xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
+    //xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    //xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    xTaskCreate(elevator_task, "Elevator", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     vTaskStartScheduler();
 	return 0;
 }

@@ -36,18 +36,18 @@ void elevator_task(void *pvParameters){
     red_led_init();
     green_led_init();
     yellow_led_init();
-
+    GPIO_PORTF_DATA_R &= ~(0x02);
+    GPIO_PORTF_DATA_R |= 0x04;
+    GPIO_PORTF_DATA_R |= 0x08;
     while(1){
-        GPIO_PORTF_DATA_R &= ~(0x02);
-        GPIO_PORTF_DATA_R |= 0x04;
-        GPIO_PORTF_DATA_R |= 0x08;
+
 
         switch(elevator_state){
             case CALL_ELEVATOR:
                 detect_hold_switch(NULL);
-                elevator_state = DISPLAY_FLOOR;
                 GPIO_PORTF_DATA_R &= ~(0x08);
                 GPIO_PORTF_DATA_R |= 0x02;
+                elevator_state = DISPLAY_FLOOR;
                 break;
             case DISPLAY_FLOOR:
                 display_current_floor(NULL);
@@ -152,32 +152,32 @@ char int_to_char(INT8U number){
 void detect_hold_switch(void *pvParameters){
     uint32_t start_time = xTaskGetTickCount();
     uint32_t current_time;
-    double elapsed_time;
+    uint32_t elapsed_time;
 
     BOOLEAN hold_switch_pressed = FALSE;
     while(1){
 
         // Check if hold switch is pressed
-        if(GPIO_PORTA_DATA_R & 0x01 && !hold_switch_pressed){
+        if(!(GPIO_PORTF_DATA_R & 0x10) && !hold_switch_pressed){
             // Hold switch is pressed, start timer
             start_time = xTaskGetTickCount();
             hold_switch_pressed = TRUE;
-            break;
-        }else if(!(GPIO_PORTA_DATA_R & 0x01) && hold_switch_pressed){
+        }else if((GPIO_PORTF_DATA_R & 0x10) && hold_switch_pressed){
             // Hold switch is released, reset timer
             hold_switch_pressed = FALSE;
         }
 
         if(hold_switch_pressed){
             current_time = xTaskGetTickCount();
-            elapsed_time = (current_time - start_time)*portTICK_PERIOD_MS; // Convert to seconds
+            elapsed_time = (current_time - start_time)*portTICK_PERIOD_MS; // Convert to ms
     
-            if(elapsed_time >= 2.0){
+            if(elapsed_time >= 2000.0){
 
                 break;
 
             }
-        }    
+        }
+        vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
 
     }
 }   
