@@ -202,6 +202,7 @@ void UART_RX_task(void *pvParameters) {
 
                 // Send the character to the queue
                 xQueueSend(xQueue_UART_RX, &key_in, 0);
+                xQueueSend(xQueue_UART_TX, &key_in, 0); // Send to TX queue as well
 
                 // Release the semaphore
                 xSemaphoreGive(xSemaphore_UART_RX);
@@ -217,7 +218,7 @@ void UART_TX_task(void *pvParameters) {
 
     while (1) {
         // Wait for a character to be available in the queue
-        if (xQueueReceive(xQueue_UART_RX, &key_out, portMAX_DELAY)) {
+        if (xQueueReceive(xQueue_UART_TX, &key_out, portMAX_DELAY)) {
             // Take semaphore to protect
             if (xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY)) {
                 
@@ -239,7 +240,7 @@ void UART_debug_task(void *pvParameters) {
     INT8U i = 0;
     while (1) {
       // Wait for a character to be available in the queue
-      if (xQueueReceive(xQueue_UART_TX, &key_in, portMAX_DELAY)) {
+      if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY)) {
           // Take semaphore to protect
           if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
               // Process the received character
@@ -259,7 +260,7 @@ void UART_debug_task(void *pvParameters) {
               }
 
               // Release the semaphore
-              xSemaphoreGive(xSemaphore_UART_TX);
+              xSemaphoreGive(xSemaphore_UART_RX);
           }
       }
   }
@@ -272,8 +273,8 @@ extern Elevator myElevator;
 
 // Call the function matching the command
 // getLog will be called if the command is "getLog"
-char *getLog = "getLog";
-char *setAcc = "setAcc";
+char *getLog_str = "getLog";
+char *setAcc_str = "setAcc";
 
 if(length != 6){
   return; // No command received
@@ -283,15 +284,15 @@ BOOLEAN found = TRUE;
 
 int i;
 for(i = 0; i < length; i++){
-  if(buf[i] != getLog[i]){
+  if(buf[i] != getLog_str[i]){
     found = FALSE;
-    break;
+
   }
 }
 
 if(found == TRUE){
   // Call the function to get the log
-  //getLog(myElevator);
+  getLog(&myElevator);
 }
 
 /*

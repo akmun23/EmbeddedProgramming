@@ -129,6 +129,7 @@ int main(void)
     //xTaskCreate( green_led_task,  "Green_led",  USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     xTaskCreate( UART_TX_task, "UART_TX", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate( UART_RX_task, "UART_RX", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    xTaskCreate( UART_debug_task, "UART_debug", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     //xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     //xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
