@@ -31,8 +31,10 @@
 #include "glob_def.h"
 
 /*****************************    Defines    *******************************/
-extern QueueHandle_t xQueue_UART;
-extern SemaphoreHandle_t xSemaphore_UART;
+extern QueueHandle_t xQueue_UART_TX;
+extern SemaphoreHandle_t xSemaphore_UART_TX;
+extern QueueHandle_t xQueue_UART_RX;
+extern SemaphoreHandle_t xSemaphore_UART_RX;
 
 /*****************************   Constants   *******************************/
 
