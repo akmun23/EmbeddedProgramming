@@ -39,6 +39,9 @@ QueueHandle_t xQueue_lcd;
 SemaphoreHandle_t xSemaphore_lcd;
 QueueHandle_t xQueue_key;
 SemaphoreHandle_t xSemaphore_key;
+QueueHandle_t xQueue_UART;
+SemaphoreHandle_t xSemaphore_UART;
+
 
 
 static void setupHardware(void)
@@ -88,17 +91,7 @@ char change_int_to_char(INT8U number){
             return '9';
     }
 }
-void UART_task(void *pvParameters){
-    INT8U action;
 
-    while(1){
-        action = get_encoder();
-        if(uart0_tx_rdy()){
-            uart0_putc(action);
-            vTaskDelay(1000 / portTICK_RATE_MS);
-        }
-    }
-}
 
 INT8U button_pushed()
 {

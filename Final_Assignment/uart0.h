@@ -21,8 +21,18 @@
   #define _UART_H
 
 /***************************** Include files *******************************/
+#include <stdint.h>
+#include "tm4c123gh6pm.h"
+#include "emp_type.h"
+#include "FreeRTOS.h"
+#include "FRT_Files/inc/Task.h"
+#include "FRT_Files/inc/queue.h"
+#include "FRT_Files/inc/semphr.h"
+#include "glob_def.h"
 
 /*****************************    Defines    *******************************/
+extern QueueHandle_t xQueue_UART;
+extern SemaphoreHandle_t xSemaphore_UART;
 
 /*****************************   Constants   *******************************/
 

@@ -534,8 +534,7 @@ void fix_elevator(Elevator * elevator){
 void fix_elevator_error(Elevator * elevator){
     // Fix elevator error
     char* msg = "Wrong direction";
-    move_LCD(0,0);
-    string_to_LCD(msg, FALSE);
+    string_to_LCD(msg, TRUE);
 
     move_LCD(0,1);
     if(elevator->rot_direction == 0){
