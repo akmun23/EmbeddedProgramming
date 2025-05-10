@@ -74,8 +74,14 @@ extern void uart0_init( INT32U, INT8U, INT8U, INT8U );
 *   Output   : -
 *   Function : Initialize uart 0
 ******************************************************************************/
+void UART_RX_task(void *pvParameters);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Initialize uart 0
+******************************************************************************/
 
-void UART_task( void *pvParameters );
+void UART_TX_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -

@@ -39,7 +39,7 @@ static void log_event(Elevator *elevator, TripEvent_t event) {
         elevator->log[elevator->numberOfTrips - 1].endFloor = elevator->destination_floor;
     }
 }
-
+/*
 void dump_trip_log_uart(const Elevator *elevator) {
     const TripLog_t *log = &elevator->log;
     int idx = log->head;
@@ -58,7 +58,7 @@ void dump_trip_log_uart(const Elevator *elevator) {
         xQueueSend(xQueue_UART_TX, &buf[i], portMAX_DELAY);   
         }
     }
-}
+}*/
 
 
 
@@ -75,12 +75,12 @@ void elevator_init(Elevator * elevator){
     elevator->door_status = FALSE;
     elevator->numberOfTrips = 3;
     elevator->rot_direction = 0;
+    elevator->endOfTrip = 0;
     elevator->log[128];
 }
 
 void elevator_task(void *pvParameters){
 
-    Elevator myElevator;
     elevator_init(&myElevator);
     red_led_init();
     green_led_init();
@@ -102,7 +102,6 @@ void elevator_task(void *pvParameters){
                 led_controller.led_state = DOOR_OPENING;
                 open_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
-                myElevator.elevator_state = ENTER_CODE;
                 if(myElevator.endOfTrip == 1){
                     myElevator.elevator_state = EXIT_ELEVATOR;
                 }else{
@@ -635,45 +634,6 @@ void exit_elevator(Elevator * elevator){
     elevator->numberOfTrips++;
 }
 
-static void log_event(Elevator *elevator, TripEvent_t ev) {
-
-    TripLog_tlog = &elevator->log;
-    TripLogEntry_t entry = &log->entries[ log->head ];
-
-    entry->event = ev;
-    entry->tick  = xTaskGetTickCount();
-    entry->floor = elevator->current_floor;   // grab it right from the struct
-
-    log->head  = (log->head + 1) % MAX_LOG_ENTRIES;
-    if (log->count < MAX_LOG_ENTRIES) log->count++;
-}
-
-void dump_trip_log_uart(Elevator *elevator) {
-    const TripLog_t log = &elevator->log;
-    int idx = log->head;
-    int n   = log->count;
-
-    while (n--) {
-        idx = (idx - 1 + MAX_LOG_ENTRIES) % MAX_LOG_ENTRIES;
-        const TripLogEntry_tentry = &log->entries[idx];
-
-        uint32_t ms = entry->tick * portTICK_PERIOD_MS;
-
-        char buf[40];
-        if (entry->event == TRIP_START) {
-            snprintf(buf, sizeof(buf), "S@%u:%lums\r\n",
-                     (unsigned)entry->floor, (unsigned long)ms);
-        } else {
-            snprintf(buf, sizeof(buf), "E@%u:%lums\r\n",
-                     (unsigned)entry->floor, (unsigned long)ms);
-        }
-
-        for (char p = buf;p; ++p) {
-            while (!uart0_tx_rdy()) {}
-            uart0_putc(*p);
-        }
-    }
-}
 
 
 void close_doors(Elevator * elevator){
@@ -706,4 +666,5 @@ void close_doors(Elevator * elevator){
 
         vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
     }
+    
 }
