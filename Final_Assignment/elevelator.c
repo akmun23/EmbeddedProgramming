@@ -49,26 +49,26 @@ void getLog(const Elevator *elevator) {
     for (j = 0; j < elevator->numberOfTrips; j++)                            // Go through each trip
     {
         char NextStrQueue[128] = "Trip ID: ";                                // Start message
-        char id[] = { '0' + (elevator->log[j].id / 10) % 10, '0' + elevator->log[j].id % 10, '\0' };
+        char id[] = { int_to_char(elevator->log[j].id / 10), int_to_char(elevator->log[j].id % 10)};
         strcat(NextStrQueue, id);                                            // Add id
 
         strcat(NextStrQueue, ", Start Floor: ");                             // Start floor text
-        char startFloor[] = { '0' + (elevator->log[j].startFloor / 10) % 10, '0' + elevator->log[j].startFloor % 10, '\0' };
+        char startFloor[] = {int_to_char(elevator->log[j].startFloor / 10), int_to_char(elevator->log[j].startFloor % 10)};
         strcat(NextStrQueue, startFloor);                                    // Add start floor
 
         strcat(NextStrQueue, ", End Floor: ");                               // End floor text
-        char endFloor[] = { '0' + (elevator->log[j].endFloor / 10) % 10, '0' + elevator->log[j].endFloor % 10, '\0' };
+        char endFloor[] = {int_to_char(elevator->log[j].endFloor / 10), int_to_char(elevator->log[j].endFloor % 10)};
         strcat(NextStrQueue, endFloor);                                      // Add end floor
 
         for (k = 0; k < 128; k++)                                             // Send each char
         {
-            if (NextStrQueue[k] == '\0') break;                              // Stop if string ends
-              xQueueSend(xQueue_UART_TX, NextStrQueue[k], 0);   
+            xQueueSend(xQueue_UART_TX, NextStrQueue[k], 0);   
         }
         
         xQueueSend(xQueue_UART_TX, '\r', 0);                                    // Send enter to the LCD
         xQueueSend(xQueue_UART_TX, '\n', 0);  
         
+}
 }
 
 
