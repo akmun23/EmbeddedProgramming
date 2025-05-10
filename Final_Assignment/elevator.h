@@ -34,6 +34,7 @@
 #include "encoder.h"
 #include "lcd.h"
 #include "leds.h"
+#include "uart0.h"
 /*****************************    Defines    *******************************/
 
 #define CALL_ELEVATOR       0   // Call elevator by holding SW1
@@ -48,14 +49,20 @@
 #define FIX_ELEVATOR        9  // Turn rotary encoder 360 degrees
 #define FIX_ELEVATOR_ERROR  10  // Display error for wrong rotation direction
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
-#define CLOSE_DOORS         12  // Save floor, close elevator, log trip
 
+#define TIME_BETWEEN_FLOORS 1000 // Time between floors in ms
 
-#define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
+#include <time.h>    // for struct tm, time_t if you have an RTC
+
+#define MAX_LOG_ENTRIES  32  // adjust to taste
+
+typedef enum { 
+    TRIP_START, 
+    TRIP_END 
+} TripEvent_t;
 
 typedef struct{
     INT8U elevator_state;               // Elevator state
-    INT8U elevator_state_prev;          // Previous elevator state
     INT8U current_floor;                // Current floor of the elevator
     INT8U destination_floor;            // Destination floor
     INT16U password;                    // Password entered by user
@@ -65,9 +72,16 @@ typedef struct{
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
-    INT16U goal_number;                 // Goal number to reach
-    INT8U endOfTrip;                  // End of trip flag
+    INT16U goal_number;
+    TripLog_t log[128];
+
 } Elevator;
+
+typedef struct {
+    int id;
+    int startFloor;    
+    int endFloor;   
+} TripLog_t;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;
 extern Led_controller led_controller;
@@ -192,7 +206,19 @@ void exit_elevator(Elevator * elevator);
 *   Function : 
 ***********************************************************************************/
 
+void dump_trip_log_uart(const Elevator *elev);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : 
+***********************************************************************************/
 
+static void log_event(TripLog_t *log, TripEvent_t ev);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Write low part of control data to LCD.
+******************************************************************************/
 
 /****************************** End Of Module *******************************/
 

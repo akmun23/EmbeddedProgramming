@@ -29,18 +29,53 @@
 /*****************************   Variables   *******************************/
 
 /*****************************   Functions   *******************************/
+static void log_event(Elevator *elevator, TripEvent_t event) {
+    if(event == TRIP_START){
+        TripLog_t newTrip;
+        newTrip.id = elevator->numberOfTrips;
+        newTrip.startFloor = elevator->current_floor;
+        elevator->log[elevator->numberOfTrips - 1] = newTrip;
+    } else if(event == TRIP_END){
+        elevator->log[elevator->numberOfTrips - 1].endFloor = elevator->destination_floor;
+    }
+}
+
+void dump_trip_log_uart(const Elevator *elevator) {
+    const TripLog_t *log = &elevator->log;
+    int idx = log->head;
+    int n   = log->count;
+
+    while (n--) {
+        idx = (idx - 1 + MAX_LOG_ENTRIES) % MAX_LOG_ENTRIES;
+        const TripLogEntry_t *entry = &log->entries[idx];
+
+        uint32_t ms = entry->tick * portTICK_PERIOD_MS;
+
+        char buf[40];
+        int i;
+        for(i = 0; i < 40; i++)                                          
+        {
+        xQueueSend(xQueue_UART_TX, &buf[i], portMAX_DELAY);   
+        }
+    }
+}
+
+
+
 void elevator_init(Elevator * elevator){
+    
+    elevator->numberOfTrips = 0;
     elevator->elevator_state = CALL_ELEVATOR;
-    elevator->elevator_state_prev = CALL_ELEVATOR;
     elevator->current_floor = 2;
-    elevator->destination_floor = 20;
+    elevator->destination_floor = 4;
     elevator->password = 0;
     elevator->elevator_acceleration = 0;
     elevator->elevator_deceleration = 0;
     elevator->speed = 0;
     elevator->door_status = FALSE;
-    elevator->numberOfTrips = 0;
+    elevator->numberOfTrips = 3;
     elevator->rot_direction = 0;
+    elevator->log[128];
 }
 
 void elevator_task(void *pvParameters){
@@ -80,11 +115,10 @@ void elevator_task(void *pvParameters){
                 break;
             case VALIDATE_CODE:
                 validate_password(&myElevator);
-                myElevator.elevator_state = VALIDATE_CODE;
                 break;
             case CHOOSE_FLOOR:
                 choose_floor(&myElevator);
-                myElevator.endOfTrip = 1;   
+                log_event(&myElevator, TRIP_START);
                 if(myElevator.numberOfTrips % 4 == 0){
                     myElevator.elevator_state = BREAK_ELEVATOR;
                 } else {
@@ -105,7 +139,6 @@ void elevator_task(void *pvParameters){
                 break;
             case FIX_ELEVATOR:
                 fix_elevator(&myElevator);
-                myElevator.elevator_state = FIX_ELEVATOR;
                 break;
             case FIX_ELEVATOR_ERROR:
                 fix_elevator_error(&myElevator);
@@ -114,8 +147,8 @@ void elevator_task(void *pvParameters){
                 // Display error for wrong rotation direction
             case EXIT_ELEVATOR:
                 exit_elevator(&myElevator);
+                 log_event(&myElevator, TRIP_END);
                 myElevator.elevator_state = CALL_ELEVATOR;
-                myElevator.endOfTrip = 0;
                 // Save floor, close elevator, log trip
                 break;
             case CLOSE_DOORS:
@@ -199,6 +232,7 @@ void detect_hold_switch(Elevator * elevator){
 
 void display_current_floor(Elevator * elevator, Led_controller *led_controller){
     INT8U startFloor = elevator->current_floor;
+    INT8U endFloor = elevator->destination_floor;
     led_controller->led_state = ELEVATOR_ACCELERATING;
     INT16U increasedSpeed = 0;
     while(1)
@@ -213,8 +247,8 @@ void display_current_floor(Elevator * elevator, Led_controller *led_controller){
             }
         }else{
             if ((startFloor-elevator->destination_floor)/2 >= elevator->current_floor - elevator->destination_floor)
-            {
-                led_controller->led_state = ELEVATOR_DECELERATING;
+        {
+            led_controller->led_state = ELEVATOR_DECELERATING;
                 increasedSpeed -= 200;
             }else{
                 increasedSpeed += 200;
@@ -484,7 +518,7 @@ void restart_elevator(Elevator * elevator){
                 xQueueSend(xQueue_lcd, &pot_str[i], portMAX_DELAY); // Outputs chars on to LCD
 
             }
-        }
+    }
         vTaskDelay(10 / portTICK_RATE_MS);
     }
 }
