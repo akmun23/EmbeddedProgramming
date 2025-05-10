@@ -29,6 +29,7 @@
 #include "FRT_Files/inc/queue.h"
 #include "FRT_Files/inc/semphr.h"
 #include "glob_def.h"
+#include "elevator.h"
 
 /*****************************    Defines    *******************************/
 extern QueueHandle_t xQueue_UART_TX;

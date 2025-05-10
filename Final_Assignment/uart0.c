@@ -237,7 +237,6 @@ void UART_debug_task(void *pvParameters) {
     INT8U key_in;
     INT8U buf[16];
     INT8U i = 0;
-
     while (1) {
       // Wait for a character to be available in the queue
       if (xQueueReceive(xQueue_UART_TX, &key_in, portMAX_DELAY)) {
@@ -267,6 +266,7 @@ void UART_debug_task(void *pvParameters) {
 }
 
 void getCommand(INT8U *buf, INT8U length){
+extern Elevator myElevator;
 // Function to get command from the buffer
 // This function will be called when a command is received
 
