@@ -26,11 +26,11 @@
 // Special ASCII characters
 // ------------------------
 
-#define LF		0x0A
-#define FF		0x0C
-#define CR		0x0D
-
-#define ESC		0x1B
+#define LF		  0x0A
+#define FF		  0x0C
+#define CR		  0x0D
+#define RST     0xFF;     //reset LCD
+#define ESC		  0x1B
 
 
 /*****************************   Constants   *******************************/
