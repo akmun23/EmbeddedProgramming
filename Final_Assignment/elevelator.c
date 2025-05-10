@@ -270,6 +270,7 @@ void enter_password(Elevator * elevator){
     INT8U key;
     clr_LCD();
     vTaskDelay(500 / portTICK_RATE_MS); // Delay to avoid busy waiting
+    xQueueGenericReset(xQueue_key, pdFALSE); // Reset the LCD queue
     move_LCD(0,0);
 
     INT8U passowrd_str[10] = "Password: ";
@@ -468,7 +469,6 @@ void fix_elevator(Elevator * elevator){
     }
     INT8U encoder_data = get_encoder();                         // New data of the encoder
     INT8U prev_data = encoder_data;                         // New data of the encoder
-
     while (1)
     {
         switch (state) {

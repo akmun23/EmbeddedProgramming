@@ -26,11 +26,11 @@
 // Special ASCII characters
 // ------------------------
 
-#define LF		0x0A
-#define FF		0x0C
-#define CR		0x0D
-#define RST   0xFF
-#define ESC		0x1B
+#define LF		  0x0A
+#define FF		  0x0C
+#define CR		  0x0D
+#define RST     0xFF;     //reset LCD
+#define ESC		  0x1B
 
 
 /*****************************   Constants   *******************************/
@@ -39,6 +39,7 @@
 void wr_str_LCD( INT8U* );
 void move_LCD( INT8U, INT8U );
 INT8U wr_ch_LCD( INT8U Ch );
+void string_to_LCD( INT8U* pStr, INT8U clear );
 
 void lcd_task( void *pvParameters );
 /*****************************************************************************
