@@ -249,6 +249,28 @@ void out_LCD( INT8U Ch )
   out_LCD_low( Ch );
 }
 
+void string_to_LCD( INT8U *pStr, BOOLEAN clear)
+/*****************************************************************************
+ *  Input   : pStr - Pointer to string
+ *            clear - Clear LCD before writing
+ * Output   : -
+ * Function : Write string to LCD.
+ * *****************************************************************************/
+{
+  INT8U start = RST;
+  if(clear)
+  {
+    xQueueSend( xQueue_lcd, &start, portMAX_DELAY );
+    start = ESC;
+  }
+  
+  while( *pStr )
+  {
+    xQueueSend( xQueue_lcd, pStr, portMAX_DELAY );
+    pStr++;
+  }
+}
+
 void lcd_task( void *pvParameters )
 {
   INT8U ch;
