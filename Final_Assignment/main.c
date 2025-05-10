@@ -21,6 +21,7 @@
 #include "key.h"
 #include "encoder.h"
 #include "elevator.h"
+#include "uart0.h"
 
 
 
@@ -38,8 +39,10 @@ QueueHandle_t xQueue_lcd;
 SemaphoreHandle_t xSemaphore_lcd;
 QueueHandle_t xQueue_key;
 SemaphoreHandle_t xSemaphore_key;
-QueueHandle_t xQueue_UART;
-SemaphoreHandle_t xSemaphore_UART;
+QueueHandle_t xQueue_UART_TX;
+SemaphoreHandle_t xSemaphore_UART_TX;
+QueueHandle_t xQueue_UART_RX;
+SemaphoreHandle_t xSemaphore_UART_RX;
 
 
 
@@ -59,8 +62,14 @@ static void setupHardware(void)
   init_gpio();
   xQueue_lcd = xQueueCreate( QUEUE_LEN , sizeof( INT8U ));
   xSemaphore_lcd = xSemaphoreCreateMutex();
-  uart0_init( 9600, 8, 1, 'n' );
 
+  uart0_init( 9600, 8, 1, 'n' );
+  xQueue_UART_TX = xQueueCreate( QUEUE_LEN , sizeof( INT8U ));
+  xSemaphore_UART_TX = xSemaphoreCreateMutex();
+  xQueue_UART_RX = xQueueCreate( QUEUE_LEN , sizeof( INT8U ));
+  xSemaphore_UART_RX = xSemaphoreCreateMutex();
+  
+  
   xQueue_key = xQueueCreate( QUEUE_LEN , sizeof( INT8U ));
   xSemaphore_key = xSemaphoreCreateMutex();
 }
@@ -118,7 +127,8 @@ int main(void)
     //xTaskCreate( red_led_task,    "Red_led",    USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     //xTaskCreate( yellow_led_task, "Yellow_led", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     //xTaskCreate( green_led_task,  "Green_led",  USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
-    //xTaskCreate( UART_task, "UART", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    xTaskCreate( UART_TX_task, "UART_TX", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
+    xTaskCreate( UART_RX_task, "UART_RX", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate( lcd_task, "LCD", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     //xTaskCreate( UI_task, "UI_task", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     //xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
