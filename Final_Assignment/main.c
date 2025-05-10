@@ -15,7 +15,6 @@
 #include "adc.h"
 #include "FRT_Files/inc/queue.h"
 #include "FRT_Files/inc/semphr.h"
-#include "file.h"
 #include "lcd.h"
 #include "uart0.h"
 #include "UI_task.h"

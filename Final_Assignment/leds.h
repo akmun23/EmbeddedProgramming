@@ -39,11 +39,14 @@
 #define ELEVATOR_DECELERATING 0x05
 #define ERROR 0x06
 
+#define LED_TASK_DELAY 10 / portTICK_RATE_MS // 1000 ms delay for LED tasks
+
 typedef struct{
     INT8U led_state;               // Elevator state
 } Led_controller;
 
 Led_controller led_controller;
+
 
 /*****************************   Constants   *******************************/
 
@@ -55,6 +58,7 @@ void yellow_led_task(void *pvParameters);
 void green_led_task(void *pvParameters);
 
 void elevator_led_task(void *pvParameters);
+void elevatorMoving_ledControl(void);
 
 /****************************** End Of Module *******************************/
 #endif

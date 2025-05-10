@@ -49,7 +49,7 @@
 #define FIX_ELEVATOR_ERROR  10  // Display error for wrong rotation direction
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
 
-#define TIME_BETWEEN_FLOORS 1000 // Time between floors in ms
+#define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
 
 typedef struct{
     INT8U elevator_state;               // Elevator state
