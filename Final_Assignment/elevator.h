@@ -48,6 +48,8 @@
 #define FIX_ELEVATOR        9  // Turn rotary encoder 360 degrees
 #define FIX_ELEVATOR_ERROR  10  // Display error for wrong rotation direction
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
+#define CLOSE_DOORS         12  // Save floor, close elevator, log trip
+
 
 #define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
 
@@ -63,7 +65,8 @@ typedef struct{
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
-    INT16U goal_number;
+    INT16U goal_number;                 // Goal number to reach
+    INT8U endOfTrip;                  // End of trip flag
 } Elevator;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;

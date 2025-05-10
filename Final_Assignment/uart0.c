@@ -190,36 +190,36 @@ extern void uart0_init( INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U 
 
 
 void UART_task(void *pvParameters){
+  INT8U key_in;
+  INT8U key_out;
+
   while(1){
+      while (!uart0_tx_rdy()) {
+          uart0_putc(0xFF);
+      }
       // Take semaphore to protect the UART
-      if (xSemaphoreTake(xSemaphore_UART, 0) {
+      if (xSemaphoreTake(xSemaphore_UART, 100 / portTICK_RATE_MS) == pdTRUE) {
 
           // Check if a character is available
           if (uart0_rx_rdy()) {
               // Process the received character
-              INT8U key = uart0_getc();
+              key_in = uart0_getc();
               
               // Send the character to the queue
-              xQueueSend(xQueue_UART, &key, 0);
+              xQueueSend(xQueue_UART, &key_in, portMAX_DELAY);
           }
-          // Release the semaphore
-          xSemaphoreGive(xSemaphore_UART);
-      }
 
-      if (xSemaphoreTake(xSemaphore_UART, 0)) {
-          // Check if a character is available in the queue
-          INT8U key;
-          if (xQueueReceive(xQueue_UART, &key, 0)) {
+          if (xQueueReceive(xQueue_UART, &key_out, portMAX_DELAY)) {
               // Send the character to the UART
-              if (uart0_tx_rdy()) {
-                  uart0_putc(key);
+              while (!uart0_tx_rdy()) {
+                  uart0_putc(key_out);
               }
           }
           // Release the semaphore
           xSemaphoreGive(xSemaphore_UART);
       }
 
-      vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+      vTaskDelay(100 / portTICK_RATE_MS); // Delay to avoid busy waiting
   }
 }
 /****************************** End Of Module *******************************/
