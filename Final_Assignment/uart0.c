@@ -200,8 +200,7 @@ void UART_RX_task(void *pvParameters) {
                 // Get the character from UART RX
                 key_in = uart0_getc();
 
-                // Send the character to the queues
-                xQueueSend(xQueue_UART_TX, &key_in, 0);
+                // Send the character to the queue
                 xQueueSend(xQueue_UART_RX, &key_in, 0);
 
                 // Release the semaphore
@@ -218,7 +217,7 @@ void UART_TX_task(void *pvParameters) {
 
     while (1) {
         // Wait for a character to be available in the queue
-        if (xQueueReceive(xQueue_UART_TX, &key_out, portMAX_DELAY)) {
+        if (xQueueReceive(xQueue_UART_RX, &key_out, portMAX_DELAY)) {
             // Take semaphore to protect
             if (xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY)) {
                 
@@ -238,7 +237,6 @@ void UART_debug_task(void *pvParameters) {
     INT8U key_in;
     INT8U buf[16];
     INT8U i = 0;
-
     while (1) {
       // Wait for a character to be available in the queue
       if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY)) {
@@ -268,6 +266,7 @@ void UART_debug_task(void *pvParameters) {
 }
 
 void getCommand(INT8U *buf, INT8U length){
+extern Elevator myElevator;
 // Function to get command from the buffer
 // This function will be called when a command is received
 
