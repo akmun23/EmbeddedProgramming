@@ -53,6 +53,7 @@
 
 typedef struct{
     INT8U elevator_state;               // Elevator state
+    INT8U elevator_state_prev;          // Previous elevator state
     INT8U current_floor;                // Current floor of the elevator
     INT8U destination_floor;            // Destination floor
     INT16U password;                    // Password entered by user

@@ -31,6 +31,7 @@
 /*****************************   Functions   *******************************/
 void elevator_init(Elevator * elevator){
     elevator->elevator_state = CALL_ELEVATOR;
+    elevator->elevator_state_prev = CALL_ELEVATOR;
     elevator->current_floor = 2;
     elevator->destination_floor = 20;
     elevator->password = 0;
@@ -57,6 +58,7 @@ void elevator_task(void *pvParameters){
             case CALL_ELEVATOR:
                 detect_hold_switch(&myElevator);
                 myElevator.elevator_state = DISPLAY_FLOOR;
+                my
                 break;
             case DISPLAY_FLOOR:
                 display_current_floor(&myElevator, &led_controller);
@@ -178,17 +180,26 @@ void detect_hold_switch(Elevator * elevator){
 
 void display_current_floor(Elevator * elevator, Led_controller *led_controller){
     INT8U startFloor = elevator->current_floor;
-    INT8U endFloor = elevator->destination_floor;
     led_controller->led_state = ELEVATOR_ACCELERATING;
     INT16U increasedSpeed = 0;
     while(1)
     {
-        if ((endFloor-startFloor)/2 >= elevator->destination_floor - elevator->current_floor)
-        {
-            led_controller->led_state = ELEVATOR_DECELERATING;
-            increasedSpeed -= 200;
+        if(elevator->destination_floor > elevator->current_floor){
+            if ((elevator->destination_floor-startFloor)/2 >= elevator->destination_floor - elevator->current_floor)
+            {
+                led_controller->led_state = ELEVATOR_DECELERATING;
+                increasedSpeed -= 200;
+            }else{
+                increasedSpeed += 200;
+            }
         }else{
-            increasedSpeed += 200;
+            if ((startFloor-elevator->destination_floor)/2 >= elevator->current_floor - elevator->destination_floor)
+            {
+                led_controller->led_state = ELEVATOR_DECELERATING;
+                increasedSpeed -= 200;
+            }else{
+                increasedSpeed += 200;
+            }
         }
         
         char floor_str[16] = "Floor: ";
@@ -537,8 +548,12 @@ void fix_elevator(Elevator * elevator){
 
 void fix_elevator_error(Elevator * elevator){
     // Fix elevator error
-    char* msg = "Wrong direction";
-    string_to_LCD(msg, TRUE);
+    const char* msg = "Wrong direction";
+    move_LCD(0,0);
+    while (*msg) {
+        xQueueSend(xQueue_lcd, msg, portMAX_DELAY);
+        msg++;
+    }
 
     move_LCD(0,1);
     if(elevator->rot_direction == 0){
@@ -546,8 +561,10 @@ void fix_elevator_error(Elevator * elevator){
     } else {
         msg = "Turn to -";
     }
-    string_to_LCD(msg, FALSE);
-
+    while (*msg) {
+        xQueueSend(xQueue_lcd, msg, portMAX_DELAY);
+        msg++;
+    }
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }
 
