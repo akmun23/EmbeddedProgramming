@@ -239,7 +239,7 @@ void UART_debug_task(void *pvParameters) {
     INT8U i = 0;
     while (1) {
       // Wait for a character to be available in the queue
-      if (xQueueReceive(xQueue_UART_TX, &key_in, portMAX_DELAY)) {
+      if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY)) {
           // Take semaphore to protect
           if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
               // Process the received character
