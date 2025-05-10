@@ -39,26 +39,37 @@ static void log_event(Elevator *elevator, TripEvent_t event) {
         elevator->log[elevator->numberOfTrips - 1].endFloor = elevator->destination_floor;
     }
 }
-/*
-void dump_trip_log_uart(const Elevator *elevator) {
-    const TripLog_t *log = &elevator->log;
-    int idx = log->head;
-    int n   = log->count;
 
-    while (n--) {
-        idx = (idx - 1 + MAX_LOG_ENTRIES) % MAX_LOG_ENTRIES;
-        const TripLogEntry_t *entry = &log->entries[idx];
+void getLog(const Elevator *elevator) {
+    int j = 0;
+    int k = 0;
+    xQueueSend(xQueue_UART_TX, '\r', 0);                                    // Send enter to the LCD
+    xQueueSend(xQueue_UART_TX, '\n', 0);                                                       // Starts a new line
 
-        uint32_t ms = entry->tick * portTICK_PERIOD_MS;
+    for (j = 0; j < elevator->numberOfTrips; j++)                            // Go through each trip
+    {
+        char NextStrQueue[128] = "Trip ID: ";                                // Start message
+        char id[] = { '0' + (elevator->log[j].id / 10) % 10, '0' + elevator->log[j].id % 10, '\0' };
+        strcat(NextStrQueue, id);                                            // Add id
 
-        char buf[40];
-        int i;
-        for(i = 0; i < 40; i++)                                          
+        strcat(NextStrQueue, ", Start Floor: ");                             // Start floor text
+        char startFloor[] = { '0' + (elevator->log[j].startFloor / 10) % 10, '0' + elevator->log[j].startFloor % 10, '\0' };
+        strcat(NextStrQueue, startFloor);                                    // Add start floor
+
+        strcat(NextStrQueue, ", End Floor: ");                               // End floor text
+        char endFloor[] = { '0' + (elevator->log[j].endFloor / 10) % 10, '0' + elevator->log[j].endFloor % 10, '\0' };
+        strcat(NextStrQueue, endFloor);                                      // Add end floor
+
+        for (k = 0; k < 128; k++)                                             // Send each char
         {
-        xQueueSend(xQueue_UART_TX, &buf[i], portMAX_DELAY);   
+            if (NextStrQueue[k] == '\0') break;                              // Stop if string ends
+              xQueueSend(xQueue_UART_TX, NextStrQueue[k], 0);   
         }
-    }
-}*/
+        
+        xQueueSend(xQueue_UART_TX, '\r', 0);                                    // Send enter to the LCD
+        xQueueSend(xQueue_UART_TX, '\n', 0);  
+        
+}
 
 
 
