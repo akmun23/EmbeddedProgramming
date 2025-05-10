@@ -50,12 +50,12 @@
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
 #define CLOSE_DOORS         12  // Save floor, close elevator, log trip
 
+#define MAX_LOG_ENTRIES     32
 
 #define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
 
 typedef struct{
     INT8U elevator_state;               // Elevator state
-    INT8U elevator_state_prev;          // Previous elevator state
     INT8U current_floor;                // Current floor of the elevator
     INT8U destination_floor;            // Destination floor
     INT16U password;                    // Password entered by user
@@ -68,6 +68,24 @@ typedef struct{
     INT16U goal_number;                 // Goal number to reach
     INT8U endOfTrip;                  // End of trip flag
 } Elevator;
+
+
+typedef enum { 
+    TRIP_START, 
+    TRIP_END 
+} TripEvent_t;
+typedef struct {
+
+    TripEvent_t  event;
+    TickType_t   tick;      // FreeRTOS tick count when it happened
+    uint8_t      floor;
+} TripLogEntry_t;
+
+typedef struct {
+    TripLogEntry_t entries[MAX_LOG_ENTRIES];
+    int            head;
+    int            count;
+} TripLog_t;
 
 extern QueueHandle_t xQueue_key, xQueue_lcd;
 extern Led_controller led_controller;

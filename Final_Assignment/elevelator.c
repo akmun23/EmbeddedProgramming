@@ -80,7 +80,6 @@ void elevator_task(void *pvParameters){
                 break;
             case VALIDATE_CODE:
                 validate_password(&myElevator);
-                myElevator.elevator_state = VALIDATE_CODE;
                 break;
             case CHOOSE_FLOOR:
                 choose_floor(&myElevator);
@@ -100,7 +99,6 @@ void elevator_task(void *pvParameters){
                 break;
             case FIX_ELEVATOR:
                 fix_elevator(&myElevator);
-                myElevator.elevator_state = FIX_ELEVATOR;
                 break;
             case FIX_ELEVATOR_ERROR:
                 fix_elevator_error(&myElevator);
@@ -587,7 +585,59 @@ void fix_elevator_error(Elevator * elevator){
 
 void exit_elevator(Elevator * elevator){
     // Exit the elevator
+    move_LCD(0,0);
+    clr_LCD();
+
+    INT8U i;
+    const char* exit_string = "Have a good day";
+
+    for(i = 0; i < 16; i++){
+        xQueueSend(xQueue_lcd, &exit_string[i], 0);
+
+    }
+    elevator->numberOfTrips++;
 }
+
+static void log_event(Elevator *elevator, TripEvent_t ev) {
+
+    TripLog_tlog = &elevator->log;
+    TripLogEntry_t entry = &log->entries[ log->head ];
+
+    entry->event = ev;
+    entry->tick  = xTaskGetTickCount();
+    entry->floor = elevator->current_floor;   // grab it right from the struct
+
+    log->head  = (log->head + 1) % MAX_LOG_ENTRIES;
+    if (log->count < MAX_LOG_ENTRIES) log->count++;
+}
+
+void dump_trip_log_uart(Elevator *elevator) {
+    const TripLog_t log = &elevator->log;
+    int idx = log->head;
+    int n   = log->count;
+
+    while (n--) {
+        idx = (idx - 1 + MAX_LOG_ENTRIES) % MAX_LOG_ENTRIES;
+        const TripLogEntry_tentry = &log->entries[idx];
+
+        uint32_t ms = entry->tick * portTICK_PERIOD_MS;
+
+        char buf[40];
+        if (entry->event == TRIP_START) {
+            snprintf(buf, sizeof(buf), "S@%u:%lums\r\n",
+                     (unsigned)entry->floor, (unsigned long)ms);
+        } else {
+            snprintf(buf, sizeof(buf), "E@%u:%lums\r\n",
+                     (unsigned)entry->floor, (unsigned long)ms);
+        }
+
+        for (char p = buf;p; ++p) {
+            while (!uart0_tx_rdy()) {}
+            uart0_putc(*p);
+        }
+    }
+}
+
 
 void close_doors(Elevator * elevator){
     INT8U i;
