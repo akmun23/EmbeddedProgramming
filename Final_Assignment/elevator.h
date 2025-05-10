@@ -83,7 +83,7 @@ typedef struct {
     int endFloor;   
 } TripLog_t;
 
-extern QueueHandle_t xQueue_key, xQueue_lcd;
+extern QueueHandle_t xQueue_key, xQueue_lcd, xQueue_UART_TX;
 extern Led_controller led_controller;
 /*****************************   Constants   *******************************/
 
@@ -206,7 +206,7 @@ void exit_elevator(Elevator * elevator);
 *   Function : 
 ***********************************************************************************/
 
-void dump_trip_log_uart(const Elevator *elev);
+void getLog(const Elevator *elev);
 
 void close_doors(Elevator * elevator);
 /*****************************************************************************
