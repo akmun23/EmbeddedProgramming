@@ -231,4 +231,84 @@ void UART_TX_task(void *pvParameters) {
         }
     }
 }
+
+void UART_debug_task(void *pvParameters) {
+    // Read from the UART RX queue and react to the input when a command is received
+    INT8U key_in;
+    INT8U buf[16];
+    INT8U i = 0;
+
+    while (1) {
+      // Wait for a character to be available in the queue
+      if (xQueueReceive(xQueue_UART_TX, &key_in, portMAX_DELAY)) {
+          // Take semaphore to protect
+          if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
+              // Process the received character
+              // If the character is an enter key, process the command
+              if(key_in == '\r'){
+                // Process the command in buf
+                getCommand(buf, i);
+
+                // Reset the buffer
+                for(i = 0; i < 16; i++){
+                    buf[i] = '\0';
+                }
+                i = 0;
+              } else {
+                buf[i] = key_in; // Add the character to the buffer
+                i++;
+              }
+
+              // Release the semaphore
+              xSemaphoreGive(xSemaphore_UART_TX);
+          }
+      }
+  }
+}
+
+void getCommand(INT8U *buf, INT8U length){
+// Function to get command from the buffer
+// This function will be called when a command is received
+
+// Call the function matching the command
+// getLog will be called if the command is "getLog"
+char *getLog = "getLog";
+char *setAcc = "setAcc";
+
+if(length != 6){
+  return; // No command received
+}
+
+BOOLEAN found = TRUE;
+
+int i;
+for(i = 0; i < length; i++){
+  if(buf[i] != getLog[i]){
+    found = FALSE;
+    break;
+  }
+}
+
+if(found == TRUE){
+  // Call the function to get the log
+  getLog(myElevator);
+}
+
+/*
+// Check if the command is setAcc
+found = TRUE;
+for(i = 0; i < length; i++){
+  if(buf[i] != setAcc[i]){
+    found = FALSE;
+    break;
+  }
+}
+
+if(found == TRUE){
+  // Call the function to set the acceleration
+  setAcc(myElevator);
+}
+*/
+
+}
 /****************************** End Of Module *******************************/
