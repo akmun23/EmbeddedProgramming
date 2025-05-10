@@ -535,7 +535,7 @@ void fix_elevator_error(Elevator * elevator){
     // Fix elevator error
     char* msg = "Wrong direction";
     move_LCD(0,0);
-    wr_str_LCD(msg, FALSE);
+    string_to_LCD(msg, FALSE);
 
     move_LCD(0,1);
     if(elevator->rot_direction == 0){
@@ -543,8 +543,8 @@ void fix_elevator_error(Elevator * elevator){
     } else {
         msg = "Turn to -";
     }
-    wr_str_LCD(msg, FALSE);
-    
+    string_to_LCD(msg, FALSE);
+
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }
 

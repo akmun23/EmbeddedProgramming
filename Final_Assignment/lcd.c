@@ -260,13 +260,12 @@ void string_to_LCD( INT8U *pStr, BOOLEAN clear)
   INT8U start = RST;
   if(clear)
   {
-    xQueueSend( xQueue_lcd, &start, portMAX_DELAY );
-    start = ESC;
+    wr_ch_LCD( start );
   }
   
   while( *pStr )
   {
-    xQueueSend( xQueue_lcd, pStr, portMAX_DELAY );
+    wr_ch_LCD( *pStr );
     pStr++;
   }
 }
