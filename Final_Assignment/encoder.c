@@ -7,44 +7,38 @@
 #include "encoder.h"
 
 
-
-INT16U get_encoder()
+INT8U get_encoder()
 {
-
+    return(GPIO_PORTA_DATA_R & 0xE0);
 }
 
-void encoderHandler(void){
-
-    INT8U new_data;
-    new_data = GPIO_PORTD_DATA_R;
-
-    if(new_data & 0x40){
-        currentAngle--;
-    }else{
-        currentAngle++;
+// Return the action of the encoder
+// 0 = right
+// 1 = left
+// 2 = pressed
+// 3 = no action
+INT8U get_action(INT8U encoder_data ,INT8U prev_data){
+        
+    if (((encoder_data & 0x20) != (prev_data & 0x20))){         // Check if the encoder data is different
+        prev_data = encoder_data;                             // Set the previous data to the new data
+        if(encoder_data & 0x20){                                // Check if encoder A is active
+            if(encoder_data & 0x40){                            // Check if B is also active
+                return 1;                                       // Then the encoder is turned to the left
+            }else{
+                return 0;                                       // Else the encoder is turned to the right
+            }
+        }else{                                                  // Else encoder A is inactive  
+            if(encoder_data & 0x40){                            // Check if B is active
+                return 0;                   	                // Then the encoder is turned to the right
+            }else{
+                return 1;                                       // Else the encoder is turned to the left
+            }
+        }
+    } else if (((encoder_data & 0x80) != (prev_data & 0x80))){  // Check if the encoder is pressed
+        prev_data = encoder_data;                             // Set the previous data to the new data
+        return 2;
     }
-    currentAngle++;
-    GPIO_PORTD_DATA_R = 0x40;
+    
 
-
-}
-
-void init_encoder()
-{
-    currentAngle = 0;
-    /*int dummy;
-
-    SYSCTL_RCGCGPIO_R |= 0x01;
-
-    dummy = SYSCTL_RCGCGPIO_R;
-
-    GPIO_PORTA_DIR_R &= ~(0xE0);
-    GPIO_PORTA_DEN_R |= 0xE0;
-
-    GPIO_PORTA_IEV_R |= 0x20;
-    GPIO_PORTA_IM_R |= 0x20;*/
-
-
-
-    NVIC_EN0_R = NVIC_EN0_INT_M;
+    return 3;                                                   // No action
 }
