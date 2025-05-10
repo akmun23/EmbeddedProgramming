@@ -84,12 +84,7 @@ void elevator_task(void *pvParameters){
                 break;
             case CHOOSE_FLOOR:
                 choose_floor(&myElevator);
-                myElevator.endOfTrip = 1;   
-                if(myElevator.numberOfTrips % 4 == 0){
-                    myElevator.elevator_state = BREAK_ELEVATOR;
-                } else {
-                    myElevator.elevator_state = DISPLAY_FLOOR;
-                }
+                myElevator.elevator_state = CLOSE_DOORS;
                 break;  
             case BREAK_ELEVATOR:
                 led_controller.led_state = ERROR;
@@ -115,19 +110,22 @@ void elevator_task(void *pvParameters){
             case EXIT_ELEVATOR:
                 exit_elevator(&myElevator);
                 myElevator.elevator_state = CALL_ELEVATOR;
-                myElevator.endOfTrip = 0;
                 // Save floor, close elevator, log trip
                 break;
             case CLOSE_DOORS:
                 led_controller.led_state = DOOR_OPENING;
-                open_doors(&myElevator);
+                close_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
-                myElevator.elevator_state = ENTER_CODE;
-                if(myElevator.endOfTrip == 1){
-                    myElevator.elevator_state = EXIT_ELEVATOR;
+                if (myElevator.endOfTrip == 0){
+                    if(myElevator.numberOfTrips % 4 == 0){
+                        myElevator.elevator_state = BREAK_ELEVATOR;
+                    } else {
+                        myElevator.elevator_state = DISPLAY_FLOOR;
+                    }
                 }else{
-                    myElevator.elevator_state = ENTER_CODE;
-                }
+                    myElevator.elevator_state = CALL_ELEVATOR;
+                    myElevator.endOfTrip = 0;
+                }   
                 break;
             default:
                 // Invalid state, handle error
@@ -591,7 +589,7 @@ void exit_elevator(Elevator * elevator){
     // Exit the elevator
 }
 
-void open_doors(Elevator * elevator){
+void close_doors(Elevator * elevator){
     INT8U i;
     INT8U j = 0;
     INT8U door_str[16];
