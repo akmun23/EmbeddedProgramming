@@ -21,7 +21,7 @@
   #define _LCD_H
 
 /***************************** Include files *******************************/
-
+#include "elevator.h"
 /*****************************    Defines    *******************************/
 // Special ASCII characters
 // ------------------------
@@ -39,7 +39,7 @@
 void wr_str_LCD( INT8U* );
 void move_LCD( INT8U, INT8U );
 INT8U wr_ch_LCD( INT8U Ch );
-
+static void log_event(TripLog_t *log, TripEvent_t ev);
 void lcd_task( void *pvParameters );
 /*****************************************************************************
 *   Input    : -
