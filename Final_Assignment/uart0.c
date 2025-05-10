@@ -189,37 +189,47 @@ extern void uart0_init( INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U 
 }
 
 
-void UART_task(void *pvParameters){
-  INT8U key_in;
-  INT8U key_out;
+void UART_RX_task(void *pvParameters) {
+    INT8U key_in;
 
-  while(1){
-      while (!uart0_tx_rdy()) {
-          uart0_putc(0xFF);
-      }
-      // Take semaphore to protect the UART
-      if (xSemaphoreTake(xSemaphore_UART, 100 / portTICK_RATE_MS) == pdTRUE) {
+    while (1) {
+        // Check if a character is available in the RX buffer
+        if (uart0_rx_rdy()) {
+            // Take semaphore to protect
+            if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
+                // Get the character from UART RX
+                key_in = uart0_getc();
 
-          // Check if a character is available
-          if (uart0_rx_rdy()) {
-              // Process the received character
-              key_in = uart0_getc();
-              
-              // Send the character to the queue
-              xQueueSend(xQueue_UART, &key_in, portMAX_DELAY);
-          }
+                // Send the character to the queues
+                xQueueSend(xQueue_UART_TX, &key_in, 0);
+                xQueueSend(xQueue_UART_RX, &key_in, 0);
 
-          if (xQueueReceive(xQueue_UART, &key_out, portMAX_DELAY)) {
-              // Send the character to the UART
-              while (!uart0_tx_rdy()) {
-                  uart0_putc(key_out);
-              }
-          }
-          // Release the semaphore
-          xSemaphoreGive(xSemaphore_UART);
-      }
+                // Release the semaphore
+                xSemaphoreGive(xSemaphore_UART_RX);
+            }
+        }
 
-      vTaskDelay(100 / portTICK_RATE_MS); // Delay to avoid busy waiting
-  }
+        vTaskDelay(pdMS_TO_TICKS(1)); // Keep delay short for responsiveness
+    }
+}
+
+void UART_TX_task(void *pvParameters) {
+    INT8U key_out;
+
+    while (1) {
+        // Wait for a character to be available in the queue
+        if (xQueueReceive(xQueue_UART_TX, &key_out, portMAX_DELAY)) {
+            // Take semaphore to protect
+            if (xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY)) {
+                
+              // Wait until TX is ready
+                while (!uart0_tx_rdy()); 
+                uart0_putc(key_out);
+
+                // Release the semaphore
+                xSemaphoreGive(xSemaphore_UART_TX);
+            }
+        }
+    }
 }
 /****************************** End Of Module *******************************/

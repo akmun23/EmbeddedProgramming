@@ -207,6 +207,8 @@ void exit_elevator(Elevator * elevator);
 ***********************************************************************************/
 
 void dump_trip_log_uart(const Elevator *elev);
+
+void close_doors(Elevator * elevator);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
