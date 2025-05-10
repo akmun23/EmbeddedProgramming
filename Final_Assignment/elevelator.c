@@ -73,7 +73,7 @@ void elevator_init(Elevator * elevator){
     elevator->elevator_deceleration = 0;
     elevator->speed = 0;
     elevator->door_status = FALSE;
-    elevator->numberOfTrips = 3;
+    elevator->numberOfTrips = 0;
     elevator->rot_direction = 0;
     elevator->endOfTrip = 0;
     elevator->log[128];
