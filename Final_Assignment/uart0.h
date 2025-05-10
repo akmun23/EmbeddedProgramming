@@ -29,6 +29,7 @@
 #include "FRT_Files/inc/queue.h"
 #include "FRT_Files/inc/semphr.h"
 #include "glob_def.h"
+#include "elevator.h"
 
 /*****************************    Defines    *******************************/
 extern QueueHandle_t xQueue_UART_TX;
@@ -74,8 +75,14 @@ extern void uart0_init( INT32U, INT8U, INT8U, INT8U );
 *   Output   : -
 *   Function : Initialize uart 0
 ******************************************************************************/
+void UART_RX_task(void *pvParameters);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Initialize uart 0
+******************************************************************************/
 
-void UART_task( void *pvParameters );
+void UART_TX_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -

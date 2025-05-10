@@ -84,14 +84,14 @@ void elevator_init(Elevator * elevator){
     elevator->elevator_deceleration = 0;
     elevator->speed = 0;
     elevator->door_status = FALSE;
-    elevator->numberOfTrips = 3;
+    elevator->numberOfTrips = 0;
     elevator->rot_direction = 0;
+    elevator->endOfTrip = 0;
     elevator->log[128];
 }
 
 void elevator_task(void *pvParameters){
 
-    Elevator myElevator;
     elevator_init(&myElevator);
     red_led_init();
     green_led_init();
@@ -113,7 +113,6 @@ void elevator_task(void *pvParameters){
                 led_controller.led_state = DOOR_OPENING;
                 open_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
-                myElevator.elevator_state = ENTER_CODE;
                 if(myElevator.endOfTrip == 1){
                     myElevator.elevator_state = EXIT_ELEVATOR;
                 }else{
@@ -633,7 +632,20 @@ void fix_elevator_error(Elevator * elevator){
 
 void exit_elevator(Elevator * elevator){
     // Exit the elevator
+    move_LCD(0,0);
+    clr_LCD();
+
+    INT8U i;
+    const char* exit_string = "Have a good day";
+
+    for(i = 0; i < 16; i++){
+        xQueueSend(xQueue_lcd, &exit_string[i], 0);
+
+    }
+    elevator->numberOfTrips++;
 }
+
+
 
 void close_doors(Elevator * elevator){
     INT8U i;
@@ -665,4 +677,5 @@ void close_doors(Elevator * elevator){
 
         vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
     }
+    
 }
