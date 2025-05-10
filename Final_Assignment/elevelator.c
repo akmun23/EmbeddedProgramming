@@ -58,7 +58,6 @@ void elevator_task(void *pvParameters){
             case CALL_ELEVATOR:
                 detect_hold_switch(&myElevator);
                 myElevator.elevator_state = DISPLAY_FLOOR;
-                my
                 break;
             case DISPLAY_FLOOR:
                 display_current_floor(&myElevator, &led_controller);
@@ -69,6 +68,11 @@ void elevator_task(void *pvParameters){
                 open_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
                 myElevator.elevator_state = ENTER_CODE;
+                if(myElevator.endOfTrip == 1){
+                    myElevator.elevator_state = EXIT_ELEVATOR;
+                }else{
+                    myElevator.elevator_state = ENTER_CODE;
+                }
                 break;
             case ENTER_CODE:
                 enter_password(&myElevator);
@@ -76,9 +80,11 @@ void elevator_task(void *pvParameters){
                 break;
             case VALIDATE_CODE:
                 validate_password(&myElevator);
+                myElevator.elevator_state = VALIDATE_CODE;
                 break;
             case CHOOSE_FLOOR:
                 choose_floor(&myElevator);
+                myElevator.endOfTrip = 1;   
                 if(myElevator.numberOfTrips % 4 == 0){
                     myElevator.elevator_state = BREAK_ELEVATOR;
                 } else {
@@ -99,6 +105,7 @@ void elevator_task(void *pvParameters){
                 break;
             case FIX_ELEVATOR:
                 fix_elevator(&myElevator);
+                myElevator.elevator_state = FIX_ELEVATOR;
                 break;
             case FIX_ELEVATOR_ERROR:
                 fix_elevator_error(&myElevator);
@@ -108,7 +115,19 @@ void elevator_task(void *pvParameters){
             case EXIT_ELEVATOR:
                 exit_elevator(&myElevator);
                 myElevator.elevator_state = CALL_ELEVATOR;
+                myElevator.endOfTrip = 0;
                 // Save floor, close elevator, log trip
+                break;
+            case CLOSE_DOORS:
+                led_controller.led_state = DOOR_OPENING;
+                open_doors(&myElevator);
+                led_controller.led_state = DOOR_OPEN;
+                myElevator.elevator_state = ENTER_CODE;
+                if(myElevator.endOfTrip == 1){
+                    myElevator.elevator_state = EXIT_ELEVATOR;
+                }else{
+                    myElevator.elevator_state = ENTER_CODE;
+                }
                 break;
             default:
                 // Invalid state, handle error
@@ -572,3 +591,34 @@ void exit_elevator(Elevator * elevator){
     // Exit the elevator
 }
 
+void open_doors(Elevator * elevator){
+    INT8U i;
+    INT8U j = 0;
+    INT8U door_str[16];
+
+    for(i = 0; i < 16; i++){
+        door_str[i] = ' ';
+    }
+    while(1){
+
+
+        door_str[j] = 0x7C;
+        door_str[15-j] = 0x7C;
+        if(j == 8){
+            break;
+        }
+        j++;
+        move_LCD(0, 0);
+        for(i = 0; i < 16; i++){
+            xQueueSend(xQueue_lcd, &door_str[i], 0);
+        }
+
+        move_LCD(0, 1);
+        for(i = 0; i < 16; i++){
+            xQueueSend(xQueue_lcd, &door_str[i], 0);
+        }
+
+
+        vTaskDelay(1000 / portTICK_RATE_MS); // Delay to avoid busy waiting
+    }
+}
