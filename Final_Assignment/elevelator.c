@@ -273,12 +273,11 @@ void choose_floor(Elevator * elevator){
     INT8U reset_LCD = 0xff;
 
     int i = 0;
-    int state = 0;
 
     INT8U targetFloor = elevator->current_floor;
 
-    INT8U new_encoder_data;
-    INT8U old_encoder_data = 0xff;
+    INT8U new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
+    INT8U old_encoder_data = new_encoder_data;
     BOOLEAN IncDec = FALSE;
 
     char output_str[9] = "Floor:   ";
@@ -286,69 +285,53 @@ void choose_floor(Elevator * elevator){
     output_str[8] = int_to_char(elevator->current_floor % 10);
 
     while(1){
-        switch(state){
-        case 0:
-            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
-            old_encoder_data = new_encoder_data;
-            state++;
-            break;
-        case 1:
-            new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
-            if (((new_encoder_data & 0x20) != (old_encoder_data & 0x20))){
-
-                if(new_encoder_data & 0x20){
-                    if(new_encoder_data & 0x40){
-                        targetFloor--;
-                        IncDec = FALSE;
-                    }else{
-                        targetFloor++;
-                        IncDec = TRUE;
-                    }
-                }else{
-                    if(new_encoder_data & 0x40){
-                        targetFloor++;
-                        IncDec = TRUE;
-                    }else{
-                        targetFloor--;
-                        IncDec = FALSE;
-                    }
-                }
-
-                if(targetFloor >= 21){
-                    targetFloor = 20;
-                }else if(targetFloor < 0){
-                    targetFloor = 0;
-                }else if(targetFloor == 13 && IncDec == TRUE){
-                    targetFloor++;
-                }else if(targetFloor == 13 && IncDec == FALSE){
+        new_encoder_data = GPIO_PORTA_DATA_R & 0xE0;
+        if (((new_encoder_data & 0x20) != (old_encoder_data & 0x20))){
+            if(new_encoder_data & 0x20){
+                if(new_encoder_data & 0x40){
                     targetFloor--;
+                    IncDec = FALSE;
+                }else{
+                    targetFloor++;
+                    IncDec = TRUE;
                 }
-
-                state++;
+            }else{
+                if(new_encoder_data & 0x40){
+                    targetFloor++;
+                    IncDec = TRUE;
+                }else{
+                    targetFloor--;
+                    IncDec = FALSE;
+                }
             }
 
-            old_encoder_data = new_encoder_data;
-            vTaskDelay(1 / portTICK_RATE_MS);
-            break;
-
-        case 2:
-            output_str[7] = int_to_char(targetFloor / 10);
-            output_str[8] = int_to_char(targetFloor % 10);
-            for(i = 0; i < 9; i++){
-                xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);
+            if(targetFloor > 50){
+                targetFloor = 0;
+            }else if(targetFloor > 20){
+                targetFloor = 20;
+            }else if(targetFloor == 13 && IncDec == TRUE){
+                targetFloor++;
+            }else if(targetFloor == 13 && IncDec == FALSE){
+                targetFloor--;
             }
+        }
 
-            state--;
-            move_LCD(0,0);
-            
-            default:
-                break;
+        output_str[7] = int_to_char(targetFloor / 10);
+        output_str[8] = int_to_char(targetFloor % 10);
+        for(i = 0; i < 9; i++){
+            xQueueSend( xQueue_lcd, &output_str[i], portMAX_DELAY);
         }
 
         if (((new_encoder_data & 0x80) != (old_encoder_data & 0x80))){
             targetFloor = elevator->current_floor;
             break;
         }
+
+        old_encoder_data = new_encoder_data;
+
+        move_LCD(0,0);
+
+        vTaskDelay(1 / portTICK_RATE_MS);
     }
 }
 
