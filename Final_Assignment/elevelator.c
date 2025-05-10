@@ -537,12 +537,8 @@ void fix_elevator(Elevator * elevator){
 
 void fix_elevator_error(Elevator * elevator){
     // Fix elevator error
-    const char* msg = "Wrong direction";
-    move_LCD(0,0);
-    while (*msg) {
-        xQueueSend(xQueue_lcd, msg, portMAX_DELAY);
-        msg++;
-    }
+    char* msg = "Wrong direction";
+    string_to_LCD(msg, TRUE);
 
     move_LCD(0,1);
     if(elevator->rot_direction == 0){
@@ -550,10 +546,8 @@ void fix_elevator_error(Elevator * elevator){
     } else {
         msg = "Turn to -";
     }
-    while (*msg) {
-        xQueueSend(xQueue_lcd, msg, portMAX_DELAY);
-        msg++;
-    }
+    string_to_LCD(msg, FALSE);
+
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }
 

@@ -87,12 +87,7 @@ INT8U wr_ch_LCD( INT8U Ch )
 *   Function : See module specification (.h-file).
 *****************************************************************************/
 {
-    //if( xSemaphoreTake( xSemaphore_lcd, ( TickType_t ) 100 ) == pdTRUE )
-    //{
-        return( xQueueSend( xQueue_lcd, &Ch, portMAX_DELAY));
-
-    //    xSemaphoreGive( xSemaphore_lcd );
-    //}
+  return( xQueueSend( xQueue_lcd, &Ch, portMAX_DELAY));
 }
 
 
@@ -249,6 +244,27 @@ void out_LCD( INT8U Ch )
   out_LCD_low( Ch );
 }
 
+void string_to_LCD( INT8U *pStr, BOOLEAN clear)
+/*****************************************************************************
+ *  Input   : pStr - Pointer to string
+ *            clear - Clear LCD before writing
+ * Output   : -
+ * Function : Write string to LCD.
+ * *****************************************************************************/
+{
+  INT8U start = RST;
+  if(clear)
+  {
+    wr_ch_LCD( start );
+  }
+  
+  while( *pStr )
+  {
+    wr_ch_LCD( *pStr );
+    pStr++;
+  }
+}
+
 void lcd_task( void *pvParameters )
 {
   INT8U ch;
@@ -278,27 +294,28 @@ void lcd_task( void *pvParameters )
       }
       vTaskDelay(pdMS_TO_TICKS(100)); // wait 100 ms.
       break;
+
     case LCD_READY:
       if(uxQueueMessagesWaiting(xQueue_lcd))
       {
       if( xSemaphoreTake( xSemaphore_lcd, 0)) //( TickType_t ) 100 ) == pdTRUE )
       {
-      if( xQueueReceive( xQueue_lcd, &ch, 0 ))
-      {
-        switch( ch )
+        if( xQueueReceive( xQueue_lcd, &ch, 0 ))
         {
-          case 0xFF:
-            clr_LCD();
-            move_LCD(0,0);
-            break;
-          case ESC:
-            //set_state( LCD_ESC_RECEIVED );
-            my_state = LCD_ESC_RECEIVED;
-            break;
-          default:
-            out_LCD( ch );
+          switch( ch )
+          {
+            case 0xFF:
+              clr_LCD();
+              move_LCD(0,0);
+              break;
+            case ESC:
+              //set_state( LCD_ESC_RECEIVED );
+              my_state = LCD_ESC_RECEIVED;
+              break;
+            default:
+              out_LCD( ch );
+          }
         }
-      }
       xSemaphoreGive( xSemaphore_lcd );
       }
       }
