@@ -31,10 +31,9 @@
 /*****************************   Functions   *******************************/
 static void log_event(Elevator *elevator, TripEvent_t event) {
     if(event == TRIP_START){
-        TripLog_t newTrip;
-        newTrip.id = elevator->numberOfTrips;
-        newTrip.startFloor = elevator->current_floor;
-        elevator->log[elevator->numberOfTrips - 1] = newTrip;
+        elevator->log[elevator->numberOfTrips - 1].id = elevator->numberOfTrips;
+        elevator->log[elevator->numberOfTrips - 1].startFloor = elevator->current_floor;
+
     } else if(event == TRIP_END){
         elevator->log[elevator->numberOfTrips - 1].endFloor = elevator->destination_floor;
     }
@@ -50,24 +49,29 @@ void getLog(const Elevator *elevator) {
     {
         char NextStrQueue[128] = "Trip ID: ";                                // Start message
         char id[] = { int_to_char(elevator->log[j].id / 10), int_to_char(elevator->log[j].id % 10)};
+        char id[] = { int_to_char(elevator->log[j].id / 10), int_to_char(elevator->log[j].id % 10)};
         strcat(NextStrQueue, id);                                            // Add id
 
         strcat(NextStrQueue, ", Start Floor: ");                             // Start floor text
+        char startFloor[] = {int_to_char(elevator->log[j].startFloor / 10), int_to_char(elevator->log[j].startFloor % 10)};
         char startFloor[] = {int_to_char(elevator->log[j].startFloor / 10), int_to_char(elevator->log[j].startFloor % 10)};
         strcat(NextStrQueue, startFloor);                                    // Add start floor
 
         strcat(NextStrQueue, ", End Floor: ");                               // End floor text
         char endFloor[] = {int_to_char(elevator->log[j].endFloor / 10), int_to_char(elevator->log[j].endFloor % 10)};
+        char endFloor[] = {int_to_char(elevator->log[j].endFloor / 10), int_to_char(elevator->log[j].endFloor % 10)};
         strcat(NextStrQueue, endFloor);                                      // Add end floor
 
         for (k = 0; k < 128; k++)                                             // Send each char
         {
+            xQueueSend(xQueue_UART_TX, NextStrQueue[k], 0);
             xQueueSend(xQueue_UART_TX, NextStrQueue[k], 0);   
         }
-        
+
         xQueueSend(xQueue_UART_TX, '\r', 0);                                    // Send enter to the LCD
-        xQueueSend(xQueue_UART_TX, '\n', 0);  
-        
+        xQueueSend(xQueue_UART_TX, '\n', 0);
+
+}
 }
 }
 
@@ -153,7 +157,7 @@ void elevator_task(void *pvParameters){
             case EXIT_ELEVATOR:
                 exit_elevator(&myElevator);
                  log_event(&myElevator, TRIP_END);
-                myElevator.elevator_state = CALL_ELEVATOR;
+                myElevator.elevator_state = CLOSE_DOORS;
                 // Save floor, close elevator, log trip
                 break;
             case CLOSE_DOORS:
@@ -166,6 +170,7 @@ void elevator_task(void *pvParameters){
                     } else {
                         myElevator.elevator_state = DISPLAY_FLOOR;
                     }
+                    myElevator.endOfTrip = 1;
                 }else{
                     myElevator.elevator_state = CALL_ELEVATOR;
                     myElevator.endOfTrip = 0;
@@ -642,7 +647,7 @@ void exit_elevator(Elevator * elevator){
         xQueueSend(xQueue_lcd, &exit_string[i], 0);
 
     }
-    elevator->numberOfTrips++;
+    vTaskDelay(2000 / portTICK_RATE_MS);
 }
 
 

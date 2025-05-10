@@ -86,11 +86,8 @@ typedef struct{
 
 } Elevator;
 
-typedef struct {
-    int id;
-    int startFloor;    
-    int endFloor;   
-} TripLog_t;
+Elevator myElevator;
+
 
 extern QueueHandle_t xQueue_key, xQueue_lcd, xQueue_UART_TX;
 extern Led_controller led_controller;
