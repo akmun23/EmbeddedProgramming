@@ -19,8 +19,7 @@ INT8U get_encoder()
 // 3 = no action
 INT8U get_action(INT8U encoder_data ,INT8U prev_data){
         
-    if (((encoder_data & 0x20) != (prev_data & 0x20))){         // Check if the encoder data is different
-        prev_data = encoder_data;                             // Set the previous data to the new data
+    if (((encoder_data & 0x20) != (prev_data & 0x20))){         // Check if the encoder data is different                            // Set the previous data to the new data
         if(encoder_data & 0x20){                                // Check if encoder A is active
             if(encoder_data & 0x40){                            // Check if B is also active
                 return 1;                                       // Then the encoder is turned to the left
@@ -34,11 +33,9 @@ INT8U get_action(INT8U encoder_data ,INT8U prev_data){
                 return 1;                                       // Else the encoder is turned to the left
             }
         }
-    } else if (((encoder_data & 0x80) != (prev_data & 0x80))){  // Check if the encoder is pressed
-        prev_data = encoder_data;                             // Set the previous data to the new data
+    } else if (((encoder_data & 0x80) != (prev_data & 0x80))){  // Check if the encoder is pressed                           // Set the previous data to the new data
         return 2;
     }
     
-
     return 3;                                                   // No action
 }
