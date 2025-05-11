@@ -143,7 +143,7 @@ void elevator_led_task(void *pvParameters)
         GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
         GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
         break;
-      case DOOR_OPENING:
+      case DOOR_MOVING:
         GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
         GPIO_PORTF_DATA_R &= ~(0x04);    // Turn on yellow led
         GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led

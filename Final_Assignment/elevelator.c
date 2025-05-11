@@ -109,7 +109,7 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = OPEN_DOORS;
                 break;
             case OPEN_DOORS:
-                led_controller.led_state = DOOR_OPENING;
+                led_controller.led_state = DOOR_MOVING;
                 open_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
                 if(myElevator.endOfTrip == 1){
@@ -156,9 +156,9 @@ void elevator_task(void *pvParameters){
                 // Save floor, close elevator, log trip
                 break;
             case CLOSE_DOORS:
-                led_controller.led_state = DOOR_OPENING;
+                led_controller.led_state = DOOR_MOVING;
                 close_doors(&myElevator);
-                led_controller.led_state = DOOR_OPEN;
+                led_controller.led_state = DOOR_CLOSED;
                 if (myElevator.endOfTrip == 0){
                     if(myElevator.numberOfTrips % 4 == 0){
                         myElevator.elevator_state = BREAK_ELEVATOR;
