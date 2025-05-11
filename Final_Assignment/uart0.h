@@ -71,7 +71,7 @@ extern void uart0_putc( INT8U );
 
 extern void uart0_init( INT32U, INT8U, INT8U, INT8U );
 /*****************************************************************************
-*   Input    : -
+*   Input    : INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U parity
 *   Output   : -
 *   Function : Initialize uart 0
 ******************************************************************************/
@@ -79,21 +79,40 @@ void UART_RX_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Initialize uart 0
+*   Function : Receive task
 ******************************************************************************/
 
 void UART_TX_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Initialize uart 0
+*   Function : Transmit task
 ******************************************************************************/
 
 void UART_debug_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : -
 *   Output   : -
-*   Function : Initialize uart 0
+*   Function : Command interpreter task
+******************************************************************************/
+
+void getCommand(INT8U *buf, INT8U length);
+/*****************************************************************************
+*   Input    : Int8U *buf, INT8U length
+*   Output   : -
+*   Function : get command from the buffer
+******************************************************************************/
+void sendString(const char *str);
+/*****************************************************************************
+*   Input    : const char *str
+*   Output   : -
+*   Function : send string to the UART
+******************************************************************************/
+void newLine(void);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : send new line to the UART
 ******************************************************************************/
 
 /****************************** End Of Module *******************************/

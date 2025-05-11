@@ -29,57 +29,6 @@
 /*****************************   Variables   *******************************/
 
 /*****************************   Functions   *******************************/
-static void log_event(TripEvent_t event) {
-    if(event == TRIP_START){
-        myElevator.log[myElevator.numberOfTrips - 1].id = myElevator.numberOfTrips;
-        myElevator.log[myElevator.numberOfTrips - 1].startFloor = myElevator.current_floor;
-
-    } else if(event == TRIP_END){
-        myElevator.log[myElevator.numberOfTrips - 1].endFloor = myElevator.destination_floor;
-    }
-}
-
-void getLog(void) {
-    INT8U j, k;
-    char newline = '\n';
-    char resetline = '\r';
-
-    while (xQueueSend(xQueue_UART_TX, &newline, 10) != pdTRUE) vTaskDelay(1);
-    while (xQueueSend(xQueue_UART_TX, &resetline, 10) != pdTRUE) vTaskDelay(1);
-
-    if (myElevator.numberOfTrips > 0) {
-        for (j = 0; j < myElevator.numberOfTrips; j++) {
-            char NextStrQueue[43] = "Trip ID: 00, Start Floor: 00, End Floor: 00";
-            NextStrQueue[9] = int_to_char(myElevator.log[j].id / 10);
-            NextStrQueue[10] = int_to_char(myElevator.log[j].id % 10);
-
-            NextStrQueue[26] = int_to_char(myElevator.log[j].startFloor / 10);
-            NextStrQueue[27] = int_to_char(myElevator.log[j].startFloor % 10);
-
-            NextStrQueue[41] = int_to_char(myElevator.log[j].endFloor / 10);
-            NextStrQueue[42] = int_to_char(myElevator.log[j].endFloor % 10);
-
-            for (k = 0; k < 44; k++) {
-                while (xQueueSend(xQueue_UART_TX, &NextStrQueue[k], 10) != pdTRUE) vTaskDelay(1);
-            }
-
-            while (xQueueSend(xQueue_UART_TX, &newline, 10) != pdTRUE) vTaskDelay(1);
-            while (xQueueSend(xQueue_UART_TX, &resetline, 10) != pdTRUE) vTaskDelay(1);
-        }
-    } else {
-        const char *noTrips = "No trips has been taken";
-        for (j = 0; noTrips[j] != '\0'; j++) {
-            while (xQueueSend(xQueue_UART_TX, &noTrips[j], 10) != pdTRUE) vTaskDelay(1);
-        }
-        while (xQueueSend(xQueue_UART_TX, &newline, 10) != pdTRUE) vTaskDelay(1);
-        while (xQueueSend(xQueue_UART_TX, &resetline, 10) != pdTRUE) vTaskDelay(1);
-    }
-    vTaskDelay(10 / portTICK_RATE_MS);
-}
-
-
-
-
 void elevator_init(void){
     
     myElevator.numberOfTrips = 0;
@@ -251,8 +200,8 @@ void display_current_floor(Led_controller *led_controller){
     INT8U endFloor = myElevator.destination_floor;
     led_controller->led_state = ELEVATOR_ACCELERATING;
     INT16U increasedSpeed = 0;
-    while(1)
-    {
+    while(1){
+
         if(myElevator.destination_floor > myElevator.current_floor){
             if ((myElevator.destination_floor-startFloor)/2 >= myElevator.destination_floor - myElevator.current_floor)
             {
@@ -271,6 +220,7 @@ void display_current_floor(Led_controller *led_controller){
             }
         }
         
+        // Create a string to display the current floor
         char floor_str[16] = "Floor: ";
         floor_str[7] = int_to_char(myElevator.current_floor / 10);
         floor_str[8] = int_to_char(myElevator.current_floor % 10);
@@ -281,6 +231,7 @@ void display_current_floor(Led_controller *led_controller){
        
         // Check if the elevator has reached the destination floor
         if(myElevator.current_floor == myElevator.destination_floor){
+            vTaskDelay(500 / portTICK_RATE_MS);
             break;
         } else {
             // Move the elevator towards the destination floor
@@ -340,9 +291,9 @@ void open_doors(void){
 }
 
 void enter_password(void){
-    uint8_t  count = 0;
+    uint8_t count = 0;
     INT8U key;
-    INT8U rst_LCD = 0xff;
+    INT8U rst_LCD = RST;
     INT8U star = '*';
     INT8U password_str[10] = "Password: ";
 
@@ -366,24 +317,25 @@ void enter_password(void){
 }
 
 void validate_password(void){
+    move_LCD(0,0);
+    const char* msg;
+
     if((myElevator.password % 8) == 0 && myElevator.password > 0){
-        const char* msg = "Valid password";
-        move_LCD(0,0);
-        wr_str_LCD(msg);
+        msg = "Valid password";
         myElevator.elevator_state = CHOOSE_FLOOR;
     } else {
-        const char* msg = "Invalid password";
-        move_LCD(0,0);
-        wr_str_LCD(msg);
+        msg = "Invalid password";
         myElevator.elevator_state = ENTER_CODE;
     }
+
+    wr_str_LCD(msg);
 
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }
 
 void choose_floor(void){
     clr_LCD();                                                  // Clear the LCD 
-    vTaskDelay(1000 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
+    vTaskDelay(500 / portTICK_RATE_MS);                        // Delay to be sure the LCD is cleared
 
     INT8U targetFloor = myElevator.current_floor;                // Set the target floor to the current floor since this is the floor to move from
     INT8U state = 0;                                            // State variable to keep track of the state    
@@ -641,4 +593,54 @@ void close_doors(void){
         vTaskDelay(700 / portTICK_RATE_MS); // Delay to avoid busy waiting
     }
     
+}
+
+static void log_event(TripEvent_t event) {
+    if(event == TRIP_START){
+        myElevator.log[myElevator.numberOfTrips - 1].id = myElevator.numberOfTrips;
+        myElevator.log[myElevator.numberOfTrips - 1].startFloor = myElevator.current_floor;
+
+    } else if(event == TRIP_END){
+        myElevator.log[myElevator.numberOfTrips - 1].endFloor = myElevator.destination_floor;
+    }
+}
+
+void getLog(void) {
+    INT8U j, k;
+    char newline = '\n';
+    char resetline = '\r';
+
+    newLine();
+
+    if (myElevator.numberOfTrips > 0) {
+            INT8U* IDstr = "Trip ID: ";
+            INT8U* startFloorStr = "Start Floor: ";
+            INT8U* endFloorStr = "End Floor: ";
+
+        for (j = 0; j < myElevator.numberOfTrips; j++) {
+            char elevatorID[2] = {int_to_char(myElevator.log[j].id / 10),
+                                  int_to_char(myElevator.log[j].id % 10)};
+
+            char startFloor[2] = {int_to_char(myElevator.log[j].startFloor / 10),
+                                  int_to_char(myElevator.log[j].startFloor % 10)};
+
+            char endFloor[2] = {int_to_char(myElevator.log[j].endFloor / 10),
+                                  int_to_char(myElevator.log[j].endFloor % 10)};
+
+            sendString(IDstr);
+            sendString(&elevatorID);
+            sendString(startFloorStr);
+            sendString(&startFloor);
+            sendString(endFloorStr);
+            sendString(&endFloor);    
+            newLine();
+        }
+    } else {
+        const char *noTrips = "No trips has been taken";
+        for (j = 0; noTrips[j] != '\0'; j++) {
+            while (xQueueSend(xQueue_UART_TX, &noTrips[j], 10) != pdTRUE) vTaskDelay(1);
+        }
+        newLine();
+    }
+    vTaskDelay(10 / portTICK_RATE_MS);
 }

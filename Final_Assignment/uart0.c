@@ -260,9 +260,7 @@ void getCommand(INT8U *buf, INT8U length){
         printHelp();
     } else {
         const char *msg = "\n\rUnknown command\n\r";
-        for (i = 0; msg[i] != '\0'; i++) {
-          while (xQueueSend(xQueue_UART_TX, &msg[i], 10) != pdTRUE) vTaskDelay(1);
-        }
+        sendString(msg);
     }
 
     /*
@@ -290,8 +288,20 @@ void printHelp() {
         "Available commands:\n\r"
         "getLog   - Show elevator trip log\n\r"
         "help     - Show this help message\n\r";
-    for (i = 0; helpMsg[i] != '\0'; i++) {
-        while (xQueueSend(xQueue_UART_TX, &helpMsg[i], 10) != pdTRUE) vTaskDelay(1);
+    sendString(helpMsg);
+}
+
+void sendString(const char *str) {
+    INT8U i;
+    for (i = 0; str[i] != '\0'; i++) {
+        while (xQueueSend(xQueue_UART_TX, &str[i], 10) != pdTRUE) vTaskDelay(1);
     }
+}
+
+void newLine() {
+    INT8U newline = '\n';
+    while (xQueueSend(xQueue_UART_TX, &newline, 10) != pdTRUE) vTaskDelay(1);
+    INT8U resetline = '\r';
+    while (xQueueSend(xQueue_UART_TX, &resetline, 10) != pdTRUE) vTaskDelay(1);
 }
 /****************************** End Of Module *******************************/
