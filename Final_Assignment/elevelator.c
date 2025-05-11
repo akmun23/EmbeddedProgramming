@@ -47,88 +47,84 @@ void elevator_init(void){
 
 void elevator_task(void *pvParameters){
 
-    elevator_init();
-    red_led_init();
-    green_led_init();
-    yellow_led_init();
+    elevator_init();                                                // Initialize the elevator
+    red_led_init();                                                 // Initialize the red LED
+    green_led_init();                                               // Initialize the green LED
+    yellow_led_init();                                              // Initialize the yellow LED
 
-    led_controller.led_state = DOOR_CLOSED;
+    led_controller.led_state = DOOR_CLOSED;                         // Set the initial state of the LED controller
     while(1){
-
-        switch(myElevator.elevator_state){
-            case CALL_ELEVATOR:
-                detect_hold_switch();
-                myElevator.elevator_state = DISPLAY_FLOOR;
+        switch(myElevator.elevator_state){                          // Check the state of the elevator
+            case CALL_ELEVATOR:                                     // CALL_ELEVATOR state 
+                detect_hold_switch();                               // Enter the hold switch function
+                myElevator.elevator_state = DISPLAY_FLOOR;          // If hold_switch is exited, set the elevator state to DISPLAY_FLOOR
                 break;
-            case DISPLAY_FLOOR:
-                display_current_floor(&led_controller);
-                myElevator.elevator_state = OPEN_DOORS;
+            case DISPLAY_FLOOR:                                     // DISPLAY_FLOOR state
+                display_current_floor(&led_controller);             // Call the display_current_floor function
+                myElevator.elevator_state = OPEN_DOORS;             // Set the elevator state to OPEN_DOORS
                 break;
-            case OPEN_DOORS:
-                led_controller.led_state = DOOR_OPENING;
-                open_doors();
-                led_controller.led_state = DOOR_OPEN;
-                if(myElevator.endOfTrip == 1){
-                    myElevator.elevator_state = EXIT_ELEVATOR;
-                }else{
-                    myElevator.elevator_state = ENTER_CODE;
+            case OPEN_DOORS:                                        // OPEN_DOORS state
+                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                open_doors();                                       // Call the open_doors function
+                led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
+                if(myElevator.endOfTrip == 1){                      // Check if the elevator is at the end of the trip
+                    myElevator.elevator_state = EXIT_ELEVATOR;      // Then set the elevator state to EXIT_ELEVATOR
+                }else{                                                                
+                    myElevator.elevator_state = ENTER_CODE;         // Else set the elevator state to ENTER_CODE
                 }
                 break;
-            case ENTER_CODE:
-                enter_password();
-                myElevator.elevator_state = VALIDATE_CODE;
+            case ENTER_CODE:                                        // ENTER_CODE state
+                enter_password();                                   // Call the enter_password function
+                myElevator.elevator_state = VALIDATE_CODE;          // Set the elevator state to VALIDATE_CODE
                 break;
-            case VALIDATE_CODE:
-                validate_password();
+            case VALIDATE_CODE:                                     // VALIDATE_CODE state
+                validate_password();                                // Call the validate_password function
                 break;
-            case CHOOSE_FLOOR:
-                choose_floor();
-                myElevator.elevator_state = CLOSE_DOORS;
+            case CHOOSE_FLOOR:                                      // CHOOSE_FLOOR state
+                choose_floor();                                     // Call the choose_floor function
+                myElevator.elevator_state = CLOSE_DOORS;            // Set the elevator state to CLOSE_DOORS
                 break;  
-            case BREAK_ELEVATOR:
-                led_controller.led_state = ERROR;
-                myElevator.elevator_state = SETUP_RST_ELEVATOR;
+            case BREAK_ELEVATOR:                                    // BREAK_ELEVATOR state
+                led_controller.led_state = ERROR;                   // Set the LED state to ERROR
+                myElevator.elevator_state = SETUP_RST_ELEVATOR;     // Set the elevator state to SETUP_RST_ELEVATOR
                 break;
-            case SETUP_RST_ELEVATOR:
-                setup_rst_elevator();
-                myElevator.elevator_state = RESTART_ELEVATOR;
+            case SETUP_RST_ELEVATOR:                                // SETUP_RST_ELEVATOR state
+                setup_rst_elevator();                               // Call the setup_rst_elevator function
+                myElevator.elevator_state = RESTART_ELEVATOR;       // Set the elevator state to RESTART_ELEVATOR
                 break;
-            case RESTART_ELEVATOR:
+            case RESTART_ELEVATOR:                                  // RESTART_ELEVATOR state
                 restart_elevator();
-                myElevator.elevator_state = FIX_ELEVATOR;
+                myElevator.elevator_state = FIX_ELEVATOR;           // Set the elevator state to FIX_ELEVATOR
                 break;
-            case FIX_ELEVATOR:
-                fix_elevator();
+            case FIX_ELEVATOR:                                      // FIX_ELEVATOR state
+                fix_elevator();                                     // Call the fix_elevator function
                 break;
-            case FIX_ELEVATOR_ERROR:
-                fix_elevator_error();
-                myElevator.elevator_state = FIX_ELEVATOR;
+            case FIX_ELEVATOR_ERROR:                                // FIX_ELEVATOR_ERROR state
+                fix_elevator_error();                               // Call the fix_elevator_error function
+                myElevator.elevator_state = FIX_ELEVATOR;           // Set the elevator state to FIX_ELEVATOR
                 break;
-                // Display error for wrong rotation direction
-            case EXIT_ELEVATOR:
-                exit_elevator();
-                 log_event(TRIP_END);
-                myElevator.elevator_state = CLOSE_DOORS;
-                // Save floor, close elevator, log trip
+            case EXIT_ELEVATOR:                                     // EXIT_ELEVATOR state
+                exit_elevator();                                    // Call the exit_elevator function
+                log_event(TRIP_END);                                // Log the end of the trip
+                myElevator.elevator_state = CLOSE_DOORS;            // Set the elevator state to CLOSE_DOORS
                 break;
-            case CLOSE_DOORS:
-                led_controller.led_state = DOOR_OPENING;
-                close_doors();
-                led_controller.led_state = DOOR_OPEN;
-                if (myElevator.endOfTrip == 0){
-                    if(myElevator.numberOfTrips % 4 == 0){
-                        myElevator.elevator_state = BREAK_ELEVATOR;
+            case CLOSE_DOORS:                                       // CLOSE_DOORS state
+                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                close_doors();                                      // Call the close_doors function
+                led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
+                if (myElevator.endOfTrip == 0){                     // Check if the elevator is at the end of the trip
+                    if(myElevator.numberOfTrips % 4 == 0){          // Check if the number of trips is a multiple of 4
+                        myElevator.elevator_state = BREAK_ELEVATOR; // Then set the elevator state to BREAK_ELEVATOR
                     } else {
-                        myElevator.elevator_state = DISPLAY_FLOOR;
+                        myElevator.elevator_state = DISPLAY_FLOOR;  // Else set the elevator state to DISPLAY_FLOOR
                     }
-                    myElevator.endOfTrip = 1;
+                    myElevator.endOfTrip = 1;                       // Set the end of trip flag to 1
                 }else{
-                    myElevator.elevator_state = CALL_ELEVATOR;
-                    myElevator.endOfTrip = 0;
+                    myElevator.elevator_state = CALL_ELEVATOR;      // Else set the elevator state to CALL_ELEVATOR
+                    myElevator.endOfTrip = 0;                       // Set the end of trip flag to 0
                 }   
                 break;
             default:
-                // Invalid state, handle error
                 break;
         }
 
@@ -159,7 +155,6 @@ char int_to_char(INT8U number){
         case 9:
             return '9';
     }
-
 }
 
 void detect_hold_switch(void){
@@ -191,7 +186,6 @@ void detect_hold_switch(void){
             }
         }
         vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
-
     }
 } 
 
@@ -429,24 +423,22 @@ void setup_rst_elevator(void){
 
 void restart_elevator(void){
     // Restart the elevator
-    INT16U raw_adc;
-    INT32U pot_val;
-    INT8U digits[3];
-
-    INT8U pot_str[10] = "Value: ";                          // Initilizes string pot_str
+    INT16U raw_adc;                                             // Variable to hold the value of the adc
+    INT32U pot_val;                                             // Variable to hold the value of the pot
+    INT8U digits[3];                                            // Array to hold the digits of the pot_val
+    INT8U pot_str[10] = "Value: ";                              // Initilizes string pot_str
 
     while(1){
-
-        raw_adc = get_adc();                                      // Gets value from adc
+        raw_adc = get_adc();                                    // Gets value from adc
         pot_val = (raw_adc*360) / 4095;                         // skaler value to between 0 to 99
 
-        digits[0] = int_to_char(pot_val / 100);          // Inserts the hundreds digit
-        digits[1] = int_to_char((pot_val / 10) % 10);                  // Gets the tenth digit
+        digits[0] = int_to_char(pot_val / 100);                 // Inserts the hundreds digit
+        digits[1] = int_to_char((pot_val / 10) % 10);           // Gets the tenth digit
         digits[2] = int_to_char(pot_val % 10);                  // gets the first digit
 
         pot_str[7] = digits[0];                                 // Puts the Tenth digit on array space 7
         pot_str[8] = digits[1];                                 // Puts the first digit on array space 8
-        pot_str[9] = digits[2];                  // gets the first digit
+        pot_str[9] = digits[2];                                 // gets the first digit
 
 
         move_LCD(0, 1);                                         // Moves the curser down to secound line
@@ -466,52 +458,50 @@ void restart_elevator(void){
 
 void fix_elevator(void){
     INT8U resetLCD = RST;
-    INT8U action;
-    INT8U state = 0;                                            // State variable to keep track of the state
-    short sign = 1;
-    short angle = 0;                                            // Variable to keep track of the angle of the encoder
-    INT8U output_str[12] = " Angle:  000";                        // String to display the current angle
-    INT8U encoder_data = get_encoder();                         // New data of the encoder
-    INT8U prev_data = encoder_data;                         // New data of the encoder
+    INT8U action;                                                   // Action variable to keep track of the action of the encoder
+    INT8U state = 0;                                                // State variable to keep track of the state
+    short sign = 1;                                                 // Variable to keep track of the sign of the angle
+    short angle = 0;                                                // Variable to keep track of the angle of the encoder
+    INT8U output_str[12] = " Angle:  000";                          // String to display the current angle
+    INT8U encoder_data = get_encoder();                             // New data of the encoder
+    INT8U prev_data = encoder_data;                                 // New data of the encoder
 
-    xQueueSend( xQueue_lcd, &resetLCD, portMAX_DELAY);
-    wr_str_LCD(&output_str);
+    xQueueSend( xQueue_lcd, &resetLCD, portMAX_DELAY);               // Reset the LCD queue
+    wr_str_LCD(&output_str);                                        // Send the string to the LCD
 
-    while (1)
+    while (myElevator.elevator_state == FIX_ELEVATOR)               // Loop until the elevator is fixed/error
     {
         switch (state) {
         case 0:
-            encoder_data = get_encoder();                         // New data of the encoder
-            action = get_action(encoder_data, prev_data);     // Get the action of the encoder
+            encoder_data = get_encoder();                           // New data of the encoder
+            action = get_action(encoder_data, prev_data);           // Get the action of the encoder
             if(action == 0){                                        // Check if the encoder is turned to the right
                 angle += 12;                                        // Increment the angle
                 state = 1;                                          // Set the state to 1 since the encoder is turned
             }else if(action == 1){                                  // Check if the encoder is turned to the left
                 angle -= 12;                                        // Decrement the angle
                 state = 1;                                          // Set the state to 1 since the encoder is turned
-            }else if(action == 2){                                  // Check if the encoder is pressed
-                
-                if((angle == 360) && (myElevator.rot_direction == 0)){    // Check if the direction is 0
-                    myElevator.elevator_state = DISPLAY_FLOOR;        // Set the elevator state to accelerate elevator
-                    myElevator.rot_direction = 1;                    // Set the direction to 1
+            }else if(action == 2){                                  // Check if the encoder is pressed               
+                if((angle == 360) && (myElevator.rot_direction == 0)){              // Check if the direction is 0
+                    myElevator.elevator_state = DISPLAY_FLOOR;                      // Set the elevator state to accelerate elevator
+                    myElevator.rot_direction = 1;                                   // Set the direction to 1
                 } else if((angle == -360) && (myElevator.rot_direction == 1)) {     // Check if the direction is 1
-                    myElevator.elevator_state = DISPLAY_FLOOR;        // Set the elevator state to accelerate elevator
-                    myElevator.rot_direction = 0;                    // Set the direction to 0
+                    myElevator.elevator_state = DISPLAY_FLOOR;                      // Set the elevator state to accelerate elevator
+                    myElevator.rot_direction = 0;                                   // Set the direction to 0
                 } else {
-                    myElevator.elevator_state = FIX_ELEVATOR_ERROR;  // Set the elevator state to fix elevator error
+                    myElevator.elevator_state = FIX_ELEVATOR_ERROR;                 // Set the elevator state to fix elevator error
                 }
             }
-            prev_data = encoder_data;                              // Set the previous data to the new data
+            prev_data = encoder_data;                                               // Set the previous data to the new data
             break;
 
         case 1:
-
-            move_LCD(0,0);                                          // Move the cursor to the first line of the LCD
-            if(angle < 0){                                          // Check if the angle is less than 0
-                output_str[7] = '-';                                // Set the first digit of the angle to '-'
+            move_LCD(0,0);                                              // Move the cursor to the first line of the LCD
+            if(angle < 0){                                              // Check if the angle is less than 0
+                output_str[7] = '-';                                    // Set the first digit of the angle to '-'
                 sign = -1;
             }else{
-                output_str[7] = ' ';                                // Set the first digit of the angle to '-'
+                output_str[7] = ' ';                                    // Set the first digit of the angle to '-'
                 sign = 1;
             }
             output_str[8] = int_to_char(sign*angle / 100);               // Set the first digit of the angle
@@ -524,9 +514,6 @@ void fix_elevator(void){
             break;
         
         default:
-            break;
-        }
-        if(myElevator.elevator_state != FIX_ELEVATOR){
             break;
         }
 
@@ -548,7 +535,6 @@ void fix_elevator_error(void){
     } else {
         msg = "Turn to -";
     }
-
     wr_str_LCD(msg);
 
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
@@ -556,12 +542,10 @@ void fix_elevator_error(void){
 
 void exit_elevator(void){
     // Exit the elevator
-    INT8U rstLCD = 0xFF;
-
+    INT8U rstLCD = RST;
     xQueueSend( xQueue_lcd, &rstLCD, portMAX_DELAY);
 
     INT8U* exit_string = "Have a good day";
-
     wr_str_LCD(exit_string);
 
     vTaskDelay(2000 / portTICK_RATE_MS);
@@ -606,9 +590,7 @@ static void log_event(TripEvent_t event) {
 }
 
 void getLog(void) {
-    INT8U j, k;
-    char newline = '\n';
-    char resetline = '\r';
+    INT8U j;
 
     newLine();
 
@@ -637,9 +619,7 @@ void getLog(void) {
         }
     } else {
         const char *noTrips = "No trips has been taken";
-        for (j = 0; noTrips[j] != '\0'; j++) {
-            while (xQueueSend(xQueue_UART_TX, &noTrips[j], 10) != pdTRUE) vTaskDelay(1);
-        }
+        sendString(noTrips);
         newLine();
     }
     vTaskDelay(10 / portTICK_RATE_MS);
