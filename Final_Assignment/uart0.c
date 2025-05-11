@@ -25,7 +25,7 @@
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
-
+BOOLEAN acc_input = FALSE;
 
 /*****************************   Functions   *******************************/
 
@@ -226,8 +226,20 @@ void UART_debug_task(void *pvParameters) {
           // Process the received character
           // If the character is an enter key, process the command
           if(key_in == '\r'){
-            // Process the command in buf
-            getCommand(buf, i);
+
+            // If setAcc the next character is the acceleration value
+            if (acc_input) {
+              // Check if the input is a single digit between 1-5
+              if (i == 1 && buf[0] >= '1' && buf[0] <= '5') {
+                  setAcc(FALSE, buf[0]);  // Pass the input to setAcc
+                  acc_input = FALSE;      // Reset the flag
+              } else {
+                  setAcc(FALSE, '\0'); 
+              }
+          } else {
+              // Process normal commands
+              getCommand(buf, i);
+          }
 
             // Reset the buffer
             memset(buf, 0, sizeof(buf));
@@ -258,26 +270,15 @@ void getCommand(INT8U *buf, INT8U length){
         getLog();
     } else if(length == 4 && memcmp(buf, help_str, 4) == 0){
         printHelp();
+    } else if(length == 6 && memcmp(buf, "setAcc", 6) == 0){
+        setAcc(acc_input, 0);
+        acc_input = TRUE;
+    } else if(length == 0){
+        // Do nothing
     } else {
         const char *msg = "\n\rUnknown command\n\r";
         sendString(msg);
     }
-
-    /*
-    // Check if the command is setAcc
-    found = TRUE;
-    for(i = 0; i < length; i++){
-      if(buf[i] != setAcc[i]){
-        found = FALSE;
-        break;
-      }
-    }
-
-    if(found == TRUE){
-      // Call the function to set the acceleration
-      setAcc(myElevator);
-    }
-    */
 
 }
 
@@ -287,6 +288,7 @@ void printHelp(void) {
         "\n\r"
         "Available commands:\n\r"
         "getLog   - Show elevator trip log\n\r"
+        "setAcc   - Set acceleration\n\r"
         "help     - Show this help message\n\r";
     sendString(helpMsg);
 }
