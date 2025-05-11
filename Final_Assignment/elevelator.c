@@ -64,7 +64,7 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = OPEN_DOORS;             // Set the elevator state to OPEN_DOORS
                 break;
             case OPEN_DOORS:                                        // OPEN_DOORS state
-                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                led_controller.led_state = DOOR_MOVING;            // Set the LED state to DOOR_OPENING
                 open_doors();                                       // Call the open_doors function
                 led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
                 if(myElevator.endOfTrip == 1){                      // Check if the elevator is at the end of the trip
@@ -109,7 +109,7 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = CLOSE_DOORS;            // Set the elevator state to CLOSE_DOORS
                 break;
             case CLOSE_DOORS:                                       // CLOSE_DOORS state
-                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                led_controller.led_state = DOOR_MOVING;            // Set the LED state to DOOR_OPENING
                 close_doors();                                      // Call the close_doors function
                 led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
                 if (myElevator.endOfTrip == 0){                     // Check if the elevator is at the end of the trip
@@ -158,62 +158,73 @@ char int_to_char(INT8U number){
 }
 
 void detect_hold_switch(void){
+    // Record the start time of the task
     uint32_t start_time = xTaskGetTickCount();
-    uint32_t current_time;
-    uint32_t elapsed_time;
+    uint32_t current_time;       // Variable to store the current time
+    uint32_t elapsed_time;       // Variable to store the elapsed time
 
-    BOOLEAN hold_switch_pressed = FALSE;
-    while(1){
+    BOOLEAN hold_switch_pressed = FALSE; // Flag to track if the hold switch is pressed
 
-        // Check if hold switch is pressed
-        if(!(GPIO_PORTF_DATA_R & 0x10) && !hold_switch_pressed){
-            // Hold switch is pressed, start timer
+    while(1) {
+        // Check if the hold switch is pressed (active low)
+        if (!(GPIO_PORTF_DATA_R & 0x10) && !hold_switch_pressed) {
+            // Hold switch is pressed, start the timer
             start_time = xTaskGetTickCount();
-            hold_switch_pressed = TRUE;
-        }else if((GPIO_PORTF_DATA_R & 0x10) && hold_switch_pressed){
-            // Hold switch is released, reset timer
+            hold_switch_pressed = TRUE; // Mark the hold switch as pressed
+        } else if ((GPIO_PORTF_DATA_R & 0x10) && hold_switch_pressed) {
+            // Hold switch is released, reset the flag
             hold_switch_pressed = FALSE;
         }
 
-        if(hold_switch_pressed){
-            current_time = xTaskGetTickCount();
-            elapsed_time = (current_time - start_time)*portTICK_PERIOD_MS; // Convert to ms
-    
-            if(elapsed_time >= 2000.0){
+        // If the hold switch is pressed, calculate the elapsed time
+        if (hold_switch_pressed) {
+            current_time = xTaskGetTickCount(); // Get the current time
+            elapsed_time = (current_time - start_time) * portTICK_PERIOD_MS; // Convert ticks to milliseconds
 
-                break;
-
+            // Check if the hold switch has been pressed for at least 2000 ms (2 seconds)
+            if (elapsed_time >= 2000.0) {
+                break; // Exit the loop if the condition is met
             }
         }
-        vTaskDelay(10 / portTICK_RATE_MS); // Delay to avoid busy waiting
+
+        // Add a small delay to avoid busy waiting and allow other tasks to execute
+        vTaskDelay(10 / portTICK_RATE_MS);
     }
-} 
+}
 
 void display_current_floor(Led_controller *led_controller){
+    // Reset the LCD display
     INT8U resetLCD = RST;
-    xQueueSend( xQueue_lcd, &resetLCD, portMAX_DELAY);
+    xQueueSend(xQueue_lcd, &resetLCD, portMAX_DELAY);
 
+    // Store the starting and destination floors
     INT8U startFloor = myElevator.current_floor;
     INT8U endFloor = myElevator.destination_floor;
-    led_controller->led_state = ELEVATOR_ACCELERATING;
-    INT16U increasedSpeed = 0;
-    while(1){
 
-        if(myElevator.destination_floor > myElevator.current_floor){
-            if ((myElevator.destination_floor-startFloor)/2 >= myElevator.destination_floor - myElevator.current_floor)
-            {
-                led_controller->led_state = ELEVATOR_DECELERATING;
-                increasedSpeed -= 200;
-            }else{
-                increasedSpeed += 200;
+    // Set the LED state to indicate acceleration
+    led_controller->led_state = ELEVATOR_ACCELERATING;
+
+    // Variable to adjust the speed of the elevator
+    INT16U increasedSpeed = 0;
+
+    while(1) {
+        // Check if the elevator is moving up
+        if (myElevator.destination_floor > myElevator.current_floor) {
+            // Check if the elevator is in the deceleration phase
+            if ((myElevator.destination_floor - startFloor) / 2 >= myElevator.destination_floor - myElevator.current_floor) {
+                led_controller->led_state = ELEVATOR_DECELERATING;  // Set the LED state to indicate deceleration
+                increasedSpeed -= 50*myElevator.elevator_acceleration;                              // Decrease the speed to simulate deceleration
+
+            } else {
+                increasedSpeed += 50*myElevator.elevator_acceleration;                              // Increase the speed to simulate acceleration
             }
-        }else{
-            if ((startFloor-myElevator.destination_floor)/2 >= myElevator.current_floor - myElevator.destination_floor)
-        {
-            led_controller->led_state = ELEVATOR_DECELERATING;
-                increasedSpeed -= 200;
-            }else{
-                increasedSpeed += 200;
+        } else { 
+            // Check if the elevator is in the deceleration phase
+            if ((startFloor - myElevator.destination_floor) / 2 >= myElevator.current_floor - myElevator.destination_floor) {
+                led_controller->led_state = ELEVATOR_DECELERATING;  // Set the LED state to indicate deceleration
+                increasedSpeed -= 50*myElevator.elevator_acceleration;                              // Decrease the speed to simulate deceleration
+            } else {
+                increasedSpeed += 50*myElevator.elevator_acceleration;                              // Increase the speed to simulate acceleration
             }
         }
         
