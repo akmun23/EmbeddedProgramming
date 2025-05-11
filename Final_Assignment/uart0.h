@@ -102,6 +102,14 @@ void getCommand(INT8U *buf, INT8U length);
 *   Output   : -
 *   Function : get command from the buffer
 ******************************************************************************/
+
+void getHelp(void);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Send Help string to UART
+******************************************************************************/
+
 void sendString(const char *str);
 /*****************************************************************************
 *   Input    : const char *str

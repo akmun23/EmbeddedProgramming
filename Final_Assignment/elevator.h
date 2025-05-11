@@ -51,7 +51,7 @@
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
 #define CLOSE_DOORS        12  // Close doors when elevator is at floor
 
-#define TIME_BETWEEN_FLOORS 1000 // Time between floors in ms
+#define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
 
 typedef enum { 
     TRIP_START,         // Trip started

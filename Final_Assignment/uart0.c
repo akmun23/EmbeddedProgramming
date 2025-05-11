@@ -281,7 +281,7 @@ void getCommand(INT8U *buf, INT8U length){
 
 }
 
-void printHelp() {
+void printHelp(void) {
     INT8U i;
     const char *helpMsg =
         "\n\r"
