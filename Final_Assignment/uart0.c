@@ -195,7 +195,9 @@ void UART_RX_task(void *pvParameters) {
         if (uart0_rx_rdy()) {
             key_in = uart0_getc();
             xQueueSend(xQueue_UART_RX, &key_in, portMAX_DELAY);
-            xQueueSend(xQueue_UART_TX, &key_in, portMAX_DELAY);
+            if(key_in != '\r'){
+                xQueueSend(xQueue_UART_TX, &key_in, portMAX_DELAY);
+            }
         }
         vTaskDelay(pdMS_TO_TICKS(1));
     }
@@ -262,19 +264,20 @@ void getCommand(INT8U *buf, INT8U length){
     // getLog will be called if the command is "getLog"
     const char *getLog_str = "getLog";
     const char *help_str = "help";
+    const char *setAcc_str = "setAcc";
     INT8U i;
-    // const char *setAcc_str = "setAcc"; // Not used yet
+
 
     // Check if the command is getLog
-    if(length == 6 && memcmp(buf, getLog_str, 6) == 0){
+    if(length == 6 && !memcmp(buf, getLog_str, 6)){
         getLog();
-    } else if(length == 4 && memcmp(buf, help_str, 4) == 0){
+    } else if(length == 4 && !memcmp(buf, help_str, 4)){
         printHelp();
-    } else if(length == 6 && memcmp(buf, "setAcc", 6) == 0){
-        setAcc(acc_input, 0);
+    } else if(length == 6 && !memcmp(buf, setAcc_str, 6)){
         acc_input = TRUE;
+        setAcc(acc_input, 0);
     } else if(length == 0){
-        // Do nothing
+        newLine();
     } else {
         const char *msg = "\n\rUnknown command\n\r";
         sendString(msg);

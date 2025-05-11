@@ -60,7 +60,7 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = OPEN_DOORS;             // Set the elevator state to OPEN_DOORS
                 break;
             case OPEN_DOORS:                                        // OPEN_DOORS state
-                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                led_controller.led_state = DOOR_MOVING;             // Set the LED state to DOOR_OPENING
                 open_doors();                                       // Call the open_doors function
                 led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
                 if(myElevator.endOfTrip == 1){                      // Check if the elevator is at the end of the trip
@@ -105,7 +105,7 @@ void elevator_task(void *pvParameters){
                 myElevator.elevator_state = CLOSE_DOORS;            // Set the elevator state to CLOSE_DOORS
                 break;
             case CLOSE_DOORS:                                       // CLOSE_DOORS state
-                led_controller.led_state = DOOR_OPENING;            // Set the LED state to DOOR_OPENING
+                led_controller.led_state = DOOR_MOVING;            // Set the LED state to DOOR_OPENING
                 close_doors();                                      // Call the close_doors function
                 led_controller.led_state = DOOR_OPEN;               // Set the LED state to DOOR_OPEN
                 if (myElevator.endOfTrip == 0){                     // Check if the elevator is at the end of the trip
@@ -662,7 +662,7 @@ void setAcc(BOOLEAN first, INT8U value){
     } else if('1' <= value && value <= '5'){
         myElevator.elevator_acceleration = value - '0';
         newLine();
-        sendString("Acceleration has been changed");
+        sendString("Acceleration has been changed\r\n");
     } else{
         newLine();
         sendString("Unknown input");

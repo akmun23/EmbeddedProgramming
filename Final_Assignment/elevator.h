@@ -228,6 +228,8 @@ void getLog(void);
 *   Function : Retrieves trip log data from the elevator
 ******************************************************************************/
 
+void setAcc(BOOLEAN, INT8U);
+
 /****************************** End Of Module *******************************/
 
 #endif /* ELEVATOR_H_ */
