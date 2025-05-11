@@ -135,7 +135,7 @@ int main(void)
     //xTaskCreate(switch_task, "switch",USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate(key_task, "Keypad", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL);
     xTaskCreate(elevator_task, "Elevator", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
-    xTaskCreate(elevator_led_task, "Elevator_led", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
+    xTaskCreate(elevator_led_task, "Elevator_led", USERTASK_STACK_SIZE, NULL, HIGH_PRIO, NULL );
     vTaskStartScheduler();
 	return 0;
 }

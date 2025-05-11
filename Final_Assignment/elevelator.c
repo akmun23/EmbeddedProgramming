@@ -40,7 +40,7 @@ void elevator_init(void){
     myElevator.elevator_deceleration = 0;
     myElevator.speed = 0;
     myElevator.door_status = FALSE;
-    myElevator.numberOfTrips = 0;
+    myElevator.numberOfTrips = 3;
     myElevator.rot_direction = 0;
     myElevator.endOfTrip = 0;
 }
@@ -266,6 +266,13 @@ void open_doors(void){
         door_str[i] = 0x7C;
     }
 
+    move_LCD(0, 0);
+    wr_str_LCD(&door_str);
+
+    move_LCD(0, 1);
+    wr_str_LCD(&door_str);
+    vTaskDelay(700 / portTICK_RATE_MS); // Delay
+
     while(1){
 
         door_str[7-j] = ' ';
@@ -475,7 +482,7 @@ void fix_elevator(void){
     short sign = 1;                                                 // Variable to keep track of the sign of the angle
     short angle = 0;                                                // Variable to keep track of the angle of the encoder
     INT8U* output_str = "Angle: ";                                  // String to display the current angle
-    INT8U* sign_str = " ";
+    INT8U sign_str = '+';
     INT8U angle_val[3] = "000";
     INT8U encoder_data = get_encoder();                             // New data of the encoder
     INT8U prev_data = encoder_data;                                 // New data of the encoder
@@ -484,7 +491,7 @@ void fix_elevator(void){
     vTaskDelay(100 / portTICK_RATE_MS);
 
     wr_str_LCD(output_str);                                         // Send the string to the LCD
-    wr_str_LCD(sign_str);                                           // Send
+    wr_ch_LCD(sign_str);                                           // Send
     wr_str_LCD(&angle_val);
 
     while (myElevator.elevator_state == FIX_ELEVATOR)               // Loop until the elevator is fixed/error
@@ -519,19 +526,21 @@ void fix_elevator(void){
                 sign_str = '-';                                         // Set the first digit of the angle to '-'
                 sign = -1;
             }else{
-                sign_str = ' ';                                         // Set the first digit of the angle to '-'
+                sign_str = '+';                                         // Set the first digit of the angle to '-'
                 sign = 1;
             }
-            angle_val[0] = int_to_char(sign*angle / 100);               // Set the first digit of the angle
-            angle_val[1] = int_to_char((sign*angle % 100) / 10);        // Set the second digit of the angle
-            angle_val[2] = int_to_char(sign*angle % 10);               // Set the third digit of the angle
+            angle_val[0] = int_to_char((sign*angle) / 100);               // Set the first digit of the angle
+            angle_val[1] = int_to_char(((sign*angle) % 100) / 10);        // Set the second digit of the angle
+            angle_val[2] = int_to_char((sign*angle) % 10);               // Set the third digit of the angle
             
             // Send the target floor to the LCD
             wr_str_LCD(output_str);
-            wr_str_LCD(sign_str);
+            wr_ch_LCD(sign_str);
             wr_str_LCD(&angle_val);
 
             state = 0;
+
+            vTaskDelay(100 / portTICK_RATE_MS);
             break;
         
         default:
@@ -546,15 +555,15 @@ void fix_elevator(void){
 
 void fix_elevator_error(void){
     // Fix elevator error
-    INT8U* msg = "Wrong direction";
+    INT8U* msg = "Wrong input";
     move_LCD(0,0);
     wr_str_LCD(msg);
 
     move_LCD(0,1);
     if(myElevator.rot_direction == 0){
-        msg = "Turn to +";
+        msg = "Turn to +360";
     } else {
-        msg = "Turn to -";
+        msg = "Turn to -360";
     }
     wr_str_LCD(msg);
 

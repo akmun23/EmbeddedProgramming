@@ -39,7 +39,7 @@
 #define ELEVATOR_DECELERATING 0x05
 #define ERROR 0x06
 
-#define LED_TASK_DELAY 10 / portTICK_RATE_MS // 1000 ms delay for LED tasks
+#define LED_TASK_DELAY 100 / portTICK_RATE_MS // 1000 ms delay for LED tasks
 
 typedef struct{
     INT8U led_state;               // Elevator state

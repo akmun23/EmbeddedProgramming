@@ -160,7 +160,6 @@ void elevator_led_task(void *pvParameters)
         elevatorMoving_ledControl();
         break;
       case ERROR:
-
         if (reset == 0){
           GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
           GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
@@ -175,10 +174,12 @@ void elevator_led_task(void *pvParameters)
         break;
 
     }
+
     if(led_controller.led_state != ERROR){
       reset = 0;
     }
-    vTaskDelay(LED_TASK_DELAY); // wait 100 ms.
+
+    vTaskDelay(LED_TASK_DELAY ); // wait 100 ms.
   }
 }
 
@@ -198,17 +199,17 @@ void elevatorMoving_ledControl(){
               GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
               GPIO_PORTF_DATA_R ^= 0x04;  // Toggle yellow led
               GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
-              counter += 0.2;
+              counter += 0.1;
             }
             else if (led_controller.led_state == ELEVATOR_DECELERATING){
               GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
               GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
               GPIO_PORTF_DATA_R |= 0x08;    // Toggle green led
-              counter -= 0.2;
+              counter -= 0.1;
             }
             start_time = current_time;
         }
-        vTaskDelay(LED_TASK_DELAY / portTICK_RATE_MS); // Delay to avoid busy waiting
+        vTaskDelay(LED_TASK_DELAY/10 ); // Delay to avoid busy waiting
     }
 }
 /****************************** End Of Module *******************************/
