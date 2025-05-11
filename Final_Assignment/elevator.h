@@ -70,8 +70,6 @@ typedef struct{
     INT8U destination_floor;            // Destination floor
     INT16U password;                    // Password entered by user
     INT8U elevator_acceleration;        // Elevator acceleration value
-    INT8U elevator_deceleration;        // Elevator deceleration value
-    INT8U speed;                        // Elevator speed
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
@@ -229,6 +227,8 @@ void getLog(void);
 *   Output   : -
 *   Function : Retrieves trip log data from the elevator
 ******************************************************************************/
+
+void setAcc(BOOLEAN, INT8U);
 
 /****************************** End Of Module *******************************/
 

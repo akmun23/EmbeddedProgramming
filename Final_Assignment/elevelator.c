@@ -30,17 +30,13 @@
 
 /*****************************   Functions   *******************************/
 void elevator_init(void){
-    
     myElevator.numberOfTrips = 0;
     myElevator.elevator_state = CALL_ELEVATOR;
     myElevator.current_floor = 2;
-    myElevator.destination_floor = 4;
+    myElevator.destination_floor = 0;
     myElevator.password = 0;
     myElevator.elevator_acceleration = 0;
-    myElevator.elevator_deceleration = 0;
-    myElevator.speed = 0;
     myElevator.door_status = FALSE;
-    myElevator.numberOfTrips = 3;
     myElevator.rot_direction = 0;
     myElevator.endOfTrip = 0;
 }
@@ -349,17 +345,17 @@ void validate_password(void){
 }
 
 void choose_floor(void){
-    INT8U resetLCD = RST;                                                // Clear the LCD
+    INT8U resetLCD = RST;                                       // Clear the LCD
     xQueueSend( xQueue_lcd, &resetLCD, portMAX_DELAY);
     vTaskDelay(100 / portTICK_RATE_MS);                         // Delay to be sure the LCD is cleared
 
-    INT8U targetFloor = myElevator.current_floor;                // Set the target floor to the current floor since this is the floor to move from
+    INT8U targetFloor = myElevator.current_floor;               // Set the target floor to the current floor since this is the floor to move from
     INT8U state = 0;                                            // State variable to keep track of the state    
 
     BOOLEAN IncDec = FALSE;                                     // Variable to keep track of the direction of the encoder
     BOOLEAN startElevator = FALSE;                              // Variable to keep track of when to start the elevator and exit the loop
 
-    INT8U* floor_str = "Floor: ";                           // String to display the current floor
+    INT8U* floor_str = "Floor: ";                               // String to display the current floor
     INT8U floorNumber[2];
 
     floorNumber[0] = int_to_char(myElevator.current_floor / 10);  // Set the first digit of the current floor
@@ -374,8 +370,8 @@ void choose_floor(void){
     while(!startElevator){                                      // Loop until the elevator is started
         switch(state){                                          // Check the state of the encoder
             case 0:                                             // Check if the encoder is turned
-                encoder_data = get_encoder();                         // New data of the encoder
-                action = get_action(encoder_data, prev_data); // Get the action of the encoder
+                encoder_data = get_encoder();                   // New data of the encoder
+                action = get_action(encoder_data, prev_data);   // Get the action of the encoder
                 if(action == 0){                                // Check if the encoder is turned to the right
                     targetFloor++;                              // Increment the target floor
                     IncDec = TRUE;                              // Set the direction to up
@@ -389,8 +385,8 @@ void choose_floor(void){
                         INT8U* tripConfirm = "Trip confirmed!";
                         move_LCD(0, 1);
                         wr_str_LCD(tripConfirm);
-                        myElevator.destination_floor = targetFloor;  // Set the destination floor to the target floor
-                        myElevator.numberOfTrips++;                  // Increment the number of trips
+                        myElevator.destination_floor = targetFloor; // Set the destination floor to the target floor
+                        myElevator.numberOfTrips++;                 // Increment the number of trips
                         log_event(TRIP_START);
                         startElevator = TRUE;                       // Set the start elevator to true since the elevator is started 
                     }                              
@@ -406,7 +402,7 @@ void choose_floor(void){
                 }else if(targetFloor == 13 && IncDec == FALSE){ // Check if the target floor is 13 since it is not a valid floor
                     targetFloor--;                              // Set the target floor to 12 since it is the next valid floor
                 }
-                prev_data = encoder_data;                      // Set the previous data to the new data
+                prev_data = encoder_data;                       // Set the previous data to the new data
 
                 break;
 
@@ -428,9 +424,9 @@ void choose_floor(void){
                 break;
         }
         if(startElevator){
-            vTaskDelay(1000 / portTICK_RATE_MS);   // Delay
+            vTaskDelay(1000 / portTICK_RATE_MS);    // Delay
         } else {
-            vTaskDelay(1 / portTICK_RATE_MS);   // Delay to avoid busy waiting
+            vTaskDelay(1 / portTICK_RATE_MS);       // Delay to avoid busy waiting
         }
     }
 }
@@ -441,18 +437,18 @@ void setup_rst_elevator(void){
     xQueueSend( xQueue_lcd, &resetLCD, portMAX_DELAY);
 
     // Setup and reset the elevator
-    myElevator.goal_number = rand() % 360;                           // Generates a random number between 0 to 360;
+    myElevator.goal_number = rand() % 360;                          // Generates a random number between 0 to 360;
     INT8U* goal_str = "Goal:  ";                                    // Generates a string of length 13
     INT8U goal_val[3];
-    goal_val[0] = int_to_char(myElevator.goal_number / 100);  // Inserts the hundreds digit
-    goal_val[1] = int_to_char((myElevator.goal_number / 10) % 10);                        // Inserts the tens digit
-    goal_val[2] = int_to_char(myElevator.goal_number % 10);                        // Inserts the ones digit
+    goal_val[0] = int_to_char(myElevator.goal_number / 100);        // Inserts the hundreds digit
+    goal_val[1] = int_to_char((myElevator.goal_number / 10) % 10);  // Inserts the tens digit
+    goal_val[2] = int_to_char(myElevator.goal_number % 10);         // Inserts the ones digit
 
-    move_LCD(0, 0);                                              //Put curser on posistion 0
+    move_LCD(0, 0);                                                 //Put curser on posistion 0
     wr_str_LCD(goal_str);
     wr_str_LCD(&goal_val);
 
-    vTaskDelay(200 / portTICK_RATE_MS);                        // Delay
+    vTaskDelay(200 / portTICK_RATE_MS);                             // Delay
 }
 
 void restart_elevator(void){
@@ -460,7 +456,7 @@ void restart_elevator(void){
     INT16U raw_adc;                                             // Variable to hold the value of the adc
     INT32U pot_val;                                             // Variable to hold the value of the pot
     INT8U digits[3];                                            // Array to hold the digits of the pot_val
-    INT8U* pot_str = "Value: ";                              // Initilizes string pot_str
+    INT8U* pot_str = "Value: ";                                 // Initilizes string pot_str
 
     while(1){
         raw_adc = get_adc();                                    // Gets value from adc
@@ -472,11 +468,11 @@ void restart_elevator(void){
 
         move_LCD(0, 1);                                         // Moves the curser down to secound line
         if(pot_val == myElevator.goal_number){                  // If statment to check if pot_val is the same as Goal_number
-            INT8U* rst_string = "TIME TO FIX IT";             // Very cool string B-)
+            INT8U* rst_string = "TIME TO FIX IT";               // Very cool string B-)
             wr_str_LCD(rst_string);
             vTaskDelay(3000 /portTICK_RATE_MS);
-
             break;
+
         }else{
             wr_str_LCD(pot_str);
             wr_str_LCD(&digits);
@@ -498,11 +494,11 @@ void fix_elevator(void){
     INT8U encoder_data = get_encoder();                             // New data of the encoder
     INT8U prev_data = encoder_data;                                 // New data of the encoder
 
-    xQueueSend(xQueue_lcd, &resetLCD, portMAX_DELAY);              // Reset the LCD queue
+    xQueueSend(xQueue_lcd, &resetLCD, portMAX_DELAY);               // Reset the LCD queue
     vTaskDelay(100 / portTICK_RATE_MS);
 
     wr_str_LCD(output_str);                                         // Send the string to the LCD
-    wr_ch_LCD(sign_str);                                           // Send
+    wr_ch_LCD(sign_str);                                            // Send
     wr_str_LCD(&angle_val);
 
     while (myElevator.elevator_state == FIX_ELEVATOR)               // Loop until the elevator is fixed/error
@@ -540,9 +536,9 @@ void fix_elevator(void){
                 sign_str = '+';                                         // Set the first digit of the angle to '-'
                 sign = 1;
             }
-            angle_val[0] = int_to_char((sign*angle) / 100);               // Set the first digit of the angle
-            angle_val[1] = int_to_char(((sign*angle) % 100) / 10);        // Set the second digit of the angle
-            angle_val[2] = int_to_char((sign*angle) % 10);               // Set the third digit of the angle
+            angle_val[0] = int_to_char((sign*angle) / 100);             // Set the first digit of the angle
+            angle_val[1] = int_to_char(((sign*angle) % 100) / 10);      // Set the second digit of the angle
+            angle_val[2] = int_to_char((sign*angle) % 10);              // Set the third digit of the angle
             
             // Send the target floor to the LCD
             wr_str_LCD(output_str);
@@ -666,4 +662,24 @@ void getLog(void) {
         newLine();
     }
     vTaskDelay(10 / portTICK_RATE_MS);
+}
+
+void setAcc(BOOLEAN first, INT8U value){
+    if(first){
+        newLine();
+        sendString("Please enter a number between 1-5 (default 3)");
+        newLine();  
+        sendString("Enter acceleration: ");
+    } else if('1' <= value && value <= '5'){
+        myElevator.elevator_acceleration = value - '0';
+        newLine();
+        sendString("Acceleration has been changed\r\n");
+    } else{
+        newLine();
+        sendString("Unknown input");
+        newLine();
+        sendString("Please enter a number between 1-5 (default 3)");
+        newLine();  
+        sendString("Enter acceleration: ");
+    }
 }
