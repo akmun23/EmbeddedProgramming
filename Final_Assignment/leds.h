@@ -33,7 +33,7 @@
 /*****************************    Defines    *******************************/
 #define DOOR_CLOSED 0x00
 #define DOOR_OPEN  0x01
-#define DOOR_OPENING 0x02
+#define DOOR_MOVING 0x02
 #define DOOR_CLOSING 0x03
 #define ELEVATOR_ACCELERATING 0x04
 #define ELEVATOR_DECELERATING 0x05
