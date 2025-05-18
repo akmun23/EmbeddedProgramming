@@ -51,22 +51,17 @@
 #define EXIT_ELEVATOR       11  // Save floor, close elevator, log trip
 #define CLOSE_DOORS        12  // Close doors when elevator is at floor
 
-#define TIME_BETWEEN_FLOORS 1000 // Time between floors in ms
-
-#include <time.h>    // for struct tm, time_t if you have an RTC
-
-#define MAX_LOG_ENTRIES  32  // adjust to taste
+#define TIME_BETWEEN_FLOORS 3000 // Time between floors in ms
 
 typedef enum { 
-    TRIP_START, 
-    TRIP_END 
+    TRIP_START,         // Trip started
+    TRIP_END            // Trip ended
 } TripEvent_t;
 
-
 typedef struct {
-    int id;
-    int startFloor;
-    int endFloor;
+    int id;             // Trip ID
+    int startFloor;     // Start floor of the trip
+    int endFloor;       // End floor of the trip
 } TripLog_t;
 
 typedef struct{
@@ -75,8 +70,6 @@ typedef struct{
     INT8U destination_floor;            // Destination floor
     INT16U password;                    // Password entered by user
     INT8U elevator_acceleration;        // Elevator acceleration value
-    INT8U elevator_deceleration;        // Elevator deceleration value
-    INT8U speed;                        // Elevator speed
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
@@ -91,149 +84,155 @@ typedef struct{
 
 Elevator myElevator;
 
-
 extern QueueHandle_t xQueue_key, xQueue_lcd, xQueue_UART_TX;
 extern Led_controller led_controller;
+
 /*****************************   Constants   *******************************/
 
 /*****************************   Functions   *******************************/
 
-
-
-static void log_event(Elevator *elevator, TripEvent_t event);
+void dump_trip_log_uart(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer, Trip event type
-*   Output   : None
-*   Function : Records start and end of elevator trips in the log
-******************************************************************************/
-
-void dump_trip_log_uart(const Elevator *elev);
-/*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Sends elevator trip logs to UART for monitoring
 ******************************************************************************/
 
-void elevator_init(Elevator * elevator);
+void elevator_init(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Initializes all elevator parameters to default values
 ******************************************************************************/
 
 void elevator_task(void *pvParameters);
 /*****************************************************************************
 *   Input    : Task parameters (unused)
-*   Output   : None
+*   Output   : -
 *   Function : Main task function that implements the elevator state machine
 ******************************************************************************/
 
-void detect_hold_switch(Elevator * elevator);
+void detect_hold_switch(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Detects when SW1 is held for 2 seconds to call elevator
 ******************************************************************************/
 
-void display_current_floor(Elevator * elevator, Led_controller *led_controller);
+void display_current_floor(Led_controller *led_controller);
 /*****************************************************************************
-*   Input    : Elevator struct pointer, LED controller pointer
-*   Output   : None
+*   Input    : LED controller pointer
+*   Output   : -
 *   Function : Shows current floor on LCD and simulates elevator movement with LED indicators
 ******************************************************************************/
 
-void open_doors(Elevator * elevator);
+void open_doors(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Animates doors opening on the LCD display
 ******************************************************************************/
 
-void enter_password(Elevator * elevator);
+void enter_password(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Accepts a 4-digit password input from the keypad
 ******************************************************************************/
 
-void validate_password(Elevator * elevator);
+void validate_password(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Validates if the entered password is divisible by 8
 ******************************************************************************/
 
-void choose_floor(Elevator * elevator);
+void choose_floor(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Allows user to select destination floor using rotary encoder
 ******************************************************************************/
 
-void accelerate_elevator(Elevator * elevator);
+void accelerate_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Controls the acceleration phase of elevator movement with yellow LED
 ******************************************************************************/
 
-void decelerate_elevator(Elevator * elevator);
+void decelerate_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Controls the deceleration phase of elevator movement with red LED
 ******************************************************************************/
 
-void break_elevator(Elevator * elevator);
+void break_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Simulates elevator breakdown with flashing LEDs
 ******************************************************************************/
 
-void setup_rst_elevator(Elevator * elevator);
+void setup_rst_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Generates a random target value for elevator restart procedure
 ******************************************************************************/
 
-void restart_elevator(Elevator * elevator);
+void restart_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Uses potentiometer to match target value to restart elevator
 ******************************************************************************/
 
-void fix_elevator(Elevator * elevator);
+void fix_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Requires rotating encoder 360 degrees in alternating directions
 ******************************************************************************/
 
-void fix_elevator_error(Elevator * elevator);
+void fix_elevator_error(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Displays error message when rotary encoder is turned in wrong direction
 ******************************************************************************/
 
-void exit_elevator(Elevator * elevator);
+void exit_elevator(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Saves floor, closes elevator, displays farewell message and logs trip
 ******************************************************************************/
 
-void getLog(const Elevator * elevator);
-
-void close_doors(Elevator * elevator);
+void close_doors(void);
 /*****************************************************************************
-*   Input    : Elevator struct pointer
-*   Output   : None
+*   Input    : -
+*   Output   : -
 *   Function : Animates doors closing on the LCD display
 ******************************************************************************/
+
+static void log_event(TripEvent_t event);
+/*****************************************************************************
+*   Input    : Trip event type
+*   Output   : None
+*   Function : Records start and end of elevator trips in the log
+******************************************************************************/
+
+void getLog(void);
+/*****************************************************************************
+*   Input    : -
+*   Output   : -
+*   Function : Retrieves trip log data from the elevator
+******************************************************************************/
+
+void setAcc(BOOLEAN, INT8U);
+
 /****************************** End Of Module *******************************/
 
 #endif /* ELEVATOR_H_ */

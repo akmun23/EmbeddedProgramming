@@ -143,7 +143,7 @@ void elevator_led_task(void *pvParameters)
         GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
         GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
         break;
-      case DOOR_OPENING:
+      case DOOR_MOVING:
         GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
         GPIO_PORTF_DATA_R &= ~(0x04);    // Turn on yellow led
         GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
@@ -154,18 +154,19 @@ void elevator_led_task(void *pvParameters)
         GPIO_PORTF_DATA_R &= ~(0x08);    // Turn on green led
         break;
       case ELEVATOR_ACCELERATING:
+        // Call the elevatorMoving_ledControl function
         elevatorMoving_ledControl();
         break;
       case ELEVATOR_DECELERATING:
+        // Call the elevatorMoving_ledControl function
         elevatorMoving_ledControl();
         break;
       case ERROR:
-
         if (reset == 0){
-          GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
+          GPIO_PORTF_DATA_R |= 0x02;  // Turn off red led
           GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
           GPIO_PORTF_DATA_R |= 0x08;    // Turn on green led
-          reset = 1;
+          reset = 1;                    // Mark that the error has been reset
         }
         else{
           GPIO_PORTF_DATA_R ^= 0x02; // Toggle red led
@@ -175,40 +176,45 @@ void elevator_led_task(void *pvParameters)
         break;
 
     }
+    // Toggle back the reset of the error case
     if(led_controller.led_state != ERROR){
       reset = 0;
     }
-    vTaskDelay(LED_TASK_DELAY); // wait 100 ms.
+
+    vTaskDelay(LED_TASK_DELAY ); // wait 100 ms.
   }
 }
 
 void elevatorMoving_ledControl(){
-  uint32_t start_time = xTaskGetTickCount();
-  uint32_t current_time = 0;
-  uint32_t elapsed_time = 0;
-  double counter = 1;
+  uint32_t start_time = xTaskGetTickCount(); // Record the start time
+  uint32_t current_time = start_time;        // Current time
+  uint32_t elapsed_time = 0;                 // Elapsed time in milliseconds
+  double counter = 1;                        // Counter to adjust LED toggle speed
+
 
     while(led_controller.led_state == ELEVATOR_ACCELERATING || led_controller.led_state == ELEVATOR_DECELERATING){
-        current_time = xTaskGetTickCount();
+      current_time = xTaskGetTickCount(); // Get the current time
         elapsed_time = (current_time - start_time)*portTICK_PERIOD_MS; // Convert to ms
 
-        if(elapsed_time >= 500.0/counter){
+      if(elapsed_time >= 500.0 / counter){ // Check if it's time to toggle LEDs
 
             if (led_controller.led_state == ELEVATOR_ACCELERATING){
+              // During acceleration: Turn off red LED, toggle yellow LED, and turn off green LED
               GPIO_PORTF_DATA_R |= 0x02; // Turn off red led
               GPIO_PORTF_DATA_R ^= 0x04;  // Toggle yellow led
               GPIO_PORTF_DATA_R |= 0x08;    // Turn off green led
-              counter += 0.2;
+              counter += 0.1;
             }
             else if (led_controller.led_state == ELEVATOR_DECELERATING){
+              // During deceleration: Toggle red LED, turn off yellow LED, and toggle green LED
               GPIO_PORTF_DATA_R ^= 0x02;    // Toggle red led
               GPIO_PORTF_DATA_R |= 0x04;    // Turn off yellow led
               GPIO_PORTF_DATA_R |= 0x08;    // Toggle green led
-              counter -= 0.2;
+              counter -= 0.1;
             }
-            start_time = current_time;
+          start_time = current_time; // Reset the start time
         }
-        vTaskDelay(LED_TASK_DELAY / portTICK_RATE_MS); // Delay to avoid busy waiting
+        vTaskDelay(LED_TASK_DELAY/10 ); // Delay to avoid busy waiting
     }
 }
 /****************************** End Of Module *******************************/

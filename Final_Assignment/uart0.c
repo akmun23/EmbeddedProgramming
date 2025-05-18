@@ -25,7 +25,7 @@
 /*****************************   Constants   *******************************/
 
 /*****************************   Variables   *******************************/
-
+BOOLEAN acc_input = FALSE;
 
 /*****************************   Functions   *******************************/
 
@@ -191,25 +191,15 @@ extern void uart0_init( INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U 
 
 void UART_RX_task(void *pvParameters) {
     INT8U key_in;
-
     while (1) {
-        // Check if a character is available in the RX buffer
         if (uart0_rx_rdy()) {
-            // Take semaphore to protect
-            if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
-                // Get the character from UART RX
-                key_in = uart0_getc();
-
-                // Send the character to the queue
-                xQueueSend(xQueue_UART_RX, &key_in, 0);
-                xQueueSend(xQueue_UART_TX, &key_in, 0); // Send to TX queue as well
-
-                // Release the semaphore
-                xSemaphoreGive(xSemaphore_UART_RX);
+            key_in = uart0_getc();
+            xQueueSend(xQueue_UART_RX, &key_in, portMAX_DELAY);
+            if(key_in != '\r'){
+                xQueueSend(xQueue_UART_TX, &key_in, portMAX_DELAY);
             }
         }
-
-        vTaskDelay(pdMS_TO_TICKS(1)); // Keep delay short for responsiveness
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -217,19 +207,16 @@ void UART_TX_task(void *pvParameters) {
     INT8U key_out;
 
     while (1) {
-        // Wait for a character to be available in the queue
-        if (xQueueReceive(xQueue_UART_TX, &key_out, portMAX_DELAY)) {
-            // Take semaphore to protect
-            if (xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY)) {
-                
-              // Wait until TX is ready
-                while (!uart0_tx_rdy()); 
-                uart0_putc(key_out);
-
-                // Release the semaphore
-                xSemaphoreGive(xSemaphore_UART_TX);
+        if(xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY) == pdTRUE) {
+            // Wait for the UART TX queue to be empty
+            while (xQueueReceive(xQueue_UART_TX, &key_out, 0) != pdTRUE) {
+              // Send the character to the UART
+              uart0_putc(key_out);  
             }
+            // Give back the semaphore
+            xSemaphoreGive(xSemaphore_UART_TX);
         }
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -239,77 +226,95 @@ void UART_debug_task(void *pvParameters) {
     INT8U buf[16];
     INT8U i = 0;
     while (1) {
+      // Take the semaphore for UART RX
+      if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY) == pdTRUE) {
       // Wait for a character to be available in the queue
-      if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY)) {
-          // Take semaphore to protect
-          if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY)) {
-              // Process the received character
-              // If the character is an enter key, process the command
-              if(key_in == '\r'){
-                // Process the command in buf
-                getCommand(buf, i);
+        if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY) == pdTRUE) {
+          // Process the received character
+          // If the character is an enter key, process the command
+          if(key_in == '\r'){
 
-                // Reset the buffer
-                for(i = 0; i < 16; i++){
-                    buf[i] = '\0';
-                }
-                i = 0;
+            // If setAcc the next character is the acceleration value
+            if (acc_input) {
+              // Check if the input is a single digit between 1-5
+              if (i == 1 && buf[0] >= '1' && buf[0] <= '5') {
+                  setAcc(FALSE, buf[0]);  // Pass the input to setAcc
+                  acc_input = FALSE;      // Reset the flag
               } else {
-                buf[i] = key_in; // Add the character to the buffer
-                i++;
+                  setAcc(FALSE, '\0'); 
               }
-
-              // Release the semaphore
-              xSemaphoreGive(xSemaphore_UART_RX);
+          } else {
+              // Process normal commands
+              getCommand(buf, i);
           }
+
+            // Reset the buffer
+            memset(buf, 0, sizeof(buf));
+            i = 0;
+
+          } else {
+              if (i < sizeof(buf) - 1) {
+                buf[i++] = key_in;
+              }
+          }
+        }
+        // Give back the semaphore
+        xSemaphoreGive(xSemaphore_UART_RX);    
       }
-  }
+    }
 }
 
 void getCommand(INT8U *buf, INT8U length){
-extern Elevator myElevator;
-// Function to get command from the buffer
-// This function will be called when a command is received
+    // Function to get command from the buffer
+    // This function will be called when a command is received
 
-// Call the function matching the command
-// getLog will be called if the command is "getLog"
-char *getLog_str = "getLog";
-char *setAcc_str = "setAcc";
+    // Call the function matching the command
+    // getLog will be called if the command is "getLog"
+    const char *getLog_str = "getLog";
+    const char *help_str = "help";
+    const char *setAcc_str = "setAcc";
+    INT8U i;
 
-if(length != 6){
-  return; // No command received
+
+    // Check if the command is getLog
+    if(length == 6 && !memcmp(buf, getLog_str, 6)){
+        getLog();
+    } else if(length == 4 && !memcmp(buf, help_str, 4)){
+        printHelp();
+    } else if(length == 6 && !memcmp(buf, setAcc_str, 6)){
+        acc_input = TRUE;
+        setAcc(acc_input, 0);
+    } else if(length == 0){
+        newLine();
+    } else {
+        const char *msg = "\n\rUnknown command\n\r";
+        sendString(msg);
+    }
+
 }
 
-BOOLEAN found = TRUE;
-
-int i;
-for(i = 0; i < length; i++){
-  if(buf[i] != getLog_str[i]){
-    found = FALSE;
-
-  }
+void printHelp(void) {
+    INT8U i;
+    const char *helpMsg =
+        "\n\r"
+        "Available commands:\n\r"
+        "getLog   - Show elevator trip log\n\r"
+        "setAcc   - Set acceleration\n\r"
+        "help     - Show this help message\n\r";
+    sendString(helpMsg);
 }
 
-if(found == TRUE){
-  // Call the function to get the log
-  getLog(&myElevator);
+void sendString(const char *str) {
+    INT8U i;
+    for (i = 0; str[i] != '\0'; i++) {
+        while (xQueueSend(xQueue_UART_TX, &str[i], 10) != pdTRUE) vTaskDelay(1);
+    }
 }
 
-/*
-// Check if the command is setAcc
-found = TRUE;
-for(i = 0; i < length; i++){
-  if(buf[i] != setAcc[i]){
-    found = FALSE;
-    break;
-  }
-}
-
-if(found == TRUE){
-  // Call the function to set the acceleration
-  setAcc(myElevator);
-}
-*/
-
+void newLine() {
+    INT8U newline = '\n';
+    while (xQueueSend(xQueue_UART_TX, &newline, 10) != pdTRUE) vTaskDelay(1);
+    INT8U resetline = '\r';
+    while (xQueueSend(xQueue_UART_TX, &resetline, 10) != pdTRUE) vTaskDelay(1);
 }
 /****************************** End Of Module *******************************/
