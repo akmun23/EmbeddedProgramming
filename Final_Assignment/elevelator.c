@@ -47,6 +47,7 @@ void getLog(const Elevator *elevator) {
 
     for (j = 0; j < elevator->numberOfTrips; j++)                            // Go through each trip
     {
+
         char NextStrQueue[128] = "Trip ID: ";                                // Start message
         char id[] = { int_to_char(elevator->log[j].id / 10), int_to_char(elevator->log[j].id % 10)};
         char id[] = { int_to_char(elevator->log[j].id / 10), int_to_char(elevator->log[j].id % 10)};
@@ -70,10 +71,10 @@ void getLog(const Elevator *elevator) {
 
         xQueueSend(xQueue_UART_TX, '\r', 0);                                    // Send enter to the LCD
         xQueueSend(xQueue_UART_TX, '\n', 0);
+        printf(NextStrQueue);
+}
+}
 
-}
-}
-}
 
 
 
@@ -92,6 +93,9 @@ void elevator_init(Elevator * elevator){
     elevator->rot_direction = 0;
     elevator->endOfTrip = 0;
     elevator->log[128];
+    elevator->password_set = FALSE;
+    elevator->stored_password = 0;
+
 }
 
 void elevator_task(void *pvParameters){
@@ -117,10 +121,17 @@ void elevator_task(void *pvParameters){
                 led_controller.led_state = DOOR_OPENING;
                 open_doors(&myElevator);
                 led_controller.led_state = DOOR_OPEN;
+
                 if(myElevator.endOfTrip == 1){
                     myElevator.elevator_state = EXIT_ELEVATOR;
                 }else{
-                    myElevator.elevator_state = ENTER_CODE;
+                    if(!myElevator.password_set){
+                        myElevator.elevator_state = ENTER_CODE;
+                    } else
+                    {
+                        myElevator.elevator_state = VALIDATE_CODE;
+                    }
+                    
                 }
                 break;
             case ENTER_CODE:
@@ -375,11 +386,32 @@ void enter_password(Elevator * elevator){
 }
 
 void validate_password(Elevator * elevator){
+    if(!elevator->password_set){
     if((elevator->password % 8) == 0 && elevator->password > 0){
         const char* msg = "Valid password";
         move_LCD(0,0);
         while (*msg) {
 
+            xQueueSend(xQueue_lcd, msg, 0);
+            msg++;
+        }
+        elevator->stored_password = elevator->password;
+        elevator->password_set = TRUE; 
+        elevator -> elevator_state = CHOOSE_FLOOR;
+    } else {
+        const char* msg = "Invalid password";
+        move_LCD(0,0);
+        while (*msg) {
+            xQueueSend(xQueue_lcd, msg, 0);
+            msg++;
+        }
+        elevator->elevator_state = ENTER_CODE;
+    }
+} else {
+    if(elevator->password == elevator->stored_password){
+        const char* msg = "Valid password";
+        move_LCD(0,0);
+        while (*msg) {
             xQueueSend(xQueue_lcd, msg, 0);
             msg++;
         }
@@ -391,7 +423,9 @@ void validate_password(Elevator * elevator){
             xQueueSend(xQueue_lcd, msg, 0);
             msg++;
         }
-        elevator -> elevator_state = ENTER_CODE;
+        elevator->elevator_state = ENTER_CODE;
+}
+ 
     }
     vTaskDelay(2000 / portTICK_RATE_MS); // Delay to avoid busy waiting
 }

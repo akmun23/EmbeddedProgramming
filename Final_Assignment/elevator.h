@@ -83,6 +83,9 @@ typedef struct{
     INT16U goal_number;
     INT8U endOfTrip;                   // End of trip flag
     TripLog_t log[128];
+    BOOLEAN password_set;
+    INT16U stored_password;
+
 
 } Elevator;
 

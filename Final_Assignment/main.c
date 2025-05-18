@@ -122,6 +122,18 @@ void switch_task(void *pvParameters){
 
 int main(void)
 {
+        Elevator elevator = {0};
+    elevator.numberOfTrips = 2;
+
+    elevator.log[0].id = 1;
+    elevator.log[0].startFloor = 2;
+    elevator.log[0].endFloor = 5;
+
+    elevator.log[1].id = 2;
+    elevator.log[1].startFloor = 5;
+    elevator.log[1].endFloor = 9;
+
+    getLog(&elevator);
     setupHardware();
     xTaskCreate( status_led_task, "Status_led", USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
     //xTaskCreate( red_led_task,    "Red_led",    USERTASK_STACK_SIZE, NULL, LOW_PRIO, NULL );
