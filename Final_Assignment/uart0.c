@@ -279,7 +279,7 @@ void getCommand(INT8U *buf, INT8U length){
     } else if(length == 0){
         newLine();
     } else {
-        const char *msg = "\n\rUnknown command\n\r";
+        const char *msg = "\n\rUnknown command. Write 'help' to get a list \n\r";
         sendString(msg);
     }
 
