@@ -207,13 +207,16 @@ void UART_TX_task(void *pvParameters) {
     INT8U key_out;
 
     while (1) {
-        // Wait indefinitely for a character to be available in the queue
-        if (xQueueReceive(xQueue_UART_TX, &key_out, portMAX_DELAY) == pdTRUE) {
-            while (!uart0_tx_rdy()) {
-                vTaskDelay(pdMS_TO_TICKS(1));
+        if(xSemaphoreTake(xSemaphore_UART_TX, portMAX_DELAY) == pdTRUE) {
+            // Wait for the UART TX queue to be empty
+            while (xQueueReceive(xQueue_UART_TX, &key_out, 0) != pdTRUE) {
+              // Send the character to the UART
+              uart0_putc(key_out);  
             }
-            uart0_putc(key_out);
+            // Give back the semaphore
+            xSemaphoreGive(xSemaphore_UART_TX);
         }
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
@@ -223,8 +226,10 @@ void UART_debug_task(void *pvParameters) {
     INT8U buf[16];
     INT8U i = 0;
     while (1) {
+      // Take the semaphore for UART RX
+      if (xSemaphoreTake(xSemaphore_UART_RX, portMAX_DELAY) == pdTRUE) {
       // Wait for a character to be available in the queue
-      if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY) == pdTRUE) {
+        if (xQueueReceive(xQueue_UART_RX, &key_in, portMAX_DELAY) == pdTRUE) {
           // Process the received character
           // If the character is an enter key, process the command
           if(key_in == '\r'){
@@ -252,6 +257,9 @@ void UART_debug_task(void *pvParameters) {
                 buf[i++] = key_in;
               }
           }
+        }
+        // Give back the semaphore
+        xSemaphoreGive(xSemaphore_UART_RX);    
       }
     }
 }

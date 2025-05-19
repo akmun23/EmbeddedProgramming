@@ -73,9 +73,12 @@ typedef struct{
     BOOLEAN door_status;                // Door status (open/closed)
     INT8U numberOfTrips;                // Number of trips made
     INT8U rot_direction;                // Direction of the rotary encoder
-    INT16U goal_number;                 // Goal number for elevator restart
-    INT8U endOfTrip;                    // End of trip flag
-    TripLog_t log[128];                 // Trip log array
+    INT16U goal_number;
+    INT8U endOfTrip;                   // End of trip flag
+    TripLog_t log[128];
+    BOOLEAN password_set;
+    INT16U stored_password;
+
 
 } Elevator;
 
